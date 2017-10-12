@@ -363,6 +363,11 @@ tidy_ngram %>%
 
 <img src="figs/austen-1.png" class="cover">
 
+## What can you do with n-grams?
+
+### [She Giggles, He Gallops](https://pudding.cool/2017/08/screen-direction/)
+
+<img src="figs/slider.gif">
 
 # Tidying & casting
 
