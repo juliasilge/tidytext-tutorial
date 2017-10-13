@@ -49,7 +49,7 @@ install.packages(c("tidyverse",
 - [http://tidytextmining.com/](http://tidytextmining.com/)
 
 
-##  { .white }
+##  { .black }
 
 <img src="figs/cover.jpg" class="cover height">
 
