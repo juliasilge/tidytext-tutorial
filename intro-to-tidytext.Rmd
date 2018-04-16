@@ -4,7 +4,6 @@ author: "Julia Silge"
 output:
   rmdshower::shower_presentation:
     self_contained: false
-    highlight: tango
     katex: true
     theme: ribbon
 ---
@@ -13,10 +12,9 @@ output:
 library(knitr)
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 180)
 options(width=80)
-# the image from my cover slide is from https://commons.wikimedia.org/wiki/File:El_Ateneo_Bookstore.jpg
 library(ggplot2)
 library(silgelib)
-theme_set(theme_roboto())
+theme_set(theme_plex())
 ```
 
 
@@ -124,12 +122,30 @@ tidy_book %>%
 <img src="figs/stop.gif" width = 400>
 
 
+## Stop words
+
+```{r}
+get_stopwords()
+```
+
+## Stop words
+
+```{r}
+get_stopwords(language = "es")
+```
+
+## Stop words
+
+```{r}
+get_stopwords(source = "smart")
+```
+
 
 ## What are the most common words?
 
 ```{r}
 tidy_book %>%
-    anti_join(stop_words) %>%
+    anti_join(get_stopwords(source = "smart")) %>%
     count(word, sort = TRUE)
 ```
 
@@ -138,11 +154,10 @@ tidy_book %>%
 
 ```{r, eval = FALSE}
 tidy_book %>%
-    anti_join(stop_words) %>%
+    anti_join(get_stopwords(source = "smart")) %>%
     count(word, sort = TRUE) %>%
     top_n(20) %>%
-    mutate(word = reorder(word, n)) %>%
-    ggplot(aes(word, n)) +
+    ggplot(aes(fct_reorder(word, n), n)) +
     geom_col() +
     coord_flip()
 ```
@@ -153,11 +168,10 @@ tidy_book %>%
 <div class="fullpage width">
 ```{r, echo = FALSE, fig.width=7, fig.height=5}
 tidy_book %>%
-    anti_join(stop_words) %>%
+    anti_join(get_stopwords(source = "smart")) %>%
     count(word, sort = TRUE) %>%
-    top_n(15) %>%
-    mutate(word = reorder(word, n)) %>%
-    ggplot(aes(word, n)) +
+    top_n(20) %>%
+    ggplot(aes(fct_reorder(word, n), n)) +
     geom_col(fill = "midnightblue", alpha = 0.9) +
     coord_flip() +
     scale_y_continuous(expand = c(0,0)) +
@@ -192,6 +206,22 @@ get_sentiments("bing")
 </p>
 </div>
 
+## Sentiment lexicons
+
+<div class="double">
+<p class="double-flow">
+```{r}
+get_sentiments("nrc")
+```
+
+</p><p class="double-flow">
+```{r}
+get_sentiments("loughran")
+```
+</p>
+</div>
+
+
 ## Implementing sentiment analysis
 
 ```{r}
@@ -210,8 +240,7 @@ tidy_book %>%
     group_by(sentiment) %>%
     top_n(10) %>%
     ungroup %>%
-    mutate(word = reorder(word, n)) %>%
-    ggplot(aes(word, n)) +
+    ggplot(aes(fct_reorder(word, n), n, fill = sentiment)) +
     geom_col() +
     coord_flip() +
     facet_wrap(~ sentiment, scales = "free") 
@@ -227,14 +256,13 @@ tidy_book %>%
     group_by(sentiment) %>%
     top_n(10) %>%
     ungroup %>%
-    mutate(word = reorder(word, n)) %>%
-    ggplot(aes(word, n, fill = sentiment)) +
+    ggplot(aes(fct_reorder(word, n), n, fill = sentiment)) +
     geom_col(alpha = 0.9, show.legend = FALSE) +
     coord_flip() +
     facet_wrap(~ sentiment, scales = "free") +
     scale_y_continuous(expand = c(0,0)) +
     labs(x = NULL, y = "Number of occurrences")
-    
+
 ```
 </div>
 
@@ -298,8 +326,8 @@ book_words %>%
     group_by(title) %>%
     top_n(10) %>%
     ungroup %>%
-    mutate(word = reorder(word, tf_idf)) %>%
-    ggplot(aes(word, tf_idf, fill = title)) +
+    ggplot(aes(fct_reorder(word, tf_idf), tf_idf, 
+               fill = title)) +
     geom_col(show.legend = FALSE) +
     coord_flip() +
     facet_wrap(~title, scales = "free")
@@ -313,11 +341,12 @@ book_words %>%
     group_by(title) %>%
     top_n(10) %>%
     ungroup %>%
-    mutate(word = reorder(word, tf_idf)) %>%
-    ggplot(aes(word, tf_idf, fill = title)) +
+    ggplot(aes(fct_reorder(word, tf_idf), tf_idf, 
+               fill = title)) +
     geom_col(alpha = 0.9, show.legend = FALSE) +
     coord_flip() +
     facet_wrap(~title, scales = "free") +
+    scale_y_continuous(expand = c(0,0)) +
     labs(x = NULL, y = "tf-idf")
 ```
 </div>
@@ -378,5 +407,9 @@ tidy_ngram %>%
 ##  { .white }
 
 <img src="figs/top_tags-1.png" class="cover">
+
+##  { .white }
+
+<img src="figs/stm_video.png" class="cover">
 
 # THANK YOU `r emo::ji("pray")`
