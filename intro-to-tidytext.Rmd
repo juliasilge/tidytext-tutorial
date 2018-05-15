@@ -131,7 +131,7 @@ get_stopwords()
 ## Stop words
 
 ```{r}
-get_stopwords(language = "es")
+get_stopwords(language = "pt")
 ```
 
 ## Stop words
