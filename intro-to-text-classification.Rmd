@@ -5,7 +5,7 @@ output:
   rmdshower::shower_presentation:
     self_contained: false
     katex: true
-    ratio: 16x10
+    theme: ribbon
 ---
 
 
@@ -37,7 +37,7 @@ install.packages(c("tidyverse",
                    "glmnet"))
 ```
 
-# `r emo::ji("sparkles")` classification `r emo::ji("sparkles")`
+# Classification `r emo::ji("sparkles")`
 
 ## Downloading your text data
 
@@ -229,7 +229,7 @@ roc %>%
 ```
 
 
-# A workflow for text mining and modeling
+# Workflow for text mining/modeling
 
 ##  { .white }
 

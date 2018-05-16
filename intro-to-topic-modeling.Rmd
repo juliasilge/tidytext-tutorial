@@ -5,7 +5,7 @@ output:
   rmdshower::shower_presentation:
     self_contained: false
     katex: true
-    ratio: 16x10
+    theme: ribbon
 ---
 
 
@@ -37,7 +37,7 @@ install.packages(c("tidyverse",
                    "stm"))
 ```
 
-# topic modeling `r emo::ji_glue(":page_facing_up: :cyclone: :bar_chart:")`
+# Topic Modeling `r emo::ji("page_facing_up")`
 
 
 ## Topic modeling
@@ -65,9 +65,8 @@ books
 ```
 
 
-## Someone has torn your books apart!
+## Someone has torn your books apart! `r emo::ji("sob")`
 
-`r emo::ji("sob")`
 
 ```{r}
 by_chapter <- books %>%
