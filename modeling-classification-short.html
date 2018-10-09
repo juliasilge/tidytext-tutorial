@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>  Text Modeling</title>
+    <meta charset="utf-8">
+    <meta name="author" content=" Julia Silge | IBM Community Day: AI" />
+    <link href="libs/remark-css/robot-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="css/stack_orange.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+layout: true
+  
+&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/silge-text-modeling&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+class: center, middle
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+&lt;img src="figs/so-logo.svg" width="30%"/&gt;
+
+# Text Modeling
+## Using Tidy Data Principles
+
+### Julia Silge | IBM Community Day: AI
+
+---
+class: left, middle
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+&lt;img src="figs/so-icon.svg" width="15%"/&gt;
+
+## Find me at...
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+---
+
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+# Text in the real world
+
+--
+
+- Text data is increasingly important 📚
+
+--
+
+- NLP training is scarce on the ground 😱
+
+---
+
+background-image: url(figs/cant_even.gif)
+background-position: 50% 50%
+background-size: 650px
+
+---
+
+background-image: url(figs/vexing.gif)
+background-position: 50% 50%
+background-size: 650px
+
+---
+
+class: center, middle
+
+background-image: url(figs/tidytext.png)
+background-size: 500px
+
+---
+
+class: center, middle
+
+background-image: url(figs/tidytext_repo.png)
+background-size: 900px
+
+---
+
+class: center, middle
+
+background-image: url(figs/cover.png)
+background-size: 450px
+
+---
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+# Two powerful NLP modeling approaches
+
+--
+
+- Topic modeling
+
+--
+
+- Text classification
+
+---
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+# Topic modeling
+
+- Each document = mixture of topics
+
+--
+
+- Each topic = mixture of words
+
+---
+
+background-image: url(figs/top_tags-1.png)
+background-size: 800px
+
+---
+
+background-image: url(figs/stm_video.png)
+background-size: 850px
+
+---
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+# Stemming? 
+
+Advice from [Schofield &amp; Mimno](https://mimno.infosci.cornell.edu/papers/schofield_tacl_2016.pdf)
+
+"Comparing Apples to Apple: The Effects of Stemmers on Topic Models"
+
+---
+
+class: right, middle
+
+&lt;h1 class="fa fa-quote-left fa-fw"&gt;&lt;/h1&gt;
+
+&lt;h2&gt; Despite  their  frequent  use  in  topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability. &lt;/h2&gt;
+
+&lt;h1 class="fa fa-quote-right fa-fw"&gt;&lt;/h1&gt;
+
+---
+
+class: right, middle
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+
+# Text classification
+&lt;h1 class="fa fa-balance-scale fa-fw"&gt;&lt;/h1&gt;
+
+---
+
+background-image: url(figs/lizzieskipping.gif)
+background-position: 50% 50%
+background-size: 750px
+
+# Go explore real-world text!
+
+---
+
+class: left, middle
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+&lt;img src="figs/so-icon.svg" width="15%"/&gt;
+
+# Thanks!
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+Slides created with [remark.js](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,212 @@
+---
+title: "<br><br>Text Modeling"
+subtitle: "Using Tidy Data Principles"
+author: "<br>Julia Silge | IBM Community Day: AI"
+output:
+  xaringan::moon_reader:
+    css: ["robot-fonts", "default", "css/stack_orange.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+    seal: false
+    includes:
+      in_header: header.html
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+library(tidytext)
+library(janeaustenr)
+library(knitr)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+                      dpi = 300, cache.lazy = FALSE,
+                      fig.cap = "")
+theme_set(silgelib::theme_roboto())
+```
+
+layout: true
+  
+<div class="my-footer"><span>bit.ly/silge-text-modeling</span></div> 
+
+---
+
+class: center, middle
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+<img src="figs/so-logo.svg" width="30%"/>
+
+# Text Modeling
+## Using Tidy Data Principles
+
+### Julia Silge | IBM Community Day: AI
+
+---
+class: left, middle
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+<img src="figs/so-icon.svg" width="15%"/>
+
+## Find me at...
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+---
+
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+# Text in the real world
+
+--
+
+- Text data is increasingly important `r emo::ji("books")`
+
+--
+
+- NLP training is scarce on the ground `r emo::ji("scream")`
+
+---
+
+background-image: url(figs/cant_even.gif)
+background-position: 50% 50%
+background-size: 650px
+
+---
+
+background-image: url(figs/vexing.gif)
+background-position: 50% 50%
+background-size: 650px
+
+---
+
+class: center, middle
+
+background-image: url(figs/tidytext.png)
+background-size: 500px
+
+---
+
+class: center, middle
+
+background-image: url(figs/tidytext_repo.png)
+background-size: 900px
+
+---
+
+class: center, middle
+
+background-image: url(figs/cover.png)
+background-size: 450px
+
+---
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+# Two powerful NLP modeling approaches
+
+--
+
+- Topic modeling
+
+--
+
+- Text classification
+
+---
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+# Topic modeling
+
+- Each document = mixture of topics
+
+--
+
+- Each topic = mixture of words
+
+---
+
+background-image: url(figs/top_tags-1.png)
+background-size: 800px
+
+---
+
+background-image: url(figs/stm_video.png)
+background-size: 850px
+
+---
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+# Stemming? 
+
+Advice from [Schofield & Mimno](https://mimno.infosci.cornell.edu/papers/schofield_tacl_2016.pdf)
+
+"Comparing Apples to Apple: The Effects of Stemmers on Topic Models"
+
+---
+
+class: right, middle
+
+<h1 class="fa fa-quote-left fa-fw"></h1>
+
+<h2> Despite  their  frequent  use  in  topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability. </h2>
+
+<h1 class="fa fa-quote-right fa-fw"></h1>
+
+---
+
+class: right, middle
+
+background-image: url(figs/white_title.svg)
+background-size: cover
+
+
+# Text classification
+<h1 class="fa fa-balance-scale fa-fw"></h1>
+
+---
+
+background-image: url(figs/lizzieskipping.gif)
+background-position: 50% 50%
+background-size: 750px
+
+# Go explore real-world text!
+
+---
+
+class: left, middle
+
+background-image: url(figs/white_bg.svg)
+background-size: cover
+
+<img src="figs/so-icon.svg" width="15%"/>
+
+# Thanks!
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+Slides created with [remark.js](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+
+
+
