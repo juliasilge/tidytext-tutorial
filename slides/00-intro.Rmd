@@ -1,0 +1,142 @@
+---
+title: "Text Mining"
+subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+output:
+  xaringan::moon_reader:
+    css: ["default", "css/xaringan-themer.css", "css/footer_plus.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+    seal: false  
+    includes:
+      in_header: header.html
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE,
+        width = 80)
+library(knitr)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+```
+
+layout: true
+
+<div class="my-footer"><span>bit.ly/tidytext-tutorial</span></div> 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# Text Mining
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+### USING TIDY PRINCIPLES
+
+.large[Julia Silge]
+
+---
+
+class: right, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Find me at...
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+
+---
+
+
+class: inverse
+
+# Text in the real world
+
+--
+
+- .large[Text data is increasingly important `r emo::ji("books")`]
+
+--
+
+- .large[NLP training is scarce on the ground `r emo::ji("scream")`]
+
+---
+
+background-image: url(figs/vexing.gif)
+background-position: 50% 50%
+background-size: 650px
+
+---
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+class: inverse, center, middle
+
+# TIDY DATA PRINCIPLES + TEXT MINING = `r emo::ji("tada")`
+
+---
+
+background-image: url(figs/tidytext_repo.png)
+background-size: 800px
+background-position: 50% 20%
+
+class: bottom, right
+
+[https://github.com/juliasilge/tidytext](https://github.com/juliasilge/tidytext)
+
+[https://tidytextmining.com/](https://tidytextmining.com/)
+
+---
+
+background-image: url(figs/cover.png)
+background-size: 450px
+background-position: 50% 50%
+
+---
+
+class: middle, center
+
+# <i class="fa fa-github"></i>
+
+# GitHub repo for workshop:
+
+.large[[github.com/juliasilge/tidytext-tutorial](https://github.com/juliasilge/tidytext-tutorial/)]
+
+---
+
+class: inverse
+
+# Plan for this workshop
+
+--
+
+- .large[EDA for text]
+
+--
+
+- .large[Modeling for text]
+
+---
+class: middle, center
+
+# <i class="fa fa-comments"></i>
+
+# Introduce yourself in the comments!
+
