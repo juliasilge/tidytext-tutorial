@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Mining</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Julia Silge" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/tidytext-tutorial&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# Text Mining
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Find me at...
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+
+---
+
+## Let's install some packages
+
+
+```r
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr"))
+```
+
+---
+
+&lt;img src="figs/purple_emily.png" style="position:absolute;top:20px;right:20px;" width="100px"/&gt;
+
+## **What do we mean by tidy text?**
+
+
+
+```r
+text &lt;- c("Tell all the truth but tell it slant —",
+          "Success in Circuit lies",
+          "Too bright for our infirm Delight",
+          "The Truth's superb surprise",
+          "As Lightning to the Children eased",
+          "With explanation kind",
+          "The Truth must dazzle gradually",
+          "Or every man be blind —")
+
+text
+```
+
+```
+## [1] "Tell all the truth but tell it slant —"
+## [2] "Success in Circuit lies"               
+## [3] "Too bright for our infirm Delight"     
+## [4] "The Truth's superb surprise"           
+## [5] "As Lightning to the Children eased"    
+## [6] "With explanation kind"                 
+## [7] "The Truth must dazzle gradually"       
+## [8] "Or every man be blind —"
+```
+
+---
+
+&lt;img src="figs/purple_emily.png" style="position:absolute;top:20px;right:20px;" width="100px"/&gt;
+
+## **What do we mean by tidy text?**
+
+
+```r
+library(tidyverse)
+
+text_df &lt;- tibble(line = 1:8, text = text)
+
+text_df
+```
+
+```
+## # A tibble: 8 x 2
+##    line text                                  
+##   &lt;int&gt; &lt;chr&gt;                                 
+## 1     1 Tell all the truth but tell it slant —
+## 2     2 Success in Circuit lies               
+## 3     3 Too bright for our infirm Delight     
+## 4     4 The Truth's superb surprise           
+## 5     5 As Lightning to the Children eased    
+## 6     6 With explanation kind                 
+## 7     7 The Truth must dazzle gradually       
+## 8     8 Or every man be blind —
+```
+
+---
+
+&lt;img src="figs/purple_emily.png" style="position:absolute;top:20px;right:20px;" width="100px"/&gt;
+
+## **What do we mean by tidy text?**
+
+
+```r
+library(tidytext)
+
+text_df %&gt;%
+* unnest_tokens(word, text)
+```
+
+```
+## # A tibble: 41 x 2
+##     line word   
+##    &lt;int&gt; &lt;chr&gt;  
+##  1     1 tell   
+##  2     1 all    
+##  3     1 the    
+##  4     1 truth  
+##  5     1 but    
+##  6     1 tell   
+##  7     1 it     
+##  8     1 slant  
+##  9     2 success
+## 10     2 in     
+## # … with 31 more rows
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Jane wants to know...
+
+A tidy text dataset typically has
+
+- .unscramble[more]
+- .unscramble[fewer]
+
+rows than the original, non-tidy text dataset.
+
+---
+
+## **Gathering more data**
+
+You can access the full text of many public domain works from [Project Gutenberg](https://www.gutenberg.org/) using the [gutenbergr](https://docs.ropensci.org/gutenbergr/) package.
+
+
+
+```r
+library(gutenbergr)
+
+full_text &lt;- gutenberg_download(1342)
+```
+
+What book do *you* want to analyze today? 📖 👯 📖
+
+---
+
+## **Time to tidy your text!**
+
+
+```r
+tidy_book &lt;- full_text %&gt;%
+  mutate(line = row_number()) %&gt;%
+* unnest_tokens(word, text)
+
+glimpse(tidy_book)
+```
+
+```
+## Rows: 122,343
+## Columns: 3
+## $ gutenberg_id &lt;int&gt; 1342, 1342, 1342, 1342, 1342, 1342, 1342, 1342, 1342, 13…
+## $ line         &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 9, 9, 9, 11…
+## $ word         &lt;chr&gt; "there", "is", "an", "illustrated", "edition", "of", "th…
+```
+
+---
+
+## **What are the most common words?**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+tidy_book %&gt;%
+  count(word, sort = TRUE)
+```
+
+---
+
+## **What are the most common words?**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+tidy_book %&gt;%
+  count(word, sort = TRUE)
+```
+
+```
+## # A tibble: 6,556 x 2
+##    word      n
+##    &lt;chr&gt; &lt;int&gt;
+##  1 the    4331
+##  2 to     4162
+##  3 of     3611
+##  4 and    3585
+##  5 her    2201
+##  6 i      2047
+##  7 a      1949
+##  8 in     1880
+##  9 was    1843
+## 10 she    1691
+## # … with 6,546 more rows
+```
+
+---
+
+background-image: url(figs/stop.gif)
+background-size: 500px
+background-position: 50% 50%
+
+# **Stop words**
+
+---
+
+# **Stop words**
+
+
+```r
+get_stopwords()
+```
+
+```
+## # A tibble: 175 x 2
+##    word      lexicon 
+##    &lt;chr&gt;     &lt;chr&gt;   
+##  1 i         snowball
+##  2 me        snowball
+##  3 my        snowball
+##  4 myself    snowball
+##  5 we        snowball
+##  6 our       snowball
+##  7 ours      snowball
+##  8 ourselves snowball
+##  9 you       snowball
+## 10 your      snowball
+## # … with 165 more rows
+```
+
+---
+
+# **Stop words**
+
+
+```r
+get_stopwords(language = "es")
+```
+
+```
+## # A tibble: 308 x 2
+##    word  lexicon 
+##    &lt;chr&gt; &lt;chr&gt;   
+##  1 de    snowball
+##  2 la    snowball
+##  3 que   snowball
+##  4 el    snowball
+##  5 en    snowball
+##  6 y     snowball
+##  7 a     snowball
+##  8 los   snowball
+##  9 del   snowball
+## 10 se    snowball
+## # … with 298 more rows
+```
+
+---
+
+# **Stop words**
+
+
+```r
+get_stopwords(language = "pt")
+```
+
+```
+## # A tibble: 203 x 2
+##    word  lexicon 
+##    &lt;chr&gt; &lt;chr&gt;   
+##  1 de    snowball
+##  2 a     snowball
+##  3 o     snowball
+##  4 que   snowball
+##  5 e     snowball
+##  6 do    snowball
+##  7 da    snowball
+##  8 em    snowball
+##  9 um    snowball
+## 10 para  snowball
+## # … with 193 more rows
+```
+
+---
+
+# **Stop words**
+
+
+```r
+get_stopwords(source = "smart")
+```
+
+```
+## # A tibble: 571 x 2
+##    word        lexicon
+##    &lt;chr&gt;       &lt;chr&gt;  
+##  1 a           smart  
+##  2 a's         smart  
+##  3 able        smart  
+##  4 about       smart  
+##  5 above       smart  
+##  6 according   smart  
+##  7 accordingly smart  
+##  8 across      smart  
+##  9 actually    smart  
+## 10 after       smart  
+## # … with 561 more rows
+```
+
+---
+
+## **What are the most common words?**
+
+.unscramble[U N S C R A M B L E]
+
+```
+anti_join(get_stopwords(source = "smart")) %&gt;%
+```
+```
+tidy_book %&gt;%
+```
+```
+count(word, sort = TRUE) %&gt;%
+```
+```
+coord_flip()
+```
+```
+geom_col() +
+```
+```
+slice_max(n, n = 20) %&gt;%
+```
+```
+ggplot(aes(fct_reorder(word, n), n)) +  
+```
+
+---
+
+## **What are the most common words?**
+
+
+```r
+tidy_book %&gt;%
+  anti_join(get_stopwords(source = "smart")) %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  slice_max(n, n = 20) %&gt;%
+* ggplot(aes(fct_reorder(word, n), n)) +
+  geom_col() +
+  coord_flip()
+```
+
+
+---
+
+class: middle, center
+
+&lt;img src="01-tidytext_files/figure-html/unnamed-chunk-14-1.png" width="90%" /&gt;
+
+---
+
+background-image: url(figs/tilecounts-1.png)
+background-size: 700px
+
+---
+
+background-image: url(figs/tilerate-1.png)
+background-size: 700px
+
+---
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+class: inverse, center, middle
+
+# SENTIMENT ANALYSIS 😄 😢 😠
+
+---
+
+## **Sentiment lexicons**
+
+
+```r
+get_sentiments("afinn")
+```
+
+```
+## # A tibble: 2,477 x 2
+##    word       value
+##    &lt;chr&gt;      &lt;dbl&gt;
+##  1 abandon       -2
+##  2 abandoned     -2
+##  3 abandons      -2
+##  4 abducted      -2
+##  5 abduction     -2
+##  6 abductions    -2
+##  7 abhor         -3
+##  8 abhorred      -3
+##  9 abhorrent     -3
+## 10 abhors        -3
+## # … with 2,467 more rows
+```
+
+---
+
+## **Sentiment lexicons**
+
+
+```r
+get_sentiments("bing")
+```
+
+```
+## # A tibble: 6,786 x 2
+##    word        sentiment
+##    &lt;chr&gt;       &lt;chr&gt;    
+##  1 2-faces     negative 
+##  2 abnormal    negative 
+##  3 abolish     negative 
+##  4 abominable  negative 
+##  5 abominably  negative 
+##  6 abominate   negative 
+##  7 abomination negative 
+##  8 abort       negative 
+##  9 aborted     negative 
+## 10 aborts      negative 
+## # … with 6,776 more rows
+```
+
+---
+
+## **Sentiment lexicons**
+
+
+
+```r
+get_sentiments("nrc")
+```
+
+```
+## # A tibble: 13,901 x 2
+##    word        sentiment
+##    &lt;chr&gt;       &lt;chr&gt;    
+##  1 abacus      trust    
+##  2 abandon     fear     
+##  3 abandon     negative 
+##  4 abandon     sadness  
+##  5 abandoned   anger    
+##  6 abandoned   fear     
+##  7 abandoned   negative 
+##  8 abandoned   sadness  
+##  9 abandonment anger    
+## 10 abandonment fear     
+## # … with 13,891 more rows
+```
+
+---
+
+## **Sentiment lexicons**
+
+
+```r
+get_sentiments("loughran")
+```
+
+```
+## # A tibble: 4,150 x 2
+##    word         sentiment
+##    &lt;chr&gt;        &lt;chr&gt;    
+##  1 abandon      negative 
+##  2 abandoned    negative 
+##  3 abandoning   negative 
+##  4 abandonment  negative 
+##  5 abandonments negative 
+##  6 abandons     negative 
+##  7 abdicated    negative 
+##  8 abdicates    negative 
+##  9 abdicating   negative 
+## 10 abdication   negative 
+## # … with 4,140 more rows
+```
+
+---
+
+## **Implementing sentiment analysis**
+
+
+```r
+tidy_book %&gt;%
+* inner_join(get_sentiments("bing")) %&gt;%
+  count(sentiment, sort = TRUE)
+```
+
+```
+## # A tibble: 2 x 2
+##   sentiment     n
+##   &lt;chr&gt;     &lt;int&gt;
+## 1 positive   5051
+## 2 negative   3651
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Jane wants to know...
+
+What kind of join is appropriate for sentiment analysis?
+
+- `anti_join()`
+- `full_join()`
+- `outer_join()`
+- `inner_join()`
+
+---
+
+## **Implementing sentiment analysis**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+tidy_book %&gt;%
+  inner_join(get_sentiments("bing")) %&gt;%            
+* count(sentiment, word, sort = TRUE)
+```
+
+---
+
+## **Implementing sentiment analysis**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+tidy_book %&gt;%
+  inner_join(get_sentiments("bing")) %&gt;%            
+* count(sentiment, word, sort = TRUE)
+```
+
+```
+## # A tibble: 1,430 x 3
+##   sentiment word       n
+##   &lt;chr&gt;     &lt;chr&gt;  &lt;int&gt;
+## 1 negative  miss     283
+## 2 positive  well     224
+## 3 positive  good     200
+## 4 positive  great    142
+## 5 positive  enough   106
+## 6 positive  better    92
+## 7 positive  love      92
+## # … with 1,423 more rows
+```
+
+---
+
+## **Implementing sentiment analysis**
+
+
+```r
+tidy_book %&gt;%
+  inner_join(get_sentiments("bing")) %&gt;%
+  count(sentiment, word, sort = TRUE) %&gt;%
+  group_by(sentiment) %&gt;%
+  slice_max(n, n = 10) %&gt;%
+  ungroup %&gt;%
+* ggplot(aes(fct_reorder(word, n),
+             n, 
+             fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~ sentiment, scales = "free") 
+```
+
+---
+
+class: middle
+
+![](01-tidytext_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"slideNumberFormat": "%current%",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
