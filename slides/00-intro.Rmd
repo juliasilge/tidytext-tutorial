@@ -4,7 +4,7 @@ subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 output:
   xaringan::moon_reader:
-    css: ["default", "css/xaringan-themer.css", "css/footer_plus.css"]
+    css: ["default", "xaringan-themer.css", "css/footer_plus.css"]
     lib_dir: libs
     nature:
       highlightStyle: github
@@ -26,6 +26,21 @@ library(silgelib)
 theme_set(theme_roboto())
 ```
 
+```{r xaringan-themer, include = FALSE}
+library(xaringanthemer)
+
+style_mono_accent(
+  base_color           = "#202C61",
+  code_highlight_color = "#D2B6E8",
+  header_font_google   = google_font("Montserrat", "700"),
+  text_font_google     = google_font("Roboto Condensed"),
+  code_font_google     = google_font("Droid Mono"),
+  text_font_size       = "30px",
+  code_font_size       = "20px",
+  footnote_font_size   = "18px" 
+)
+```
+
 layout: true
 
 <div class="my-footer"><span>bit.ly/tidytext-tutorial</span></div> 
@@ -44,7 +59,7 @@ background-size: cover
 
 ### USING TIDY PRINCIPLES
 
-.large[Julia Silge]
+Julia Silge
 
 ---
 
@@ -89,7 +104,8 @@ background-size: cover
 
 class: inverse, center, middle
 
-# TIDY DATA PRINCIPLES + TEXT MINING = `r emo::ji("tada")`
+# TIDY DATA PRINCIPLES + 
+# TEXT MINING = `r emo::ji("tada")`
 
 ---
 
