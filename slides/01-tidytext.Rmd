@@ -151,7 +151,7 @@ rows than the original, non-tidy text dataset.
 
 ## **Gathering more data**
 
-You can access the full text of many public domain works from [Project Gutenberg](https://www.gutenberg.org/) using the [gutenbergr](https://docs.ropensci.org/gutenbergr/) package.
+You can access the full text of many public domain works from Project Gutenberg using the gutenbergr package.
 
 
 ```{r}
@@ -161,6 +161,10 @@ full_text <- gutenberg_download(1342)
 ```
 
 What book do *you* want to analyze today? `r emo::ji_glue(":book: :partying: :book:")`
+
+.footnote[
+https://docs.ropensci.org/gutenbergr/
+]
 
 ---
 
