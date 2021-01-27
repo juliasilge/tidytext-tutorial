@@ -12,7 +12,7 @@ navbar:
         - text: "Text Mining with R"
           href: https://www.tidytextmining.com/
         - text: "Online interactive tidytext course"
-          href: https://juliasilge.shinyapps.io/learntidytext/#section-newspaper-headlines
+          href: https://juliasilge.shinyapps.io/learntidytext/
         - text: "Supervised ML for Text Analysis in R"
           href: https://smltar.com/
 output: distill::distill_article

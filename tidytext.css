@@ -65,14 +65,17 @@ d-appendix {
   --title-size:       18px;
   --text-color:       rgba(255, 255, 255, 0.8);
   --text-size:        15px;
-  --hover-color:      #D2B6E8;
   --bkgd-color:       #202C61;
 }
+
+.nav-dropdown-content a:hover {
+  background-color:   #6D79AD;
+  color:              black;
+  }
 
 .distill-site-footer {
   --text-color:       rgba(255, 255, 255, 0.8);
   --text-size:        15px;
-  --hover-color:      white;
   --bkgd-color:       #0F2E3D;
 }
 
