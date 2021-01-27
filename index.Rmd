@@ -67,7 +67,7 @@ install.packages(c("tidyverse", "tidytext",
 ## Slides
 
 - 00: [Intro](slides/00-intro.html)
-- 01: Text as tidy data
+- 01: [Text as tidy data](slides/01-tidytext.html)
 - 02: More advanced EDA
 - 03: Topic modeling
 - 04: Supervised text models
