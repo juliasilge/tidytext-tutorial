@@ -24,6 +24,7 @@ knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
 library(tidyverse)
 library(silgelib)
 theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 
 ```{r xaringan-themer, include = FALSE}
@@ -435,4 +436,20 @@ tidy_book %>%
   scale_y_continuous(expand = c(0,0)) +
   labs(x = NULL, y = "Number of occurrences")
 ```
+
+---
+
+class: left, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Thanks!
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
 
