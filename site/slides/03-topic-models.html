@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Mining</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Julia Silge" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="css/xaringanthemer.css" type="text/css" />
+    <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/tidytext-tutorial&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# Text Mining
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Find me at...
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+
+---
+
+## Let's install some packages
+
+
+```r
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr",
+                   "stm"))
+```
+
+---
+
+class: inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# Topic modeling
+
+--
+
+### 📖 Each DOCUMENT = mixture of topics
+
+--
+
+### 📑 Each TOPIC = mixture of tokens
+
+---
+
+class: top
+
+background-image: url(figs/top_tags-1.png)
+background-size: 800px
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# GREAT LIBRARY HEIST 🕵️‍♀️
+
+---
+
+## **Downloading your text data**
+
+
+```r
+library(tidyverse)
+library(gutenbergr)
+
+books &lt;- gutenberg_download(c(36, 158, 164, 345),
+                            meta_fields = "title",
+                            mirror = my_mirror)
+books %&gt;%
+  count(title)
+```
+
+```
+## # A tibble: 4 x 2
+##   title                                     n
+## * &lt;chr&gt;                                 &lt;int&gt;
+## 1 Dracula                               15568
+## 2 Emma                                  16235
+## 3 The War of the Worlds                  6474
+## 4 Twenty Thousand Leagues under the Sea 12135
+```
+
+---
+
+## **Someone has torn your books apart!** 😭
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+by_chapter &lt;- books %&gt;%
+  group_by(title) %&gt;%
+  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
+                                                 ignore_case = TRUE)))) %&gt;%
+  ungroup() %&gt;%
+  filter(chapter &gt; 0) %&gt;%
+  unite(document, title, chapter)
+
+glimpse(by_chapter)
+```
+
+---
+
+## **Someone has torn your books apart!** 😭
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+by_chapter &lt;- books %&gt;%
+  group_by(title) %&gt;%
+  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
+                                                 ignore_case = TRUE)))) %&gt;%
+  ungroup() %&gt;%
+  filter(chapter &gt; 0) %&gt;%
+  unite(document, title, chapter)
+
+glimpse(by_chapter)
+```
+
+```
+## Rows: 50,315
+## Columns: 3
+## $ gutenberg_id &lt;int&gt; 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, …
+## $ text         &lt;chr&gt; "CHAPTER ONE", "", "THE EVE OF THE WAR", "", "", "No one…
+## $ document     &lt;chr&gt; "The War of the Worlds_1", "The War of the Worlds_1", "T…
+```
+
+---
+
+## **Can we put them back together?**
+
+
+```r
+library(tidytext)
+word_counts &lt;- by_chapter %&gt;%
+* unnest_tokens(word, text) %&gt;%
+  anti_join(get_stopwords(source = "smart")) %&gt;%
+  count(document, word, sort = TRUE)
+
+glimpse(word_counts)
+```
+
+```
+## Rows: 105,779
+## Columns: 3
+## $ document &lt;chr&gt; "Emma_26", "Emma_47", "The War of the Worlds_16", "Emma_38",…
+## $ word     &lt;chr&gt; "mr", "harriet", "brother", "mr", "mrs", "mr", "miss", "mr",…
+## $ n        &lt;int&gt; 54, 52, 50, 49, 49, 49, 44, 43, 40, 39, 37, 37, 37, 37, 37, …
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+The dataset `word_counts` contains
+
+- the counts of words per book
+- the counts of words per chapter
+- the counts of words per line
+
+---
+
+## **Can we put them back together?**
+
+
+```r
+words_sparse &lt;- word_counts %&gt;%
+* cast_sparse(document, word, n)
+
+class(words_sparse)
+```
+
+```
+## [1] "dgCMatrix"
+## attr(,"package")
+## [1] "Matrix"
+```
+
+```r
+dim(words_sparse)
+```
+
+```
+## [1]   182 18124
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Is `words_sparse` a tidy dataset?
+
+- Yes ✅
+- No 🚫
+
+---
+
+## **Train a topic model**
+
+Use a sparse matrix or a `quanteda::dfm` object as input
+
+
+```r
+library(stm)
+topic_model &lt;- stm(words_sparse, K = 4, 
+                   verbose = FALSE, 
+                   init.type = "Spectral")
+```
+---
+
+## **Train a topic model**
+
+Use a sparse matrix or a `quanteda::dfm` object as input
+
+
+```r
+summary(topic_model)
+```
+
+```
+## A topic model with 4 topics, 182 documents and a 18124 word dictionary.
+```
+
+```
+## Topic 1 Top Words:
+##  	 Highest Prob: time, van, night, helsing, back, good, room 
+##  	 FREX: van, helsing, lucy, mina, jonathan, harker, diary 
+##  	 Lift: wolves, herr, kitten, tombstones, july_, pin, bilder 
+##  	 Score: helsing, van, mina, lucy, jonathan, harker, dr 
+## Topic 2 Top Words:
+##  	 Highest Prob: captain, nautilus, sea, nemo, ned, conseil, land 
+##  	 FREX: nautilus, nemo, ned, conseil, ocean, canadian, submarine 
+##  	 Lift: natives, canadian, harpoon, perouse, coral, whales, lincoln 
+##  	 Score: nautilus, nemo, ned, conseil, canadian, captain, ocean 
+## Topic 3 Top Words:
+##  	 Highest Prob: mr, emma, mrs, miss, harriet, thing, weston 
+##  	 FREX: emma, harriet, weston, knightley, elton, jane, woodhouse 
+##  	 Lift: patty, ford, otway, bathing, ford's, larkins, improvement 
+##  	 Score: emma, harriet, weston, knightley, elton, jane, fairfax 
+## Topic 4 Top Words:
+##  	 Highest Prob: people, martians, black, time, man, road, men 
+##  	 FREX: martians, martian, woking, mars, curate, streets, ulla 
+##  	 Lift: maybury, chertsey, martians, mars, shepperton, pony, barnet 
+##  	 Score: martians, martian, woking, mars, ulla, artilleryman, weybridge
+```
+
+
+---
+
+## **Exploring the output of topic modeling**
+
+
+
+```r
+chapter_topics &lt;- tidy(topic_model, matrix = "beta")
+chapter_topics
+```
+
+```
+## # A tibble: 72,496 x 3
+##    topic term         beta
+##    &lt;int&gt; &lt;chr&gt;       &lt;dbl&gt;
+##  1     1 mr      1.81e-  3
+##  2     2 mr      1.71e-  4
+##  3     3 mr      2.17e-  2
+##  4     4 mr      1.55e- 57
+##  5     1 harriet 0.       
+##  6     2 harriet 0.       
+##  7     3 harriet 7.72e-  3
+##  8     4 harriet 7.03e-145
+##  9     1 brother 8.61e-  5
+## 10     2 brother 2.14e- 91
+## # … with 72,486 more rows
+```
+
+---
+
+## **Exploring the output of topic modeling**
+
+.unscramble[U N S C R A M B L E]
+
+```
+top_terms &lt;- chapter_topics %&gt;%
+```
+```
+ungroup() %&gt;%
+```
+```
+group_by(topic) %&gt;%
+```
+```
+arrange(topic, -beta)
+```
+```
+top_n(10, beta) %&gt;%
+```
+
+
+---
+
+## **Exploring the output of topic modeling**
+
+
+```r
+top_terms &lt;- chapter_topics %&gt;%
+  group_by(topic) %&gt;%
+  top_n(10, beta) %&gt;%
+  ungroup() %&gt;%
+  arrange(topic, -beta)
+```
+
+---
+
+## **Exploring the output of topic modeling**
+
+
+```r
+top_terms
+```
+
+```
+## # A tibble: 40 x 3
+##    topic term       beta
+##    &lt;int&gt; &lt;chr&gt;     &lt;dbl&gt;
+##  1     1 time    0.00729
+##  2     1 van     0.00621
+##  3     1 night   0.00583
+##  4     1 helsing 0.00577
+##  5     1 back    0.00493
+##  6     1 good    0.00484
+##  7     1 room    0.00441
+##  8     1 lucy    0.00427
+##  9     1 dear    0.00420
+## 10     1 man     0.00411
+## # … with 30 more rows
+```
+
+---
+## **Exploring the output of topic modeling**
+
+
+```r
+top_terms %&gt;%
+  mutate(term = fct_reorder(term, beta)) %&gt;%
+* ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free")
+```
+
+---
+
+class: center, middle
+
+![](03-topic-models_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+
+## **How are documents classified?**
+
+
+```r
+chapters_gamma &lt;- tidy(topic_model, matrix = "gamma",
+                       document_names = rownames(words_sparse))
+chapters_gamma
+```
+
+```
+## # A tibble: 728 x 3
+##    document                 topic    gamma
+##    &lt;chr&gt;                    &lt;int&gt;    &lt;dbl&gt;
+##  1 Emma_26                      1 0.000137
+##  2 Emma_47                      1 0.000200
+##  3 The War of the Worlds_16     1 0.000386
+##  4 Emma_38                      1 0.000484
+##  5 Emma_8                       1 0.000206
+##  6 Emma_21                      1 0.000232
+##  7 Emma_13                      1 0.000569
+##  8 Dracula_35                   1 0.991   
+##  9 Dracula_39                   1 0.999   
+## 10 Emma_1                       1 0.000268
+## # … with 718 more rows
+```
+
+---
+
+## **How are documents classified?**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+chapters_parsed &lt;- chapters_gamma %&gt;%
+  separate(document, c("title", "chapter"), 
+           sep = "_", convert = TRUE)
+
+glimpse(chapters_parsed)
+```
+
+---
+
+## **How are documents classified?**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+chapters_parsed &lt;- chapters_gamma %&gt;%
+  separate(document, c("title", "chapter"), 
+           sep = "_", convert = TRUE)
+
+glimpse(chapters_parsed)
+```
+
+```
+## Rows: 728
+## Columns: 4
+## $ title   &lt;chr&gt; "Emma", "Emma", "The War of the Worlds", "Emma", "Emma", "Emm…
+## $ chapter &lt;int&gt; 26, 47, 16, 38, 8, 21, 13, 35, 39, 1, 33, 4, 42, 54, 27, 26, …
+## $ topic   &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+## $ gamma   &lt;dbl&gt; 0.0001369224, 0.0001998893, 0.0003864005, 0.0004841684, 0.000…
+```
+
+---
+
+## **How are documents classified?**
+
+.unscramble[U N S C R A M B L E]
+
+```
+chapters_parsed %&gt;%
+```
+```
+ggplot(aes(factor(topic), gamma)) +
+```
+```
+facet_wrap(~ title)
+```
+```
+mutate(title = fct_reorder(title, gamma * topic)) %&gt;%
+```
+```
+geom_boxplot() +
+```
+
+---
+
+## **How are documents classified?**
+
+
+```r
+chapters_parsed %&gt;%
+  mutate(title = fct_reorder(title, gamma * topic)) %&gt;%
+  ggplot(aes(factor(topic), gamma)) +
+  geom_boxplot() +
+  facet_wrap(~ title)
+```
+
+---
+
+![](03-topic-models_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# GOING FARTHER 🚀
+
+---
+## Tidying model output
+
+### Which words in each document are assigned to which topics?
+
+- `augment()`
+- Add information to each observation in the original data
+
+---
+
+background-image: url(figs/stm_video.png)
+background-size: 850px
+
+---
+
+## **Using stm**
+
+- Document-level covariates
+
+
+```r
+topic_model &lt;- stm(words_sparse, 
+                   K = 0, init.type = "Spectral",
+                   prevalence = ~s(Year),
+                   data = covariates,
+                   verbose = FALSE)
+```
+
+- Use functions for `semanticCoherence()`, `checkResiduals()`, `exclusivity()`, and more!
+
+- Check out &lt;http://www.structuraltopicmodel.com/&gt;
+
+---
+
+# Stemming?
+
+Advice from Schofield &amp; Mimno (2016):
+
+.large["Comparing Apples to Apple: The Effects of Stemmers on Topic Models"]
+
+.footnote[&lt;https://mimno.infosci.cornell.edu/papers/schofield_tacl_2016.pdf&gt;]
+
+---
+
+class: right, middle
+
+&lt;h1 class="fa fa-quote-left fa-fw"&gt;&lt;/h1&gt;
+
+&lt;h2&gt; Despite their frequent use in topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability. &lt;/h2&gt;
+
+&lt;h1 class="fa fa-quote-right fa-fw"&gt;&lt;/h1&gt;
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# HOW DO WE CHOOSE `\(K\)`? 😕
+
+
+---
+
+
+background-image: url(figs/model_diagnostic-1.png)
+background-position: 50% 50%
+background-size: 950px
+
+---
+
+## **Train many topic models**
+
+
+```r
+library(furrr)
+plan(multicore)
+
+*many_models &lt;- tibble(K = c(3, 4, 6, 8, 10)) %&gt;%
+  mutate(topic_model = future_map(
+    K, ~stm(words_sparse, K = ., verbose = FALSE))
+  )
+
+many_models
+```
+
+```
+## # A tibble: 5 x 2
+##       K topic_model
+##   &lt;dbl&gt; &lt;list&gt;     
+## 1     3 &lt;STM&gt;      
+## 2     4 &lt;STM&gt;      
+## 3     6 &lt;STM&gt;      
+## 4     8 &lt;STM&gt;      
+## 5    10 &lt;STM&gt;
+```
+
+---
+
+## **Train many topic models**
+
+
+```r
+heldout &lt;- make.heldout(words_sparse)
+
+k_result &lt;- many_models %&gt;%
+  mutate(exclusivity        = map(topic_model, exclusivity),
+         semantic_coherence = map(topic_model, semanticCoherence, words_sparse),
+         eval_heldout       = map(topic_model, eval.heldout, heldout$missing),
+         residual           = map(topic_model, checkResiduals, words_sparse),
+         bound              = map_dbl(topic_model, function(x) max(x$convergence$bound)),
+         lfact              = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),
+         lbound             = bound + lfact,
+         iterations         = map_dbl(topic_model, function(x) length(x$convergence$bound)))
+```
+
+---
+
+## **Train many topic models**
+
+
+```r
+k_result
+```
+
+```
+## # A tibble: 5 x 10
+##       K topic_model exclusivity semantic_cohere… eval_heldout residual   bound
+##   &lt;dbl&gt; &lt;list&gt;      &lt;list&gt;      &lt;list&gt;           &lt;list&gt;       &lt;list&gt;     &lt;dbl&gt;
+## 1     3 &lt;STM&gt;       &lt;dbl [3]&gt;   &lt;dbl [3]&gt;        &lt;named list… &lt;named … -1.39e6
+## 2     4 &lt;STM&gt;       &lt;dbl [4]&gt;   &lt;dbl [4]&gt;        &lt;named list… &lt;named … -1.37e6
+## 3     6 &lt;STM&gt;       &lt;dbl [6]&gt;   &lt;dbl [6]&gt;        &lt;named list… &lt;named … -1.36e6
+## 4     8 &lt;STM&gt;       &lt;dbl [8]&gt;   &lt;dbl [8]&gt;        &lt;named list… &lt;named … -1.34e6
+## 5    10 &lt;STM&gt;       &lt;dbl [10]&gt;  &lt;dbl [10]&gt;       &lt;named list… &lt;named … -1.34e6
+## # … with 3 more variables: lfact &lt;dbl&gt;, lbound &lt;dbl&gt;, iterations &lt;dbl&gt;
+```
+
+---
+
+## **Train many topic models**
+
+
+```r
+k_result %&gt;%
+  transmute(K,
+            `Lower bound`         = lbound,
+*           Residuals             = map_dbl(residual, "dispersion"),
+*           `Semantic coherence`  = map_dbl(semantic_coherence, mean),
+*           `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %&gt;%
+  gather(Metric, Value, -K) %&gt;%
+  ggplot(aes(K, Value, color = Metric)) +
+  geom_line() +
+  facet_wrap(~Metric, scales = "free_y")
+```
+
+---
+
+![](03-topic-models_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+---
+
+## **What is semantic coherence?**
+
+- Semantic coherence is maximized when the most probable words in a given topic frequently co-occur together
+
+--
+
+- Correlates well with human judgment of topic quality 😄
+
+--
+
+- Having high semantic coherence is relatively easy, though, if you only have a few topics dominated by very common words 😩
+
+--
+
+- Measure semantic coherence **and** exclusivity
+
+---
+
+## **Train many topic models**
+
+
+```r
+k_result %&gt;%
+  select(K, exclusivity, semantic_coherence) %&gt;%
+  filter(K %in% c(3, 6, 10)) %&gt;%
+  unnest(cols = c(exclusivity, semantic_coherence)) %&gt;%
+  ggplot(aes(semantic_coherence, exclusivity, 
+             color = factor(K))) +
+  geom_point()
+```
+
+---
+
+class: center, middle
+
+![](03-topic-models_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Topic modeling is an example of...
+
+- .unscramble[supervised machine learning]
+- .unscramble[unsupervised machine learning]
+
+.footnote[&lt;https://juliasilge.com/blog/evaluating-stm/&gt;]
+
+---
+
+class: left, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Thanks!
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLanguage": "r",
+"highlightStyle": "docco",
+"highlightLines": true,
+"slideNumberFormat": "%current%",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

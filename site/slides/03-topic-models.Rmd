@@ -1,0 +1,625 @@
+---
+title: "Text Mining"
+subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+output:
+  xaringan::moon_reader:
+    css: ["default", "css/xaringanthemer.css", "css/footer_plus.css"]
+    lib_dir: libs
+    nature:
+      highlightLanguage: "r"
+      highlightStyle: "docco"
+      highlightLines: true
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+    seal: false  
+    includes:
+      in_header: header.html
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE,
+        width = 80)
+library(knitr)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+```
+
+layout: true
+
+<div class="my-footer"><span>bit.ly/tidytext-tutorial</span></div> 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# Text Mining
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Find me at...
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+
+---
+
+## Let's install some packages
+
+```{r, eval=FALSE}
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr",
+                   "stm"))
+```
+
+---
+
+class: inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# Topic modeling
+
+--
+
+### `r emo::ji("open_book")` Each DOCUMENT = mixture of topics
+
+--
+
+### `r emo::ji("bookmark_tabs")` Each TOPIC = mixture of tokens
+
+---
+
+class: top
+
+background-image: url(figs/top_tags-1.png)
+background-size: 800px
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# GREAT LIBRARY HEIST `r emo::ji("sleuth")`
+
+---
+
+## **Downloading your text data**
+
+```{r}
+library(tidyverse)
+library(gutenbergr)
+
+books <- gutenberg_download(c(36, 158, 164, 345),
+                            meta_fields = "title",
+                            mirror = my_mirror)
+books %>%
+  count(title)
+```
+
+---
+
+## **Someone has torn your books apart!** `r emo::ji("sob")`
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r eval = FALSE}
+by_chapter <- books %>%
+  group_by(title) %>%
+  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
+                                                 ignore_case = TRUE)))) %>%
+  ungroup() %>%
+  filter(chapter > 0) %>%
+  unite(document, title, chapter)
+
+glimpse(by_chapter)
+```
+
+---
+
+## **Someone has torn your books apart!** `r emo::ji("sob")`
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r}
+by_chapter <- books %>%
+  group_by(title) %>%
+  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
+                                                 ignore_case = TRUE)))) %>%
+  ungroup() %>%
+  filter(chapter > 0) %>%
+  unite(document, title, chapter)
+
+glimpse(by_chapter)
+```
+
+---
+
+## **Can we put them back together?**
+
+```{r}
+library(tidytext)
+word_counts <- by_chapter %>%
+  unnest_tokens(word, text) %>%               #<<
+  anti_join(get_stopwords(source = "smart")) %>%
+  count(document, word, sort = TRUE)
+
+glimpse(word_counts)
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+The dataset `word_counts` contains
+
+- the counts of words per book
+- the counts of words per chapter
+- the counts of words per line
+
+---
+
+## **Can we put them back together?**
+
+```{r}
+words_sparse <- word_counts %>%
+  cast_sparse(document, word, n)         #<<
+
+class(words_sparse)
+dim(words_sparse)
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Is `words_sparse` a tidy dataset?
+
+- Yes `r emo::ji("check")`
+- No `r emo::ji("no_entry_sign")`
+
+---
+
+## **Train a topic model**
+
+Use a sparse matrix or a `quanteda::dfm` object as input
+
+```{r}
+library(stm)
+topic_model <- stm(words_sparse, K = 4, 
+                   verbose = FALSE, 
+                   init.type = "Spectral")
+```
+---
+
+## **Train a topic model**
+
+Use a sparse matrix or a `quanteda::dfm` object as input
+
+```{r}
+summary(topic_model)
+```
+
+
+---
+
+## **Exploring the output of topic modeling**
+
+
+```{r}
+chapter_topics <- tidy(topic_model, matrix = "beta")
+chapter_topics
+```
+
+---
+
+## **Exploring the output of topic modeling**
+
+.unscramble[U N S C R A M B L E]
+
+```
+top_terms <- chapter_topics %>%
+```
+```
+ungroup() %>%
+```
+```
+group_by(topic) %>%
+```
+```
+arrange(topic, -beta)
+```
+```
+top_n(10, beta) %>%
+```
+
+
+---
+
+## **Exploring the output of topic modeling**
+
+```{r}
+top_terms <- chapter_topics %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+```
+
+---
+
+## **Exploring the output of topic modeling**
+
+```{r}
+top_terms
+```
+
+---
+## **Exploring the output of topic modeling**
+
+```{r, eval=FALSE}
+top_terms %>%
+  mutate(term = fct_reorder(term, beta)) %>%
+  ggplot(aes(beta, term, fill = factor(topic))) +         #<<
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free")
+```
+
+---
+
+class: center, middle
+
+```{r, echo=FALSE, fig.height=4}
+top_terms %>%
+  ggplot(aes(beta, reorder_within(term, beta, topic), fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_reordered() +
+  labs(x = expression(beta), y = NULL)
+```
+
+---
+
+## **How are documents classified?**
+
+```{r}
+chapters_gamma <- tidy(topic_model, matrix = "gamma",
+                       document_names = rownames(words_sparse))
+chapters_gamma
+```
+
+---
+
+## **How are documents classified?**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r eval=FALSE}
+chapters_parsed <- chapters_gamma %>%
+  separate(document, c("title", "chapter"), 
+           sep = "_", convert = TRUE)
+
+glimpse(chapters_parsed)
+```
+
+---
+
+## **How are documents classified?**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r}
+chapters_parsed <- chapters_gamma %>%
+  separate(document, c("title", "chapter"), 
+           sep = "_", convert = TRUE)
+
+glimpse(chapters_parsed)
+```
+
+---
+
+## **How are documents classified?**
+
+.unscramble[U N S C R A M B L E]
+
+```
+chapters_parsed %>%
+```
+```
+ggplot(aes(factor(topic), gamma)) +
+```
+```
+facet_wrap(~ title)
+```
+```
+mutate(title = fct_reorder(title, gamma * topic)) %>%
+```
+```
+geom_boxplot() +
+```
+
+---
+
+## **How are documents classified?**
+
+```{r, eval=FALSE}
+chapters_parsed %>%
+  mutate(title = fct_reorder(title, gamma * topic)) %>%
+  ggplot(aes(factor(topic), gamma)) +
+  geom_boxplot() +
+  facet_wrap(~ title)
+```
+
+---
+
+```{r, echo=FALSE, fig.height=3.9}
+chapters_parsed %>%
+  mutate(title = fct_reorder(title, gamma * topic)) %>%
+  ggplot(aes(factor(topic), gamma, color = factor(topic))) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_wrap(~ title) +
+  labs(x = "Topic", y = expression(gamma))
+```
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# GOING FARTHER `r emo::ji("rocket")`
+
+---
+## Tidying model output
+
+### Which words in each document are assigned to which topics?
+
+- `augment()`
+- Add information to each observation in the original data
+
+---
+
+background-image: url(figs/stm_video.png)
+background-size: 850px
+
+---
+
+## **Using stm**
+
+- Document-level covariates
+
+```{r, eval=FALSE}
+topic_model <- stm(words_sparse, 
+                   K = 0, init.type = "Spectral",
+                   prevalence = ~s(Year),
+                   data = covariates,
+                   verbose = FALSE)
+```
+
+- Use functions for `semanticCoherence()`, `checkResiduals()`, `exclusivity()`, and more!
+
+- Check out <http://www.structuraltopicmodel.com/>
+
+---
+
+# Stemming?
+
+Advice from Schofield & Mimno (2016):
+
+.large["Comparing Apples to Apple: The Effects of Stemmers on Topic Models"]
+
+.footnote[<https://mimno.infosci.cornell.edu/papers/schofield_tacl_2016.pdf>]
+
+---
+
+class: right, middle
+
+<h1 class="fa fa-quote-left fa-fw"></h1>
+
+<h2> Despite their frequent use in topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability. </h2>
+
+<h1 class="fa fa-quote-right fa-fw"></h1>
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# HOW DO WE CHOOSE $K$? `r emo::ji("confused")`
+
+
+---
+
+
+background-image: url(figs/model_diagnostic-1.png)
+background-position: 50% 50%
+background-size: 950px
+
+---
+
+## **Train many topic models**
+
+```{r}
+library(furrr)
+plan(multicore)
+
+many_models <- tibble(K = c(3, 4, 6, 8, 10)) %>%        #<<
+  mutate(topic_model = future_map(
+    K, ~stm(words_sparse, K = ., verbose = FALSE))
+  )
+
+many_models
+```
+
+---
+
+## **Train many topic models**
+
+```{r}
+heldout <- make.heldout(words_sparse)
+
+k_result <- many_models %>%
+  mutate(exclusivity        = map(topic_model, exclusivity),
+         semantic_coherence = map(topic_model, semanticCoherence, words_sparse),
+         eval_heldout       = map(topic_model, eval.heldout, heldout$missing),
+         residual           = map(topic_model, checkResiduals, words_sparse),
+         bound              = map_dbl(topic_model, function(x) max(x$convergence$bound)),
+         lfact              = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),
+         lbound             = bound + lfact,
+         iterations         = map_dbl(topic_model, function(x) length(x$convergence$bound)))
+```
+
+---
+
+## **Train many topic models**
+
+```{r}
+k_result
+```
+
+---
+
+## **Train many topic models**
+
+```{r, eval=FALSE}
+k_result %>%
+  transmute(K,
+            `Lower bound`         = lbound,
+            Residuals             = map_dbl(residual, "dispersion"),       #<<
+            `Semantic coherence`  = map_dbl(semantic_coherence, mean),       #<<
+            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%       #<<
+  gather(Metric, Value, -K) %>%
+  ggplot(aes(K, Value, color = Metric)) +
+  geom_line() +
+  facet_wrap(~Metric, scales = "free_y")
+```
+
+---
+
+```{r, echo=FALSE, fig.height=3.9}
+k_result %>%
+  transmute(K,
+            `Lower bound`         = lbound,
+            Residuals             = map_dbl(residual, "dispersion"),
+            `Semantic coherence`  = map_dbl(semantic_coherence, mean),
+            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%
+  gather(Metric, Value, -K) %>%
+  ggplot(aes(K, Value, color = Metric)) +
+  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
+  facet_wrap(~Metric, scales = "free_y") +
+  labs(x = "K (number of topics)",
+       y = NULL)
+```
+
+---
+
+## **What is semantic coherence?**
+
+- Semantic coherence is maximized when the most probable words in a given topic frequently co-occur together
+
+--
+
+- Correlates well with human judgment of topic quality `r emo::ji("smile")`
+
+--
+
+- Having high semantic coherence is relatively easy, though, if you only have a few topics dominated by very common words `r emo::ji("weary")`
+
+--
+
+- Measure semantic coherence **and** exclusivity
+
+---
+
+## **Train many topic models**
+
+```{r, eval=FALSE}
+k_result %>%
+  select(K, exclusivity, semantic_coherence) %>%
+  filter(K %in% c(3, 6, 10)) %>%
+  unnest(cols = c(exclusivity, semantic_coherence)) %>%
+  ggplot(aes(semantic_coherence, exclusivity, 
+             color = factor(K))) +
+  geom_point()
+```
+
+---
+
+class: center, middle
+
+```{r, echo=FALSE, fig.height=4}
+k_result %>%
+  select(K, exclusivity, semantic_coherence) %>%
+  filter(K %in% c(3, 4, 6, 10)) %>%
+  unnest(cols = c(exclusivity, semantic_coherence)) %>%
+  mutate(K = as.factor(K)) %>%
+  ggplot(aes(semantic_coherence, exclusivity, 
+             color = factor(K))) +
+  geom_point(size = 2, alpha = 0.7) +
+  labs(x = "Semantic coherence",
+       y = "Exclusivity",
+       color = "K")
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Topic modeling is an example of...
+
+- .unscramble[supervised machine learning]
+- .unscramble[unsupervised machine learning]
+
+.footnote[<https://juliasilge.com/blog/evaluating-stm/>]
+
+---
+
+class: left, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Thanks!
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)

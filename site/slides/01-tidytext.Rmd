@@ -4,10 +4,11 @@ subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 output:
   xaringan::moon_reader:
-    css: ["default", "xaringan-themer.css", "css/footer_plus.css"]
+    css: ["default", "css/xaringanthemer.css", "css/footer_plus.css"]
     lib_dir: libs
     nature:
-      highlightStyle: github
+      highlightLanguage: "r"
+      highlightStyle: "docco"
       highlightLines: true
       slideNumberFormat: "%current%"
       ratio: "16:9"
@@ -20,25 +21,12 @@ output:
 options(htmltools.dir.version = FALSE,
         width = 80)
 library(knitr)
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, 
+                      dpi = 300)
 library(tidyverse)
 library(silgelib)
 theme_set(theme_roboto())
-```
-
-```{r xaringan-themer, include = FALSE}
-library(xaringanthemer)
-
-style_mono_accent(
-  base_color           = "#202C61",
-  code_highlight_color = "#D2B6E8",
-  header_font_google   = google_font("Montserrat", "700"),
-  text_font_google     = google_font("Roboto Condensed"),
-  code_font_google     = google_font("Droid Mono"),
-  text_font_size       = "30px",
-  code_font_size       = "20px",
-  footnote_font_size   = "18px" 
-)
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 
 layout: true
@@ -157,7 +145,7 @@ You can access the full text of many public domain works from Project Gutenberg 
 ```{r}
 library(gutenbergr)
 
-full_text <- gutenberg_download(1342)
+full_text <- gutenberg_download(1342, mirror = my_mirror)
 ```
 
 What book do *you* want to analyze today? `r emo::ji_glue(":book: :partying: :book:")`
@@ -435,4 +423,20 @@ tidy_book %>%
   scale_y_continuous(expand = c(0,0)) +
   labs(x = NULL, y = "Number of occurrences")
 ```
+
+---
+
+class: left, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Thanks!
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
 
