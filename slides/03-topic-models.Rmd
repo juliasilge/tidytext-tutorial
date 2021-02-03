@@ -4,7 +4,7 @@ subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 output:
   xaringan::moon_reader:
-    css: ["default", "xaringan-themer.css", "css/footer_plus.css"]
+    css: ["default", "css/xaringanthemer.css", "css/footer_plus.css"]
     lib_dir: libs
     nature:
       highlightLanguage: "r"
@@ -21,31 +21,11 @@ output:
 options(htmltools.dir.version = FALSE,
         width = 80)
 library(knitr)
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, 
-                      dpi = 300,
-                      fig.showtext = TRUE,
-                      fig.width = 8, fig.height = 5)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
 library(tidyverse)
-
-my_mirror <- "http://mirrors.xmission.com/gutenberg/"
-```
-
-```{r xaringan-themer, include = FALSE}
-library(xaringanthemer)
 library(silgelib)
-
-style_mono_accent(
-  base_color           = "#202C61",
-  code_highlight_color = "#D2B6E8",
-  header_font_google   = google_font("Montserrat", "700"),
-  text_font_google     = google_font("Roboto Condensed"),
-  code_font_google     = google_font("Droid Mono"),
-  text_font_size       = "30px",
-  code_font_size       = "20px",
-  footnote_font_size   = "18px" 
-)
-
 theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 
 layout: true
@@ -187,7 +167,7 @@ glimpse(by_chapter)
 library(tidytext)
 word_counts <- by_chapter %>%
   unnest_tokens(word, text) %>%               #<<
-  anti_join(get_stopwords()) %>%
+  anti_join(get_stopwords(source = "smart")) %>%
   count(document, word, sort = TRUE)
 
 glimpse(word_counts)
@@ -319,16 +299,14 @@ top_terms %>%
 
 class: center, middle
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=4}
 top_terms %>%
   ggplot(aes(beta, reorder_within(term, beta, topic), fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_reordered() +
-  scale_xaringan_color_discrete() +
-  labs(x = expression(beta), y = NULL) +
-  theme_xaringan()
+  labs(x = expression(beta), y = NULL)
 ```
 
 ---
@@ -411,8 +389,7 @@ chapters_parsed %>%
   ggplot(aes(factor(topic), gamma, color = factor(topic))) +
   geom_boxplot(show.legend = FALSE) +
   facet_wrap(~ title) +
-  labs(x = "Topic", y = expression(gamma)) +
-  theme_xaringan()
+  labs(x = "Topic", y = expression(gamma))
 ```
 
 ---
@@ -484,9 +461,6 @@ background-size: cover
 
 # HOW DO WE CHOOSE $K$? `r emo::ji("confused")`
 
-.footnote[
-<a href="https://juliasilge.com/blog/evaluating-stm/" style="color: white">https://juliasilge.com/blog/evaluating-stm/</a>
-]
 
 ---
 
@@ -568,8 +542,7 @@ k_result %>%
   geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
   facet_wrap(~Metric, scales = "free_y") +
   labs(x = "K (number of topics)",
-       y = NULL) +
-  theme_xaringan()
+       y = NULL)
 ```
 
 ---
@@ -608,18 +581,18 @@ k_result %>%
 
 class: center, middle
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=4}
 k_result %>%
   select(K, exclusivity, semantic_coherence) %>%
-  filter(K %in% c(3, 6, 10)) %>%
+  filter(K %in% c(3, 4, 6, 10)) %>%
   unnest(cols = c(exclusivity, semantic_coherence)) %>%
   mutate(K = as.factor(K)) %>%
   ggplot(aes(semantic_coherence, exclusivity, 
              color = factor(K))) +
-  geom_point(size = 2, alpha = 0.7, show.legend = FALSE) +
+  geom_point(size = 2, alpha = 0.7) +
   labs(x = "Semantic coherence",
-       y = "Exclusivity") +
-  theme_xaringan()
+       y = "Exclusivity",
+       color = "K")
 ```
 
 ---
@@ -632,6 +605,8 @@ Topic modeling is an example of...
 
 - .unscramble[supervised machine learning]
 - .unscramble[unsupervised machine learning]
+
+.footnote[<https://juliasilge.com/blog/evaluating-stm/>]
 
 ---
 
