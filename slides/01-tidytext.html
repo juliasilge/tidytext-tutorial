@@ -7,13 +7,11 @@
     <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/5235085b15.js"></script>
-    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="css/xaringanthemer.css" type="text/css" />
     <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
-
-
 
 
 
@@ -181,7 +179,7 @@ You can access the full text of many public domain works from Project Gutenberg 
 ```r
 library(gutenbergr)
 
-full_text &lt;- gutenberg_download(1342)
+full_text &lt;- gutenberg_download(1342, mirror = my_mirror)
 ```
 
 What book do *you* want to analyze today? 📖 👯 📖
@@ -636,11 +634,28 @@ class: middle
 
 ![](01-tidytext_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
 
+---
+
+class: left, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Thanks!
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
+"highlightLanguage": "r",
+"highlightStyle": "docco",
 "highlightLines": true,
 "slideNumberFormat": "%current%",
 "ratio": "16:9"
