@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Mining</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Julia Silge" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="css/xaringanthemer.css" type="text/css" />
+    <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/tidytext-tutorial&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# Text Mining
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Find me at...
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+
+---
+
+## Let's install some packages
+
+
+```r
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr",
+                   "widyr",
+                   "tidygraph",
+                   "ggraph"))
+```
+
+
+---
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+class: inverse, center, middle
+
+## WHAT IS A DOCUMENT ABOUT? 🤔
+
+---
+
+## **What is a document about?**
+
+- Term frequency
+- Inverse document frequency
+
+`$$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$`
+
+### tf-idf is about comparing **documents** within a **collection**.
+
+---
+
+## **Understanding tf-idf**
+
+Make a collection (*corpus*) for yourself! 💅
+
+
+```r
+library(gutenbergr)
+full_collection &lt;- gutenberg_download(c(141, 158, 161, 1342),
+                                      meta_fields = "title",
+                                      mirror = my_mirror)
+```
+
+---
+
+## **Understanding tf-idf**
+
+Make a collection (*corpus*) for yourself! 💅
+
+
+```r
+full_collection
+```
+
+```
+## # A tibble: 58,460 x 3
+##    gutenberg_id text             title         
+##           &lt;int&gt; &lt;chr&gt;            &lt;chr&gt;         
+##  1          141 "MANSFIELD PARK" Mansfield Park
+##  2          141 ""               Mansfield Park
+##  3          141 "(1814)"         Mansfield Park
+##  4          141 ""               Mansfield Park
+##  5          141 ""               Mansfield Park
+##  6          141 "By Jane Austen" Mansfield Park
+##  7          141 ""               Mansfield Park
+##  8          141 ""               Mansfield Park
+##  9          141 ""               Mansfield Park
+## 10          141 ""               Mansfield Park
+## # … with 58,450 more rows
+```
+
+---
+
+## **Counting word frequencies in your collection**
+
+
+```r
+library(tidyverse)
+library(tidytext)
+
+book_words &lt;- full_collection %&gt;%
+*   unnest_tokens(word, text) %&gt;%
+    count(title, word, sort = TRUE)
+```
+
+What do the columns of `book_words` tell us?
+
+---
+
+## **Calculating tf-idf**
+
+
+```r
+book_tfidf &lt;- book_words %&gt;%
+*   bind_tf_idf(word, title, n)
+```
+
+---
+
+## **Calculating tf-idf**
+
+That's... super exciting???
+
+
+```r
+book_tfidf
+```
+
+```
+## # A tibble: 28,498 x 6
+##    title               word      n     tf   idf tf_idf
+##    &lt;chr&gt;               &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+##  1 Mansfield Park      the    6206 0.0387     0      0
+##  2 Mansfield Park      to     5475 0.0341     0      0
+##  3 Mansfield Park      and    5438 0.0339     0      0
+##  4 Emma                to     5239 0.0325     0      0
+##  5 Emma                the    5201 0.0323     0      0
+##  6 Emma                and    4896 0.0304     0      0
+##  7 Mansfield Park      of     4778 0.0298     0      0
+##  8 Pride and Prejudice the    4331 0.0354     0      0
+##  9 Emma                of     4291 0.0267     0      0
+## 10 Pride and Prejudice to     4162 0.0340     0      0
+## # … with 28,488 more rows
+```
+
+
+---
+
+## **Calculating tf-idf**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+book_tfidf %&gt;%
+    arrange(-tf_idf)
+```
+
+---
+
+## **Calculating tf-idf**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+book_tfidf %&gt;%
+    arrange(-tf_idf)
+```
+
+```
+## # A tibble: 28,498 x 6
+##   title                 word          n      tf   idf  tf_idf
+##   &lt;chr&gt;                 &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+## 1 Sense and Sensibility elinor      622 0.00518 1.39  0.00718
+## 2 Emma                  emma        786 0.00488 1.39  0.00677
+## 3 Sense and Sensibility marianne    492 0.00410 1.39  0.00568
+## 4 Mansfield Park        crawford    493 0.00307 1.39  0.00426
+## 5 Pride and Prejudice   darcy       373 0.00305 1.39  0.00423
+## 6 Mansfield Park        fanny       816 0.00509 0.693 0.00352
+## 7 Pride and Prejudice   elizabeth   597 0.00488 0.693 0.00338
+## 8 Emma                  weston      389 0.00242 1.39  0.00335
+## # … with 28,490 more rows
+```
+
+---
+
+## **Calculating tf-idf**
+
+.unscramble[U N S C R A M B L E]
+
+```
+group_by(title) %&gt;%
+```
+```
+book_tfidf %&gt;%
+```
+```
+slice_max(tf_idf, n = 10) %&gt;%
+```
+```
+ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
+```
+```
+facet_wrap(~title, scales = "free")
+```
+```
+geom_col(show.legend = FALSE) +
+```
+---
+
+## **Calculating tf-idf**
+
+
+```r
+book_tfidf %&gt;%
+    group_by(title) %&gt;%
+    slice_max(tf_idf, n = 10) %&gt;%
+    ggplot(aes(tf_idf,
+*              fct_reorder(word, tf_idf),
+               fill = title)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~title, scales = "free")
+```
+
+---
+
+![](02-more-eda_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+background-image: url(figs/plot_tf_idf-1.png)
+background-size: 800px
+
+---
+
+## **N-grams... and beyond!** 🚀
+
+
+```r
+full_text &lt;- gutenberg_download(158, mirror = my_mirror)
+
+tidy_ngram &lt;- full_text %&gt;%
+*   unnest_tokens(bigram, text, token = "ngrams", n = 2) %&gt;%
+    filter(!is.na(bigram))
+```
+
+---
+
+## **N-grams... and beyond!** 🚀
+
+
+```r
+tidy_ngram
+```
+
+```
+## # A tibble: 147,313 x 2
+##    gutenberg_id bigram            
+##           &lt;int&gt; &lt;chr&gt;             
+##  1          158 by jane           
+##  2          158 jane austen       
+##  3          158 volume i          
+##  4          158 chapter i         
+##  5          158 emma woodhouse    
+##  6          158 woodhouse handsome
+##  7          158 handsome clever   
+##  8          158 clever and        
+##  9          158 and rich          
+## 10          158 rich with         
+## # … with 147,303 more rows
+```
+
+
+---
+
+## **N-grams... and beyond!** 🚀
+
+
+```r
+tidy_ngram %&gt;%
+    count(bigram, sort = TRUE)
+```
+
+```
+## # A tibble: 61,209 x 2
+##    bigram       n
+##    &lt;chr&gt;    &lt;int&gt;
+##  1 to be      586
+##  2 of the     529
+##  3 it was     430
+##  4 in the     416
+##  5 i am       384
+##  6 she had    320
+##  7 she was    312
+##  8 it is      281
+##  9 had been   277
+## 10 i have     267
+## # … with 61,199 more rows
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Can we use an `anti_join()` right away to remove stop words?
+
+- Yes! ✅
+- No ☹️
+
+---
+
+## **N-grams... and beyond!** 🚀
+
+
+```r
+bigram_counts &lt;- tidy_ngram %&gt;%
+*   separate(bigram, c("word1", "word2"), sep = " ") %&gt;%
+    filter(!word1 %in% stop_words$word,
+           !word2 %in% stop_words$word) %&gt;%
+    count(word1, word2, sort = TRUE)
+```
+
+---
+
+## **N-grams... and beyond!** 🚀
+
+
+```r
+bigram_counts
+```
+
+```
+## # A tibble: 6,502 x 3
+##    word1 word2         n
+##    &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;
+##  1 miss  woodhouse   143
+##  2 frank churchill   114
+##  3 miss  fairfax      98
+##  4 miss  bates        92
+##  5 jane  fairfax      88
+##  6 miss  smith        47
+##  7 john  knightley    44
+##  8 miss  taylor       38
+##  9 dear  emma         31
+## 10 maple grove        28
+## # … with 6,492 more rows
+```
+
+---
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+class: inverse
+
+## What can you do with n-grams?
+
+- tf-idf of n-grams
+
+--
+
+- network analysis
+
+--
+
+- negation
+
+---
+
+background-image: url(figs/austen-1.png)
+background-size: 750px
+
+---
+
+background-image: url(figs/slider.gif)
+background-position: 50% 70%
+
+## **What can you do with n-grams?**
+
+### [She Giggles, He Gallops](https://pudding.cool/2017/08/screen-direction/)
+
+---
+
+background-image: url(figs/change_overall-1.svg)
+background-size: contain
+background-position: center
+
+---
+
+## **Network analysis**
+
+
+```r
+library(widyr)
+library(ggraph)
+library(tidygraph)
+
+bigram_graph &lt;- bigram_counts %&gt;%
+    filter(n &gt; 5) %&gt;%
+*   as_tbl_graph()
+```
+
+---
+
+## **Network analysis**
+
+
+```r
+bigram_graph
+```
+
+```
+## # A tbl_graph: 64 nodes and 52 edges
+## #
+## # A directed acyclic simple graph with 18 components
+## #
+## # Node Data: 64 x 1 (active)
+##   name 
+##   &lt;chr&gt;
+## 1 miss 
+## 2 frank
+## 3 jane 
+## 4 john 
+## 5 dear 
+## 6 maple
+## # … with 58 more rows
+## #
+## # Edge Data: 52 x 3
+##    from    to     n
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;
+## 1     1    29   143
+## 2     2    30   114
+## 3     1    31    98
+## # … with 49 more rows
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Is `bigram_graph` a tidy dataset?
+
+- Yes ☑️
+- No 🚫
+
+---
+
+## **Network analysis**
+
+
+```r
+bigram_graph %&gt;%
+    ggraph(layout = "kk") +
+*   geom_edge_link(aes(edge_alpha = n)) +
+*   geom_node_text(aes(label = name)) +
+    theme_graph() 
+```
+
+---
+
+## **Network analysis**
+
+
+```r
+bigram_graph %&gt;%
+    ggraph(layout = "kk") +
+*   geom_edge_link(aes(edge_alpha = n),
+                   show.legend = FALSE, 
+                   arrow = arrow(length = unit(1.5, 'mm')), 
+                   start_cap = circle(3, 'mm'),
+                   end_cap = circle(3, 'mm')) +
+*   geom_node_text(aes(label = name)) +
+    theme_graph()
+```
+
+---
+
+
+![](02-more-eda_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+
+---
+
+class: left, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Thanks!
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLanguage": "r",
+"highlightStyle": "docco",
+"highlightLines": true,
+"slideNumberFormat": "%current%",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

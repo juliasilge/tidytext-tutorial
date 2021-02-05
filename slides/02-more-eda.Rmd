@@ -1,0 +1,434 @@
+---
+title: "Text Mining"
+subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+output:
+  xaringan::moon_reader:
+    css: ["default", "css/xaringanthemer.css", "css/footer_plus.css"]
+    lib_dir: libs
+    nature:
+      highlightLanguage: "r"
+      highlightStyle: "docco"
+      highlightLines: true
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+    seal: false  
+    includes:
+      in_header: header.html
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE,
+        width = 80)
+library(knitr)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, 
+                      dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+```
+
+layout: true
+
+<div class="my-footer"><span>bit.ly/tidytext-tutorial</span></div> 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# Text Mining
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Find me at...
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+
+---
+
+## Let's install some packages
+
+```{r, eval=FALSE}
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr",
+                   "widyr",
+                   "tidygraph",
+                   "ggraph"))
+```
+
+
+---
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+class: inverse, center, middle
+
+## WHAT IS A DOCUMENT ABOUT? `r emo::ji("thinking")`
+
+---
+
+## **What is a document about?**
+
+- Term frequency
+- Inverse document frequency
+
+$$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$
+
+### tf-idf is about comparing **documents** within a **collection**.
+
+---
+
+## **Understanding tf-idf**
+
+Make a collection (*corpus*) for yourself! `r emo::ji("nail")`
+
+```{r}
+library(gutenbergr)
+full_collection <- gutenberg_download(c(141, 158, 161, 1342),
+                                      meta_fields = "title",
+                                      mirror = my_mirror)
+```
+
+---
+
+## **Understanding tf-idf**
+
+Make a collection (*corpus*) for yourself! `r emo::ji("nail")`
+
+```{r}
+full_collection
+```
+
+---
+
+## **Counting word frequencies in your collection**
+
+```{r}
+library(tidyverse)
+library(tidytext)
+
+book_words <- full_collection %>%
+    unnest_tokens(word, text) %>%                #<<
+    count(title, word, sort = TRUE)
+```
+
+What do the columns of `book_words` tell us?
+
+---
+
+## **Calculating tf-idf**
+
+```{r}
+book_tfidf <- book_words %>%
+    bind_tf_idf(word, title, n)            #<<
+```
+
+---
+
+## **Calculating tf-idf**
+
+That's... super exciting???
+
+```{r}
+book_tfidf
+```
+
+
+---
+
+## **Calculating tf-idf**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r, eval=FALSE}
+book_tfidf %>%
+    arrange(-tf_idf)
+```
+
+---
+
+## **Calculating tf-idf**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r R.options = list(tibble.print_min=8)}
+book_tfidf %>%
+    arrange(-tf_idf)
+```
+
+---
+
+## **Calculating tf-idf**
+
+.unscramble[U N S C R A M B L E]
+
+```
+group_by(title) %>%
+```
+```
+book_tfidf %>%
+```
+```
+slice_max(tf_idf, n = 10) %>%
+```
+```
+ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
+```
+```
+facet_wrap(~title, scales = "free")
+```
+```
+geom_col(show.legend = FALSE) +
+```
+---
+
+## **Calculating tf-idf**
+
+```{r, eval = FALSE}
+book_tfidf %>%
+    group_by(title) %>%
+    slice_max(tf_idf, n = 10) %>%
+    ggplot(aes(tf_idf,
+               fct_reorder(word, tf_idf),               #<<
+               fill = title)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~title, scales = "free")
+```
+
+---
+
+```{r, echo=FALSE, fig.height=3.9}
+book_tfidf %>%
+    group_by(title) %>%
+    slice_max(tf_idf, n = 10) %>%
+    ggplot(aes(tf_idf,
+               fct_reorder(word, tf_idf), 
+               fill = title)) +
+    geom_col(alpha = 0.9, show.legend = FALSE) +
+    facet_wrap(~title, scales = "free") +
+    scale_x_continuous(expand = c(0,0)) +
+    labs(y = NULL, x = "tf-idf")
+```
+
+---
+
+background-image: url(figs/plot_tf_idf-1.png)
+background-size: 800px
+
+---
+
+## **N-grams... and beyond!** `r emo::ji("rocket")`
+
+```{r}
+full_text <- gutenberg_download(158, mirror = my_mirror)
+
+tidy_ngram <- full_text %>%
+    unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%        #<<
+    filter(!is.na(bigram))
+```
+
+---
+
+## **N-grams... and beyond!** `r emo::ji("rocket")`
+
+```{r}
+tidy_ngram
+```
+
+
+---
+
+## **N-grams... and beyond!** `r emo::ji("rocket")`
+
+```{r}
+tidy_ngram %>%
+    count(bigram, sort = TRUE)
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Can we use an `anti_join()` right away to remove stop words?
+
+- Yes! `r emo::ji("white_check_mark")`
+- No `r emo::ji("frowning_face")`
+
+---
+
+## **N-grams... and beyond!** `r emo::ji("rocket")`
+
+```{r}
+bigram_counts <- tidy_ngram %>%
+    separate(bigram, c("word1", "word2"), sep = " ") %>%         #<<
+    filter(!word1 %in% stop_words$word,
+           !word2 %in% stop_words$word) %>%
+    count(word1, word2, sort = TRUE)
+```
+
+---
+
+## **N-grams... and beyond!** `r emo::ji("rocket")`
+
+```{r}
+bigram_counts
+```
+
+---
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+class: inverse
+
+## What can you do with n-grams?
+
+- tf-idf of n-grams
+
+--
+
+- network analysis
+
+--
+
+- negation
+
+---
+
+background-image: url(figs/austen-1.png)
+background-size: 750px
+
+---
+
+background-image: url(figs/slider.gif)
+background-position: 50% 70%
+
+## **What can you do with n-grams?**
+
+### [She Giggles, He Gallops](https://pudding.cool/2017/08/screen-direction/)
+
+---
+
+background-image: url(figs/change_overall-1.svg)
+background-size: contain
+background-position: center
+
+---
+
+## **Network analysis**
+
+```{r}
+library(widyr)
+library(ggraph)
+library(tidygraph)
+
+bigram_graph <- bigram_counts %>%
+    filter(n > 5) %>%
+    as_tbl_graph()                  #<<
+```
+
+---
+
+## **Network analysis**
+
+```{r}
+bigram_graph
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Is `bigram_graph` a tidy dataset?
+
+- Yes `r emo::ji("ballot_box_with_check")`
+- No `r emo::ji("no_entry_sign")`
+
+---
+
+## **Network analysis**
+
+```{r eval = FALSE}
+bigram_graph %>%
+    ggraph(layout = "kk") +
+    geom_edge_link(aes(edge_alpha = n)) +              #<<
+    geom_node_text(aes(label = name)) +                #<<
+    theme_graph() 
+```
+
+---
+
+## **Network analysis**
+
+```{r eval = FALSE}
+bigram_graph %>%
+    ggraph(layout = "kk") +
+    geom_edge_link(aes(edge_alpha = n),             #<<
+                   show.legend = FALSE, 
+                   arrow = arrow(length = unit(1.5, 'mm')), 
+                   start_cap = circle(3, 'mm'),
+                   end_cap = circle(3, 'mm')) +
+    geom_node_text(aes(label = name)) +             #<<
+    theme_graph()
+```
+
+---
+
+
+```{r echo = FALSE, fig.height=4}
+set.seed(2021)
+bigram_graph %>%
+    ggraph(layout = "kk") +
+    geom_edge_link(aes(edge_alpha = n), 
+                   show.legend = FALSE, 
+                   arrow = arrow(length = unit(1.5, 'mm')), 
+                   start_cap = circle(3.4, 'mm'),
+                   end_cap = circle(3.3, 'mm')) +
+    geom_node_text(aes(label = name),
+                   size = 3,
+                   family = "RobotoCondensed-Regular") +
+    theme_graph()
+```
+
+
+---
+
+class: left, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Thanks!
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+
