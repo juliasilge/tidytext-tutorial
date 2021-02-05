@@ -57,8 +57,9 @@ Please tune into the workshop with a computer that has the following installed (
 
 ```{r eval=FALSE, echo=TRUE}
 install.packages(c("tidyverse", "tidytext", 
-                   "gutenbergr",
+                   "gutenbergr", "widyr",
                    "stopwords", "stm",
+                   "tidygraph", "ggraph",
                    "tidymodels", "glmnet", 
                    "vip", "textrecipes"))
 
