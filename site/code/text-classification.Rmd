@@ -1,0 +1,187 @@
+---
+title: "Text mining with tidy data principles: text classification"
+author: "Julia Silge"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+```
+
+## Download data
+
+First download data to use in modeling:
+
+https://www.gutenberg.org/browse/scores/top
+
+Choose two books you want to use in modeling.
+
+```{r}
+library(tidyverse)
+library(gutenbergr)
+
+titles <- c("The War of the Worlds",
+            "Pride and Prejudice")
+
+books <- gutenberg_works(title %in% titles) %>%
+    gutenberg_download(meta_fields = "title", mirror = my_mirror) %>%
+    mutate(title = str_replace_all(title, " ", "_")) %>%
+    filter(nchar(text) > 3) %>%
+    mutate(document = row_number())
+
+books
+```
+
+## Spend your data budget
+
+We can start out by splitting our data into training and testing sets.
+
+```{r}
+library(tidymodels)
+
+set.seed(123)
+book_split <- initial_split(books, strata = title)
+book_train <- ___
+nrow(book_train)
+
+book_test <- ___
+nrow(book_test)
+```
+
+We should _not_ use the test set for choosing, comparing, or tuning models, so we can create resampled data sets as well.
+
+```{r}
+set.seed(234)
+book_folds <- vfold_cv(book_train, strata = title)
+book_folds
+```
+
+## Specify a model
+
+What do you predict will happen if we run the following code?
+
+**PREDICT WITH YOUR NEIGHBOR BEFORE YOU RUN**
+
+```{r}
+lasso_spec <- logistic_reg(___) %>%
+    set_engine("glmnet")
+
+lasso_spec
+```
+
+## Feature engineering
+
+What do you predict will happen if we run the following code?
+
+**PREDICT WITH YOUR NEIGHBOR BEFORE YOU RUN**
+
+```{r}
+book_rec <- recipe(title ~ text, data = book_train) %>%
+    ___  %>% 
+    ___ %>%  
+    step_tokenfilter(text, max_tokens = 500) %>%
+    step_tfidf(text)
+
+book_rec
+```
+
+
+## Tune a model `workflow()`
+
+```{r}
+book_wf <- workflow() %>%
+    add_recipe(book_rec) %>%
+    add_model(lasso_spec)
+
+book_wf
+```
+
+```{r}
+narrower_penalty <- penalty(range = c(-5, 0))
+
+set.seed(2021)
+lasso_grid <- tune_grid(
+    ___,
+    resamples = book_folds,
+    param_info = parameters(narrower_penalty),
+    grid = 20
+)
+
+lasso_grid
+```
+
+## Choose and evaluate final model
+
+Which model was the best? We can choose the simplest model that is within one standard error of the optimal result.
+
+```{r}
+show_best(lasso_grid)
+
+autoplot(lasso_grid)
+
+simple_lasso <- select_by_one_std_err(
+    lasso_grid, 
+    ___, 
+    metric = "roc_auc"
+)
+
+simple_lasso
+```
+
+Now let's finalize our original, tunable workflow with this set of parameters and then **fit** to the training data and **evaluate** on the testing data. This is the first time we have touched the testing data.
+
+```{r}
+book_final <- book_wf %>%
+    finalize_workflow(simple_lasso) %>%
+    ___(book_split)
+
+collect_metrics(book_final)
+```
+
+How did the model perform on the testing data?
+
+```{r}
+collect_predictions(book_final)
+
+collect_predictions(book_final) %>%
+    ___(title, .pred_class)
+
+collect_predictions(book_final) %>%
+    ___(title, .pred_Pride_and_Prejudice) %>%
+    autoplot()
+```
+
+## Variable importance
+
+Which variables (words) were most importance in driving a prediction more toward one title vs. the other? This computation uses the fitted workflow/model we just trained.
+
+```{r}
+library(vip)
+
+book_vip <- book_final$.workflow[[1]] %>%
+    pull_workflow_fit() %>%
+    vi()
+
+book_vip
+```
+
+```{r}
+book_vip %>%
+    group_by(Sign) %>%
+    ___(abs(Importance), n = 15) %>%
+    ungroup() %>%
+    mutate(
+        Importance = abs(Importance),
+        Variable = fct_reorder(Variable, Importance)
+    ) %>%
+    ___ +
+    geom_col() +
+    facet_wrap(~Sign)
+```
+
+
+**GO EXPLORE REAL-WORLD TEXT!**
+
+Thanks for learning with me! <3

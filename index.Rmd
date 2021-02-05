@@ -73,6 +73,10 @@ install.packages(c("tidyverse", "tidytext",
 - 03: [Topic modeling](slides/03-topic-models.html)
 - 04: [Supervised text models](slides/04-sml-text.html)
 
+## Code
+
+R Markdown files for working along [are available on GitHub](https://github.com/juliasilge/tidytext-tutorial/tree/master/code).
+
 ## Past workshops
 
 - [16 October 2017 for Portland R-Ladies and Portland R User Group](https://www.meetup.com/R-Ladies-PDX/events/243376514/)
