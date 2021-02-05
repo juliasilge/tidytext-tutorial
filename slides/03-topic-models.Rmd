@@ -77,6 +77,14 @@ install.packages(c("tidyverse",
 
 ---
 
+background-image: url(figs/tmwr_0601.png)
+background-position: 50% 70%
+background-size: 750px
+
+## **Workflow for text mining/modeling**
+
+---
+
 class: inverse
 
 background-image: url(figs/p_and_p_cover.png)
@@ -607,6 +615,23 @@ Topic modeling is an example of...
 - .unscramble[unsupervised machine learning]
 
 .footnote[<https://juliasilge.com/blog/evaluating-stm/>]
+
+---
+
+background-image: url(figs/tmwr_0601.png)
+background-position: 50% 70%
+background-size: 750px
+
+## **Workflow for text mining/modeling**
+
+---
+
+
+background-image: url(figs/lizzieskipping.gif)
+background-position: 50% 55%
+background-size: 750px
+
+# **Go explore real-world text!**
 
 ---
 
