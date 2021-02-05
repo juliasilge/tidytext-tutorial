@@ -378,16 +378,13 @@ tidy_book %&gt;%
 count(word, sort = TRUE) %&gt;%
 ```
 ```
-coord_flip()
-```
-```
 geom_col() +
 ```
 ```
 slice_max(n, n = 20) %&gt;%
 ```
 ```
-ggplot(aes(fct_reorder(word, n), n)) +  
+ggplot(aes(n, fct_reorder(word, n))) + 
 ```
 
 ---
@@ -400,9 +397,8 @@ tidy_book %&gt;%
   anti_join(get_stopwords(source = "smart")) %&gt;%
   count(word, sort = TRUE) %&gt;%
   slice_max(n, n = 20) %&gt;%
-* ggplot(aes(fct_reorder(word, n), n)) +
-  geom_col() +
-  coord_flip()
+* ggplot(aes(n, fct_reorder(word, n))) +
+  geom_col()
 ```
 
 
@@ -620,11 +616,10 @@ tidy_book %&gt;%
   group_by(sentiment) %&gt;%
   slice_max(n, n = 10) %&gt;%
   ungroup %&gt;%
-* ggplot(aes(fct_reorder(word, n),
-             n, 
+  ggplot(aes(n,
+*            fct_reorder(word, n),
              fill = sentiment)) +
   geom_col() +
-  coord_flip() +
   facet_wrap(~ sentiment, scales = "free") 
 ```
 
