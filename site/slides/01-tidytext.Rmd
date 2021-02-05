@@ -244,16 +244,13 @@ tidy_book %>%
 count(word, sort = TRUE) %>%
 ```
 ```
-coord_flip()
-```
-```
 geom_col() +
 ```
 ```
 slice_max(n, n = 20) %>%
 ```
 ```
-ggplot(aes(fct_reorder(word, n), n)) +  
+ggplot(aes(n, fct_reorder(word, n))) + 
 ```
 
 ---
@@ -265,9 +262,8 @@ tidy_book %>%
   anti_join(get_stopwords(source = "smart")) %>%
   count(word, sort = TRUE) %>%
   slice_max(n, n = 20) %>%
-  ggplot(aes(fct_reorder(word, n), n)) +            #<<
-  geom_col() +
-  coord_flip()
+  ggplot(aes(n, fct_reorder(word, n))) +            #<<
+  geom_col()
 ```
 
 
@@ -280,11 +276,10 @@ tidy_book %>%
   anti_join(get_stopwords(source = "smart")) %>%
   count(word, sort = TRUE) %>%
   slice_max(n, n = 20) %>%
-  ggplot(aes(fct_reorder(word, n), n)) +
+  ggplot(aes(n, fct_reorder(word, n))) +
   geom_col(fill = "midnightblue", alpha = 0.9) +
-  coord_flip() +
-  scale_y_continuous(expand = c(0,0)) +
-  labs(x = NULL, y = "Number of occurrences")
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL, x = "Number of occurrences")
 ```
 
 ---
@@ -397,11 +392,10 @@ tidy_book %>%
   group_by(sentiment) %>%
   slice_max(n, n = 10) %>%
   ungroup %>%
-  ggplot(aes(fct_reorder(word, n),               #<<
-             n, 
+  ggplot(aes(n,
+             fct_reorder(word, n),               #<<
              fill = sentiment)) +
   geom_col() +
-  coord_flip() +
   facet_wrap(~ sentiment, scales = "free") 
 ```
 
@@ -416,12 +410,11 @@ tidy_book %>%
   group_by(sentiment) %>%
   slice_max(n, n = 10) %>%
   ungroup %>%
-  ggplot(aes(fct_reorder(word, n), n, fill = sentiment)) +
+  ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
   geom_col(alpha = 0.9, show.legend = FALSE) +
-  coord_flip() +
   facet_wrap(~ sentiment, scales = "free") +
-  scale_y_continuous(expand = c(0,0)) +
-  labs(x = NULL, y = "Number of occurrences")
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL, x = "Number of occurrences")
 ```
 
 ---
