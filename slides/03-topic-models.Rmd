@@ -260,7 +260,7 @@ group_by(topic) %>%
 arrange(topic, -beta)
 ```
 ```
-top_n(10, beta) %>%
+slice_max(beta, n = 10) %>%
 ```
 
 
@@ -271,7 +271,7 @@ top_n(10, beta) %>%
 ```{r}
 top_terms <- chapter_topics %>%
   group_by(topic) %>%
-  top_n(10, beta) %>%
+  slice_max(beta, n = 10) %>%
   ungroup() %>%
   arrange(topic, -beta)
 ```

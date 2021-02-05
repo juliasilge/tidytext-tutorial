@@ -340,7 +340,7 @@ group_by(topic) %&gt;%
 arrange(topic, -beta)
 ```
 ```
-top_n(10, beta) %&gt;%
+slice_max(beta, n = 10) %&gt;%
 ```
 
 
@@ -352,7 +352,7 @@ top_n(10, beta) %&gt;%
 ```r
 top_terms &lt;- chapter_topics %&gt;%
   group_by(topic) %&gt;%
-  top_n(10, beta) %&gt;%
+  slice_max(beta, n = 10) %&gt;%
   ungroup() %&gt;%
   arrange(topic, -beta)
 ```
