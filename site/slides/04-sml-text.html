@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Mining</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Julia Silge" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/5235085b15.js"></script>
+    <link rel="stylesheet" href="css/xaringanthemer.css" type="text/css" />
+    <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/tidytext-tutorial&lt;/span&gt;&lt;/div&gt; 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# Text Mining
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Find me at...
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+
+---
+
+## Let's install some packages
+
+
+```r
+install.packages(c("tidyverse", 
+                   "tidymodels",
+                   "textrecipes",
+                   "stopwords"))
+```
+
+---
+
+class: right, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# TEXT CLASSIFICATION
+&lt;h1 class="fa fa-balance-scale fa-fw"&gt;&lt;/h1&gt;
+
+---
+
+class: top
+
+background-image: url(figs/tm-org.png)
+background-size: 900px
+
+---
+
+
+```r
+library(tidymodels)
+```
+
+```
+## ── Attaching packages ────────────────────────────────────── tidymodels 0.1.2 ──
+```
+
+```
+## ✓ broom     0.7.4      ✓ recipes   0.1.15
+## ✓ dials     0.0.9      ✓ rsample   0.0.8 
+## ✓ infer     0.5.4      ✓ tune      0.1.2 
+## ✓ modeldata 0.1.0      ✓ workflows 0.2.1 
+## ✓ parsnip   0.1.5      ✓ yardstick 0.0.7
+```
+
+```
+## ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+## x scales::discard() masks purrr::discard()
+## x dplyr::filter()   masks stats::filter()
+## x recipes::fixed()  masks stringr::fixed()
+## x dplyr::lag()      masks stats::lag()
+## x yardstick::spec() masks readr::spec()
+## x recipes::step()   masks stats::step()
+```
+
+
+
+---
+
+# Learn more
+
+--
+
+- &lt;https://www.tidymodels.org/&gt;
+
+--
+
+- [Tidy Modeling with R](https://www.tmwr.org/)
+
+--
+
+- [Supervised Machine Learning for Text Analysis in R](https://smltar.com/)
+
+---
+
+## **Downloading your text data**
+
+
+```r
+library(tidyverse)
+library(gutenbergr)
+
+titles &lt;- c("The War of the Worlds",
+            "Pride and Prejudice")
+
+books &lt;- gutenberg_works(title %in% titles) %&gt;%
+    gutenberg_download(meta_fields = "title", mirror = my_mirror) %&gt;%
+    mutate(title = str_replace_all(title, " ", "_")) %&gt;%
+    filter(nchar(text) &gt; 3) %&gt;%
+    mutate(document = row_number())
+```
+
+---
+
+## **Downloading your text data**
+
+
+```r
+books
+```
+
+```
+## # A tibble: 17,284 x 4
+##    gutenberg_id text                                     title          document
+##           &lt;int&gt; &lt;chr&gt;                                    &lt;chr&gt;             &lt;int&gt;
+##  1           36 "The War of the Worlds"                  The_War_of_th…        1
+##  2           36 "by H. G. Wells [1898]"                  The_War_of_th…        2
+##  3           36 "     But who shall dwell in these worl… The_War_of_th…        3
+##  4           36 "     inhabited? .  .  .  Are we or the… The_War_of_th…        4
+##  5           36 "     World? .  .  .  And how are all t… The_War_of_th…        5
+##  6           36 "          KEPLER (quoted in The Anatom… The_War_of_th…        6
+##  7           36 "BOOK ONE"                               The_War_of_th…        7
+##  8           36 "THE COMING OF THE MARTIANS"             The_War_of_th…        8
+##  9           36 "CHAPTER ONE"                            The_War_of_th…        9
+## 10           36 "THE EVE OF THE WAR"                     The_War_of_th…       10
+## # … with 17,274 more rows
+```
+
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# SPEND YOUR DATA BUDGET 💰
+
+---
+
+## **Spend your data budget**
+
+
+```r
+set.seed(123)
+book_split &lt;- initial_split(books, strata = title)
+book_split
+```
+
+```
+## &lt;Analysis/Assess/Total&gt;
+## &lt;12964/4320/17284&gt;
+```
+
+---
+
+## **Spend your data budget**
+
+
+```r
+book_train &lt;- training(book_split)
+book_train
+```
+
+```
+## # A tibble: 12,964 x 4
+##    gutenberg_id text                                     title          document
+##           &lt;int&gt; &lt;chr&gt;                                    &lt;chr&gt;             &lt;int&gt;
+##  1           36 "by H. G. Wells [1898]"                  The_War_of_th…        2
+##  2           36 "     But who shall dwell in these worl… The_War_of_th…        3
+##  3           36 "     inhabited? .  .  .  Are we or the… The_War_of_th…        4
+##  4           36 "     World? .  .  .  And how are all t… The_War_of_th…        5
+##  5           36 "          KEPLER (quoted in The Anatom… The_War_of_th…        6
+##  6           36 "BOOK ONE"                               The_War_of_th…        7
+##  7           36 "THE COMING OF THE MARTIANS"             The_War_of_th…        8
+##  8           36 "CHAPTER ONE"                            The_War_of_th…        9
+##  9           36 "THE EVE OF THE WAR"                     The_War_of_th…       10
+## 10           36 "No one would have believed in the last… The_War_of_th…       11
+## # … with 12,954 more rows
+```
+
+---
+
+## **Spend your data budget**
+
+
+```r
+book_test &lt;- testing(book_split)
+book_test
+```
+
+```
+## # A tibble: 4,320 x 4
+##    gutenberg_id text                                      title         document
+##           &lt;int&gt; &lt;chr&gt;                                     &lt;chr&gt;            &lt;int&gt;
+##  1           36 The War of the Worlds                     The_War_of_t…        1
+##  2           36 intelligences greater than man's and yet… The_War_of_t…       13
+##  3           36 microscope might scrutinise the transien… The_War_of_t…       16
+##  4           36 multiply in a drop of water.  With infin… The_War_of_t…       17
+##  5           36 and fro over this globe about their litt… The_War_of_t…       18
+##  6           36 early in the twentieth century came the … The_War_of_t…       30
+##  7           36 sun at a mean distance of 140,000,000 mi… The_War_of_t…       32
+##  8           36 surface must have begun its course.  The… The_War_of_t…       36
+##  9           36 exhaustion, which to us is still incredi… The_War_of_t…       55
+## 10           36 pressure of necessity has brightened the… The_War_of_t…       57
+## # … with 4,310 more rows
+```
+
+---
+
+## **Spend your data budget**
+
+
+```r
+set.seed(123)
+book_split &lt;- initial_split(books, strata = title)
+book_train &lt;- training(book_split)
+nrow(book_train)
+```
+
+```
+## [1] 12964
+```
+
+```r
+book_test &lt;- testing(book_split)
+nrow(book_test)
+```
+
+```
+## [1] 4320
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Is the `book_split` object a tidy dataset?
+
+- Yes ✅
+- No 🚫
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# The test set is precious! 💎
+
+---
+
+background-image: url(https://www.tidymodels.org/start/resampling/img/resampling.svg)
+background-size: 70%
+
+---
+
+## **Spend your data budget**
+
+
+```r
+set.seed(234)
+book_folds &lt;- vfold_cv(book_train, strata = title)
+book_folds
+```
+
+```
+## #  10-fold cross-validation using stratification 
+## # A tibble: 10 x 2
+##    splits               id    
+##    &lt;list&gt;               &lt;chr&gt; 
+##  1 &lt;split [11.7K/1.3K]&gt; Fold01
+##  2 &lt;split [11.7K/1.3K]&gt; Fold02
+##  3 &lt;split [11.7K/1.3K]&gt; Fold03
+##  4 &lt;split [11.7K/1.3K]&gt; Fold04
+##  5 &lt;split [11.7K/1.3K]&gt; Fold05
+##  6 &lt;split [11.7K/1.3K]&gt; Fold06
+##  7 &lt;split [11.7K/1.3K]&gt; Fold07
+##  8 &lt;split [11.7K/1.3K]&gt; Fold08
+##  9 &lt;split [11.7K/1.3K]&gt; Fold09
+## 10 &lt;split [11.7K/1.3K]&gt; Fold10
+```
+
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# CREATING YOUR MODEL ✨
+
+---
+
+
+## **Specify a model**
+
+--
+
+- Pick a **model**
+
+--
+
+- Set the **mode** (if needed)
+
+--
+
+- Set the **engine**
+
+---
+
+
+## **Specify a model**
+
+All available models are listed at &lt;https://tidymodels.org/find/parsnip&gt;
+
+&lt;iframe src="https://tidymodels.org/find/parsnip" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+
+
+## **Specify a model**
+
+
+```r
+logistic_reg()
+```
+
+```
+## Logistic Regression Model Specification (classification)
+```
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+logistic_reg() %&gt;%
+    set_engine("glmnet")
+```
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+logistic_reg() %&gt;%
+    set_engine("glmnet")
+```
+
+```
+## Logistic Regression Model Specification (classification)
+## 
+## Computational engine: glmnet
+```
+
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+logistic_reg(penalty = tune(), mixture = 1) %&gt;%
+    set_engine("glmnet")
+```
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+logistic_reg(penalty = tune(), mixture = 1) %&gt;%
+    set_engine("glmnet")
+```
+
+```
+## Logistic Regression Model Specification (classification)
+## 
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet
+```
+
+---
+
+## **Specify a model**
+
+
+
+```r
+lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
+    set_engine("glmnet")
+
+lasso_spec
+```
+
+```
+## Logistic Regression Model Specification (classification)
+## 
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet
+```
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Have we fit the `lasso_spec` model to our data yet?
+
+- Yep 💃
+- Not yet 🙅
+
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# FEATURE ENGINEERING 🛠
+
+
+---
+
+background-image: url(https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/recipes.png)
+background-size: 1000px
+
+.footnote[Illustration by Allison Horst]
+
+---
+
+
+## **Specify a recipe**
+
+--
+
+- Start the `recipe()`
+
+--
+
+- Define the **variables**
+
+--
+
+- Describe preprocessing **step-by-step**
+
+
+
+---
+
+class: middle, center
+
+# .center[`step_*()`]
+
+All available recipe steps are listed at &lt;https://www.tidymodels.org/find/recipes/&gt;
+
+&lt;iframe src="https://www.tidymodels.org/find/recipes/" width="100%" height="400px"&gt;&lt;/iframe&gt;
+
+---
+
+class: center, right, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+
+# Preprocessing options
+
+Encode categorical predictors
+
+Center and scale variables
+
+Handle class imbalance
+
+Impute missing data
+
+Perform dimensionality reduction 
+
+*A lot more!*
+
+
+
+---
+
+## Estimate parameters using the training data
+
+
+```r
+library(textrecipes)
+recipe(title ~ text, data = book_train)
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          1
+```
+
+---
+
+## Estimate parameters using the training data
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+recipe(title ~ text, data = book_train) %&gt;%
+    step_tokenize(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+recipe(title ~ text, data = book_train) %&gt;%
+    step_tokenize(text)  %&gt;%
+    step_stopwords(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+What do you predict will happen if we run the following code? 🤔
+
+
+```r
+recipe(title ~ text, data = book_train) %&gt;%
+    step_tokenize(text)  %&gt;%
+    step_stopwords(text)
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          1
+## 
+## Operations:
+## 
+## Tokenization for text
+## Stop word removal for text
+```
+
+---
+
+## Estimate parameters using the training data
+
+
+```r
+book_rec &lt;- recipe(title ~ text, data = book_train) %&gt;%
+    step_tokenize(text)  %&gt;%
+    step_stopwords(text) %&gt;%
+    step_tokenfilter(text, max_tokens = 500) %&gt;%
+    step_tfidf(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+
+```r
+book_rec
+```
+
+```
+## Data Recipe
+## 
+## Inputs:
+## 
+##       role #variables
+##    outcome          1
+##  predictor          1
+## 
+## Operations:
+## 
+## Tokenization for text
+## Stop word removal for text
+## Text filtering for text
+## Term frequency-inverse document frequency with text
+```
+
+---
+
+## Combine recipe and model in `workflow()`
+
+
+```r
+book_wf &lt;- workflow() %&gt;%
+    add_recipe(book_rec) %&gt;%
+    add_model(lasso_spec)
+```
+
+---
+
+## Combine recipe and model in `workflow()`
+
+
+```
+## ══ Workflow ════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: logistic_reg()
+## 
+## ── Preprocessor ────────────────────────────────────────────────────────────────
+## 4 Recipe Steps
+## 
+## ● step_tokenize()
+## ● step_stopwords()
+## ● step_tokenfilter()
+## ● step_tfidf()
+## 
+## ── Model ───────────────────────────────────────────────────────────────────────
+## Logistic Regression Model Specification (classification)
+## 
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet
+```
+
+---
+
+## **Tune model with resampled data**
+
+
+```r
+narrower_penalty &lt;- penalty(range = c(-5, 0))
+
+set.seed(2021)
+lasso_grid &lt;- tune_grid(
+    book_wf,
+    resamples = book_folds,
+    param_info = parameters(narrower_penalty),
+    grid = 20
+)
+```
+
+---
+
+## **Tune model with resampled data**
+
+
+```r
+lasso_grid
+```
+
+```
+## # Tuning results
+## # 10-fold cross-validation using stratification 
+## # A tibble: 10 x 4
+##    splits               id     .metrics          .notes          
+##    &lt;list&gt;               &lt;chr&gt;  &lt;list&gt;            &lt;list&gt;          
+##  1 &lt;split [11.7K/1.3K]&gt; Fold01 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  2 &lt;split [11.7K/1.3K]&gt; Fold02 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  3 &lt;split [11.7K/1.3K]&gt; Fold03 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  4 &lt;split [11.7K/1.3K]&gt; Fold04 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  5 &lt;split [11.7K/1.3K]&gt; Fold05 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  6 &lt;split [11.7K/1.3K]&gt; Fold06 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  7 &lt;split [11.7K/1.3K]&gt; Fold07 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  8 &lt;split [11.7K/1.3K]&gt; Fold08 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+##  9 &lt;split [11.7K/1.3K]&gt; Fold09 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+## 10 &lt;split [11.7K/1.3K]&gt; Fold10 &lt;tibble [40 × 5]&gt; &lt;tibble [0 × 1]&gt;
+```
+
+---
+
+## **Evaluate models**
+
+
+
+```r
+show_best(lasso_grid)
+```
+
+```
+## # A tibble: 5 x 7
+##     penalty .metric .estimator  mean     n std_err .config              
+##       &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
+## 1 0.0000529 roc_auc binary     0.905    10 0.00305 Preprocessor1_Model03
+## 2 0.0000255 roc_auc binary     0.905    10 0.00308 Preprocessor1_Model02
+## 3 0.0000921 roc_auc binary     0.905    10 0.00303 Preprocessor1_Model04
+## 4 0.0000166 roc_auc binary     0.905    10 0.00308 Preprocessor1_Model01
+## 5 0.000112  roc_auc binary     0.905    10 0.00302 Preprocessor1_Model05
+```
+
+
+---
+
+## **Evaluate models**
+
+
+
+```r
+autoplot(lasso_grid)
+```
+
+---
+
+![](04-sml-text_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+
+
+---
+
+## **Finalize and fit workflow**
+
+
+```r
+simple_lasso &lt;- select_by_one_std_err(lasso_grid, -penalty, metric = "roc_auc")
+simple_lasso
+```
+
+```
+## # A tibble: 1 x 9
+##   penalty .metric .estimator  mean     n std_err .config            .best .bound
+##     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;  &lt;dbl&gt;
+## 1 0.00228 roc_auc binary     0.902    10 0.00276 Preprocessor1_Mod… 0.905  0.902
+```
+
+---
+
+## **Finalize and fit workflow**
+
+
+```r
+book_final &lt;- book_wf %&gt;%
+    finalize_workflow(simple_lasso) %&gt;%
+    last_fit(book_split)
+
+collect_metrics(book_final)
+```
+
+```
+## # A tibble: 2 x 4
+##   .metric  .estimator .estimate .config             
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
+## 1 accuracy binary         0.840 Preprocessor1_Model1
+## 2 roc_auc  binary         0.909 Preprocessor1_Model1
+```
+
+---
+
+## **Evaluate final model**
+
+
+```r
+collect_predictions(book_final)
+```
+
+```
+## # A tibble: 4,320 x 7
+##    id     .pred_Pride_and_… .pred_The_War_of…  .row .pred_class  title  .config 
+##    &lt;chr&gt;              &lt;dbl&gt;             &lt;dbl&gt; &lt;int&gt; &lt;fct&gt;        &lt;fct&gt;  &lt;chr&gt;   
+##  1 train…            0.656              0.344     1 Pride_and_P… The_W… Preproc…
+##  2 train…            0.656              0.344    13 Pride_and_P… The_W… Preproc…
+##  3 train…            0.846              0.154    16 Pride_and_P… The_W… Preproc…
+##  4 train…            0.0421             0.958    17 The_War_of_… The_W… Preproc…
+##  5 train…            0.624              0.376    18 Pride_and_P… The_W… Preproc…
+##  6 train…            0.392              0.608    30 The_War_of_… The_W… Preproc…
+##  7 train…            0.177              0.823    32 The_War_of_… The_W… Preproc…
+##  8 train…            0.639              0.361    36 Pride_and_P… The_W… Preproc…
+##  9 train…            0.425              0.575    55 The_War_of_… The_W… Preproc…
+## 10 train…            0.656              0.344    57 Pride_and_P… The_W… Preproc…
+## # … with 4,310 more rows
+```
+
+---
+
+## **Evaluate final model**
+
+
+```r
+collect_predictions(book_final) %&gt;%
+    conf_mat(title, .pred_class)
+```
+
+```
+##                        Truth
+## Prediction              Pride_and_Prejudice The_War_of_the_Worlds
+##   Pride_and_Prejudice                  2804                   536
+##   The_War_of_the_Worlds                 156                   824
+```
+
+---
+
+## **Evaluate final model**
+
+
+```r
+collect_predictions(book_final) %&gt;%
+    roc_curve(title, .pred_Pride_and_Prejudice) %&gt;%
+    autoplot()
+```
+
+---
+
+![](04-sml-text_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Is this the ROC curve for the training or testing data?
+
+- .unscramble[Training]
+- .unscramble[Testing]
+
+---
+
+## **Variable importance**
+
+
+```r
+library(vip)
+book_vip &lt;- book_final$.workflow[[1]] %&gt;%
+    pull_workflow_fit() %&gt;%
+    vi()
+
+book_vip
+```
+
+```
+## # A tibble: 500 x 3
+##   Variable             Importance Sign 
+##   &lt;chr&gt;                     &lt;dbl&gt; &lt;chr&gt;
+## 1 tfidf_text_martians        8.75 POS  
+## 2 tfidf_text_elizabeth       8.33 NEG  
+## 3 tfidf_text_darcy           6.98 NEG  
+## 4 tfidf_text_mr              6.80 NEG  
+## 5 tfidf_text_meryton         6.79 NEG  
+## 6 tfidf_text_bennet          6.69 NEG  
+## 7 tfidf_text_martian         6.58 POS  
+## 8 tfidf_text_bingley         6.54 NEG  
+## # … with 492 more rows
+```
+
+---
+
+## **Variable importance**
+
+
+```r
+book_vip %&gt;%
+  group_by(Sign) %&gt;%
+  slice_max(abs(Importance), n = 15) %&gt;%
+  ungroup() %&gt;%
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) %&gt;%
+  ggplot(aes(Importance, Variable, fill = Sign)) +
+  geom_col() +
+  facet_wrap(~Sign)
+```
+
+---
+
+
+![](04-sml-text_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
+
+
+---
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+## Jane wants to know...
+
+Text classification is an example of...
+
+- .unscramble[supervised machine learning]
+- .unscramble[unsupervised machine learning]
+
+---
+
+background-image: url(figs/lizzieskipping.gif)
+background-position: 50% 55%
+background-size: 750px
+
+# **Go explore real-world text!**
+
+---
+
+class: left, middle
+
+&lt;img src="figs/blue_jane.png" width="150px"/&gt;
+
+# Thanks!
+
+&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
+&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLanguage": "r",
+"highlightStyle": "docco",
+"highlightLines": true,
+"slideNumberFormat": "%current%",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

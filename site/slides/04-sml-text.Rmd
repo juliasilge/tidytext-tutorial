@@ -1,0 +1,712 @@
+---
+title: "Text Mining"
+subtitle: "<br><br>USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+output:
+  xaringan::moon_reader:
+    css: ["default", "css/xaringanthemer.css", "css/footer_plus.css"]
+    lib_dir: libs
+    nature:
+      highlightLanguage: "r"
+      highlightStyle: "docco"
+      highlightLines: true
+      slideNumberFormat: "%current%"
+      ratio: "16:9"
+    seal: false  
+    includes:
+      in_header: header.html
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE,
+        width = 80)
+library(knitr)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+doParallel::registerDoParallel()
+```
+
+layout: true
+
+<div class="my-footer"><span>bit.ly/tidytext-tutorial</span></div> 
+
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# Text Mining
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+### USING TIDY PRINCIPLES
+
+Julia Silge
+
+---
+
+class: right, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Find me at...
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+
+---
+
+## Let's install some packages
+
+```{r, eval=FALSE}
+install.packages(c("tidyverse", 
+                   "tidymodels",
+                   "textrecipes",
+                   "stopwords"))
+```
+
+---
+
+class: right, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+# TEXT CLASSIFICATION
+<h1 class="fa fa-balance-scale fa-fw"></h1>
+
+---
+
+class: top
+
+background-image: url(figs/tm-org.png)
+background-size: 900px
+
+---
+
+```{r message = TRUE}
+library(tidymodels)
+```
+
+
+
+---
+
+# Learn more
+
+--
+
+- <https://www.tidymodels.org/>
+
+--
+
+- [Tidy Modeling with R](https://www.tmwr.org/)
+
+--
+
+- [Supervised Machine Learning for Text Analysis in R](https://smltar.com/)
+
+---
+
+## **Downloading your text data**
+
+```{r}
+library(tidyverse)
+library(gutenbergr)
+
+titles <- c("The War of the Worlds",
+            "Pride and Prejudice")
+
+books <- gutenberg_works(title %in% titles) %>%
+    gutenberg_download(meta_fields = "title", mirror = my_mirror) %>%
+    mutate(title = str_replace_all(title, " ", "_")) %>%
+    filter(nchar(text) > 3) %>%
+    mutate(document = row_number())
+```
+
+---
+
+## **Downloading your text data**
+
+```{r}
+books
+```
+
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# SPEND YOUR DATA BUDGET `r emo::ji("moneybag")`
+
+---
+
+## **Spend your data budget**
+
+```{r}
+set.seed(123)
+book_split <- initial_split(books, strata = title)
+book_split
+```
+
+---
+
+## **Spend your data budget**
+
+```{r}
+book_train <- training(book_split)
+book_train
+```
+
+---
+
+## **Spend your data budget**
+
+```{r}
+book_test <- testing(book_split)
+book_test
+```
+
+---
+
+## **Spend your data budget**
+
+```{r}
+set.seed(123)
+book_split <- initial_split(books, strata = title)
+book_train <- training(book_split)
+nrow(book_train)
+book_test <- testing(book_split)
+nrow(book_test)
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Is the `book_split` object a tidy dataset?
+
+- Yes `r emo::ji("white_check_mark")`
+- No `r emo::ji("no_entry_sign")`
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# The test set is precious! `r emo::ji("gem")`
+
+---
+
+background-image: url(https://www.tidymodels.org/start/resampling/img/resampling.svg)
+background-size: 70%
+
+---
+
+## **Spend your data budget**
+
+```{r}
+set.seed(234)
+book_folds <- vfold_cv(book_train, strata = title)
+book_folds
+```
+
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# CREATING YOUR MODEL `r emo::ji("sparkles")`
+
+---
+
+
+## **Specify a model**
+
+--
+
+- Pick a **model**
+
+--
+
+- Set the **mode** (if needed)
+
+--
+
+- Set the **engine**
+
+---
+
+
+## **Specify a model**
+
+All available models are listed at <https://tidymodels.org/find/parsnip>
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_url("https://tidymodels.org/find/parsnip")
+```
+
+---
+
+
+## **Specify a model**
+
+```{r}
+logistic_reg()
+```
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r eval=FALSE}
+logistic_reg() %>%
+    set_engine("glmnet")
+```
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r}
+logistic_reg() %>%
+    set_engine("glmnet")
+```
+
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r eval=FALSE}
+logistic_reg(penalty = tune(), mixture = 1) %>%
+    set_engine("glmnet")
+```
+
+---
+
+
+## **Specify a model**
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r}
+logistic_reg(penalty = tune(), mixture = 1) %>%
+    set_engine("glmnet")
+```
+
+---
+
+## **Specify a model**
+
+
+```{r}
+lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>%
+    set_engine("glmnet")
+
+lasso_spec
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Have we fit the `lasso_spec` model to our data yet?
+
+- Yep `r emo::ji("dancer")`
+- Not yet `r emo::ji("no_good_woman")`
+
+
+---
+
+class: center, middle, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+# FEATURE ENGINEERING `r emo::ji("hammer_and_wrench")`
+
+
+---
+
+background-image: url(https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/recipes.png)
+background-size: 1000px
+
+.footnote[Illustration by Allison Horst]
+
+---
+
+
+## **Specify a recipe**
+
+--
+
+- Start the `recipe()`
+
+--
+
+- Define the **variables**
+
+--
+
+- Describe preprocessing **step-by-step**
+
+
+
+---
+
+class: middle, center
+
+# .center[`step_*()`]
+
+All available recipe steps are listed at <https://www.tidymodels.org/find/recipes/>
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_url("https://www.tidymodels.org/find/recipes/")
+```
+
+---
+
+class: center, right, inverse
+
+background-image: url(figs/p_and_p_cover.png)
+background-size: cover
+
+
+
+# Preprocessing options
+
+Encode categorical predictors
+
+Center and scale variables
+
+Handle class imbalance
+
+Impute missing data
+
+Perform dimensionality reduction 
+
+*A lot more!*
+
+
+
+---
+
+## Estimate parameters using the training data
+
+```{r}
+library(textrecipes)
+recipe(title ~ text, data = book_train)
+```
+
+---
+
+## Estimate parameters using the training data
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r eval=FALSE}
+recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r eval=FALSE}
+recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)  %>%
+    step_stopwords(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+What do you predict will happen if we run the following code? `r emo::ji("thinking")`
+
+```{r}
+recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)  %>%
+    step_stopwords(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+```{r}
+book_rec <- recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)  %>%
+    step_stopwords(text) %>%
+    step_tokenfilter(text, max_tokens = 500) %>%
+    step_tfidf(text)
+```
+
+---
+
+## Estimate parameters using the training data
+
+```{r}
+book_rec
+```
+
+---
+
+## Combine recipe and model in `workflow()`
+
+```{r}
+book_wf <- workflow() %>%
+    add_recipe(book_rec) %>%
+    add_model(lasso_spec)
+```
+
+---
+
+## Combine recipe and model in `workflow()`
+
+```{r echo=FALSE}
+book_wf
+```
+
+---
+
+## **Tune model with resampled data**
+
+```{r}
+narrower_penalty <- penalty(range = c(-5, 0))
+
+set.seed(2021)
+lasso_grid <- tune_grid(
+    book_wf,
+    resamples = book_folds,
+    param_info = parameters(narrower_penalty),
+    grid = 20
+)
+```
+
+---
+
+## **Tune model with resampled data**
+
+```{r}
+lasso_grid
+```
+
+---
+
+## **Evaluate models**
+
+
+```{r}
+show_best(lasso_grid)
+```
+
+
+---
+
+## **Evaluate models**
+
+
+```{r eval=FALSE}
+autoplot(lasso_grid)
+```
+
+---
+
+```{r fig.height=4, echo=FALSE}
+autoplot(lasso_grid)
+```
+
+
+---
+
+## **Finalize and fit workflow**
+
+```{r}
+simple_lasso <- select_by_one_std_err(lasso_grid, -penalty, metric = "roc_auc")
+simple_lasso
+```
+
+---
+
+## **Finalize and fit workflow**
+
+```{r}
+book_final <- book_wf %>%
+    finalize_workflow(simple_lasso) %>%
+    last_fit(book_split)
+
+collect_metrics(book_final)
+```
+
+---
+
+## **Evaluate final model**
+
+```{r}
+collect_predictions(book_final)
+```
+
+---
+
+## **Evaluate final model**
+
+```{r}
+collect_predictions(book_final) %>%
+    conf_mat(title, .pred_class)
+```
+
+---
+
+## **Evaluate final model**
+
+```{r eval=FALSE}
+collect_predictions(book_final) %>%
+    roc_curve(title, .pred_Pride_and_Prejudice) %>%
+    autoplot()
+```
+
+---
+
+```{r, echo=FALSE, fig.height=4}
+collect_predictions(book_final) %>%
+    roc_curve(title, .pred_Pride_and_Prejudice) %>%
+    ggplot(aes(1 - specificity, sensitivity)) +
+    geom_abline(lty = 2, color = "gray80", size = 1.5) +
+    geom_path(show.legend = FALSE, alpha = 0.8, size = 1.2, color = "midnightblue") +
+    coord_equal()
+```
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Is this the ROC curve for the training or testing data?
+
+- .unscramble[Training]
+- .unscramble[Testing]
+
+---
+
+## **Variable importance**
+
+```{r R.options = list(tibble.print_min=8)}
+library(vip)
+book_vip <- book_final$.workflow[[1]] %>%
+    pull_workflow_fit() %>%
+    vi()
+
+book_vip
+```
+
+---
+
+## **Variable importance**
+
+```{r eval=FALSE}
+book_vip %>%
+  group_by(Sign) %>%
+  slice_max(abs(Importance), n = 15) %>%
+  ungroup() %>%
+  mutate(
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance)
+  ) %>%
+  ggplot(aes(Importance, Variable, fill = Sign)) +
+  geom_col() +
+  facet_wrap(~Sign)
+```
+
+---
+
+
+```{r echo=FALSE, fig.height=4}
+book_vip %>%
+  group_by(Sign) %>%
+  slice_max(abs(Importance), n = 15) %>%
+  ungroup() %>%
+  mutate(
+    Variable = str_remove(Variable, "tfidf_text_"),
+    Importance = abs(Importance),
+    Variable = fct_reorder(Variable, Importance),
+    Sign = if_else(Sign == "POS", "H.G. Wells", "Jane Austen")
+  ) %>%
+  ggplot(aes(Importance, Variable, fill = Sign)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~Sign, scales = "free") +
+  labs(y = NULL)
+```
+
+
+---
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+## Jane wants to know...
+
+Text classification is an example of...
+
+- .unscramble[supervised machine learning]
+- .unscramble[unsupervised machine learning]
+
+---
+
+background-image: url(figs/lizzieskipping.gif)
+background-position: 50% 55%
+background-size: 750px
+
+# **Go explore real-world text!**
+
+---
+
+class: left, middle
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+# Thanks!
+
+<a href="http://twitter.com/juliasilge"><i class="fa fa-twitter fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="http://github.com/juliasilge"><i class="fa fa-github fa-fw"></i>&nbsp; @juliasilge</a><br>
+<a href="https://juliasilge.com"><i class="fa fa-link fa-fw"></i>&nbsp; juliasilge.com</a><br>
+<a href="https://tidytextmining.com"><i class="fa fa-book fa-fw"></i>&nbsp; tidytextmining.com</a><br>
+<a href="mailto:julia.silge@gmail.com"><i class="fa fa-paper-plane fa-fw"></i>&nbsp; julia.silge@gmail.com</a>
+
+Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
