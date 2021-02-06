@@ -261,7 +261,7 @@ book_test
 ```r
 set.seed(123)
 book_split &lt;- initial_split(books, strata = title)
-book_train &lt;- training(book_split)
+*book_train &lt;- training(book_split)
 nrow(book_train)
 ```
 
@@ -270,7 +270,7 @@ nrow(book_train)
 ```
 
 ```r
-book_test &lt;- testing(book_split)
+*book_test &lt;- testing(book_split)
 nrow(book_test)
 ```
 
@@ -457,7 +457,7 @@ logistic_reg(penalty = tune(), mixture = 1) %&gt;%
 
 
 ```r
-lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
+*lasso_spec &lt;- logistic_reg(penalty = tune(), mixture = 1) %&gt;%
     set_engine("glmnet")
 
 lasso_spec
@@ -636,8 +636,8 @@ recipe(title ~ text, data = book_train) %&gt;%
 
 ```r
 book_rec &lt;- recipe(title ~ text, data = book_train) %&gt;%
-    step_tokenize(text)  %&gt;%
-    step_stopwords(text) %&gt;%
+*   step_tokenize(text)  %&gt;%
+*   step_stopwords(text) %&gt;%
     step_tokenfilter(text, max_tokens = 500) %&gt;%
     step_tfidf(text)
 ```
@@ -717,7 +717,7 @@ narrower_penalty &lt;- penalty(range = c(-5, 0))
 
 set.seed(2021)
 lasso_grid &lt;- tune_grid(
-    book_wf,
+*   book_wf,
     resamples = book_folds,
     param_info = parameters(narrower_penalty),
     grid = 20
@@ -794,7 +794,12 @@ autoplot(lasso_grid)
 
 
 ```r
-simple_lasso &lt;- select_by_one_std_err(lasso_grid, -penalty, metric = "roc_auc")
+simple_lasso &lt;- select_by_one_std_err(
+    lasso_grid, 
+*   -penalty,
+    metric = "roc_auc"
+)
+
 simple_lasso
 ```
 
@@ -812,8 +817,8 @@ simple_lasso
 
 ```r
 book_final &lt;- book_wf %&gt;%
-    finalize_workflow(simple_lasso) %&gt;%
-    last_fit(book_split)
+    finalize_workflow(simple_lasso) %&gt;% 
+*   last_fit(book_split)
 
 collect_metrics(book_final)
 ```
@@ -859,7 +864,7 @@ collect_predictions(book_final)
 
 ```r
 collect_predictions(book_final) %&gt;%
-    conf_mat(title, .pred_class)
+*   conf_mat(title, .pred_class)
 ```
 
 ```
@@ -876,7 +881,7 @@ collect_predictions(book_final) %&gt;%
 
 ```r
 collect_predictions(book_final) %&gt;%
-    roc_curve(title, .pred_Pride_and_Prejudice) %&gt;%
+*   roc_curve(title, .pred_Pride_and_Prejudice) %&gt;%
     autoplot()
 ```
 
@@ -932,13 +937,13 @@ book_vip
 ```r
 book_vip %&gt;%
   group_by(Sign) %&gt;%
-  slice_max(abs(Importance), n = 15) %&gt;%
+* slice_max(abs(Importance), n = 15) %&gt;%
   ungroup() %&gt;%
   mutate(
     Importance = abs(Importance),
     Variable = fct_reorder(Variable, Importance)
   ) %&gt;%
-  ggplot(aes(Importance, Variable, fill = Sign)) +
+* ggplot(aes(Importance, Variable, fill = Sign)) +
   geom_col() +
   facet_wrap(~Sign)
 ```
