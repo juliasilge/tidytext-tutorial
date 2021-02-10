@@ -67,9 +67,9 @@ tidy_book %>%
 
 count(word, sort = TRUE) %>%
 
-geom_col() +
+geom_col()
 
-top_n(20) %>%
+slice_max(n, n = 20) %>%
 
 ggplot(aes(n, fct_reorder(word, n))) +  
 ```
