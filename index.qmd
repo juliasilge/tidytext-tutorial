@@ -1,29 +1,3 @@
----
-title: "Text Mining Workshop"
-description: |
-  An introduction to analyzing text data
-site: distill::distill_website
-output:
-  distill::distill_article:
-    toc: true
-author:
-  - first_name: "Julia"
-    last_name: "Silge"
-    url: https://juliasilge.com/
-    affiliation: RStudio PBC
-    affiliation_url: https://www.rstudio.com
-    orcid_id: 0000-0002-3671-836X
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-
-# Learn more about creating websites with Distill at:
-# https://rstudio.github.io/distill/website.html
-
-```
-
-
 ## Welcome
 
 These are the materials for workshops on text analysis by [Julia Silge](https://juliasilge.com/). Text data is increasingly important in many domains, and tidy data principles and tidy tools can make text mining easier and more effective. In this workshop, learn how to manipulate, summarize, and visualize the characteristics of text using these methods and R packages from the tidy tool ecosystem. These tools are highly effective for many analytical questions and allow analysts to integrate natural language processing into effective workflows already in wide use. Explore how to implement approaches such as sentiment analysis of texts, measuring tf-idf, network analysis of words, and building both supervised and unsupervised text models.
@@ -51,11 +25,12 @@ At the end of this workshop, participants will understand how to:
 
 Please tune into the workshop with a computer that has the following installed (all available for free):
 
-- A recent version of R, available at https://cran.r-project.org/
-- A recent version of RStudio Desktop (RStudio Desktop Open Source License), available at https://www.rstudio.com/download
+- A recent version of R, available at <https://cran.r-project.org/>
+- A recent version of RStudio Desktop (RStudio Desktop Open Source License), available at <https://posit.co/download/rstudio-desktop/>
 - The following R packages, which you can install by connecting to the internet, opening RStudio, and running at the command line:
 
-```{r eval=FALSE, echo=TRUE}
+```{r}
+#| eval: false
 install.packages(c("tidyverse", "tidytext", 
                    "gutenbergr", "widyr",
                    "stopwords", "stm",
@@ -75,7 +50,7 @@ install.packages(c("tidyverse", "tidytext",
 
 ## Code
 
-R Markdown files for working along [are available on GitHub](https://github.com/juliasilge/tidytext-tutorial/tree/master/code).
+Quarto files for working along [are available on GitHub](https://github.com/juliasilge/tidytext-tutorial/tree/master/code).
 
 ## Past workshops
 
@@ -85,17 +60,9 @@ R Markdown files for working along [are available on GitHub](https://github.com/
 - [29 May 2019 for ASA Symposium on Data Science and Statistics](https://github.com/juliasilge/sdss2019)
 - [27-28 January 2020 at rstudio::conf()](https://education.rstudio.com/blog/2020/02/conf20-tidytext/)
 - [10 February 2021 for National Institute of Statistical Sciences](https://www.niss.org/events/essential-data-science-business-unstructured-data-analysis-text-mining-tidy-data-principles)
+- [10 February 2021 for National Institute of Statistical Sciences](https://www.niss.org/events/essential-data-science-business-unstructured-data-analysis-text-mining-tidy-data-principles)
+- 9-11 January 2022 for Faculty of Psychology, University of Basel
 
+## Instructor bio
 
-
-## Acknowledgments {.appendix}
-
-This website is made with [distill](https://rstudio.github.io/distill/) and the slides are made with [xaringan](https://github.com/yihui/xaringan), both based on [R Markdown](https://rmarkdown.rstudio.com/).
-
-## Corrections {.appendix}
-
-Please [submit an issue](https://github.com/juliasilge/tidytext-tutorial/issues) on the GitHub repo for this workshop if you find something that could be fixed or improved.
-
-## Reuse and licensing {.appendix}
-
-Unless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+Julia Silge is a data scientist and software engineer at [Posit PBC](https://posit.co/) (formerly RStudio) where she works on open source modeling and MLOps tools. She is an author, an international keynote speaker, and a real-world practitioner focusing on data analysis and machine learning. Julia loves text analysis, making beautiful charts, and communicating about technical topics with diverse audiences.

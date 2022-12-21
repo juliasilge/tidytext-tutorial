@@ -1,0 +1,46 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Text Mining with Tidy Data Principles"
+  description: "An introduction to analyzing text data"
+  open-graph: true
+  twitter-card: true
+  site-url: https://bit.ly/tidytext-tutorial
+  repo-url: https://github.com/juliasilge/tidytext-tutorial
+  repo-actions: [edit, issue]
+  favicon: "favicon.ico"
+  search: false
+  navbar:
+    background: "#202C61"
+    pinned: true
+    logo: logo.png
+    right:
+      - text: Learn more
+        menu:
+          - href: https://www.tidytextmining.com/
+            text: "Text Mining with R"
+          - href: https://juliasilge.shinyapps.io/learntidytext/
+            text: "Online interactive tidytext course"
+          - href: https://smltar.com/
+            text: "Supervised ML for Text Analysis in R"
+          
+  page-footer:
+    left: |
+      Content {{< fa brands creative-commons >}} 2022 by [Julia Silge](https://juliasilge.com/)<br>
+      All content licensed under a {{< fa brands creative-commons >}}
+      {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-nc >}}
+      [Creative Commons Attribution-NonCommercial 4.0 International license (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/)
+    right: |
+      Made with [Quarto](https://quarto.org/)<br>
+      [View the source at {{< fa brands github >}} GitHub](https://github.com/juliasilge/tidytext-tutorial)
+
+format:
+  html:
+    theme:
+      - cosmo
+      - tidytext.css
+    toc: false
+
+fig-format: svg    
