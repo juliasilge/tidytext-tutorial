@@ -1,0 +1,28 @@
+
+@import url(https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap);
+@import url(https://fonts.googleapis.com/css?family=Montserrat:700&display=swap);
+
+
+/*-- scss:defaults --*/
+$theme-darkblue: #202C61;
+$theme-lavender: #E2D3F3;
+$theme-white: #F7F8F9;
+$theme-pink: #FAEBEF;
+
+$body-bg: $theme-darkblue;
+$body-color: $theme-white;
+$link-color: $theme-lavender;
+
+$font-family-sans-serif: 'Roboto Condensed', sans-serif;
+$presentation-heading-font: 'Montserrat', sans-serif;
+
+/*-- scss:rules --*/
+
+.blue {
+  color: $theme-darkblue;
+}
+
+.pink {
+  color: $theme-pink;
+  font-weight: bold;
+}

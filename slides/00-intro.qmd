@@ -1,0 +1,94 @@
+---
+title: "Text Mining"
+subtitle: "USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+format:
+  revealjs: 
+    footer: <https://bit.ly/tidytext-tutorial>
+    theme: [dark, custom.scss]
+    width: 1280
+    height: 720
+    title-slide-attributes: 
+      data-background-image: figs/p_and_p_cover.png
+      data-background-opacity: "0.8"
+knitr:
+  opts_chunk: 
+    echo: true
+    collapse: true
+    comment: "#>"    
+---
+
+```{r}
+#| include: false
+options(htmltools.dir.version = FALSE, width = 80)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+```
+
+# Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}} \@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}} youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+## Text in the real world
+
+. . .
+
+-   Text data is increasingly important 📚
+
+. . .
+
+-   NLP training is scarce on the ground 😱
+
+##  {background-image="figs/vexing.gif" background-size="50%"}
+
+
+# TIDY DATA PRINCIPLES + TEXT MINING = 🎉 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"} 
+
+## {background-color="white"}
+
+![](figs/tidytext_repo.png){fig-align="center"}
+
+::: footer
+[https://github.com/juliasilge/tidytext]{.blue}
+:::
+
+
+## {background-color="white"}
+
+![](figs/cover.png){fig-align="center"}
+
+::: footer
+[https://tidytextmining.com/]{.blue}
+:::
+
+# {{< fa brands github >}} GitHub repo for workshop:
+
+[github.com/juliasilge/tidytext-tutorial](https://github.com/juliasilge/tidytext-tutorial/)
+
+## Plan for this workshop
+
+. . .
+
+-   EDA for text
+
+. . .
+
+-   Modeling for text
+
+# {{< fa comments >}} Introduce yourself in the chat! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"} 
