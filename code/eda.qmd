@@ -1,12 +1,11 @@
 ---
 title: "Text mining with tidy data principles: exploratory data analysis"
 author: "Julia Silge"
-date: '`r Sys.Date()`'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
 my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 

@@ -1,12 +1,11 @@
 ---
 title: "Text mining with tidy data principles: topic modeling"
 author: "Julia Silge"
-date: '`r Sys.Date()`'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#| include: false
 my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 
@@ -34,15 +33,13 @@ What do you predict will happen if we run the following code?
 **PREDICT WITH YOUR NEIGHBOR BEFORE YOU RUN**
 
 ```{r}
-by_chapter <- books %>%
+books_by_document <- books %>%
   group_by(title) %>%
-  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
-                                                 ignore_case = TRUE)))) %>%
+  mutate(document = row_number() %/% 500) %>%
   ungroup() %>%
-  filter(chapter > 0) %>%
-  unite(document, title, chapter)
+  unite(document, title, document)
 
-by_chapter
+books_by_document
 ```
 
 Someone has TORN YOUR BOOKS APART!!!
@@ -54,7 +51,7 @@ As a first step, let's tokenize and tidy these chapters.
 ```{r}
 library(tidytext)
 
-word_counts <- by_chapter %>%
+word_counts <- books_by_document %>%
   ___ %>%
   anti_join(___) %>%
   count(document, word, sort = TRUE)
@@ -90,9 +87,9 @@ summary(topic_model)
 The word-topic probabilities are called the "beta" matrix.
 
 ```{r}
-chapter_topics <- tidy(topic_model, ___)
+document_topics <- tidy(topic_model, ___)
 
-chapter_topics
+document_topics
 ```
 
 What are the highest probability words in each topic?
@@ -100,7 +97,7 @@ What are the highest probability words in each topic?
 **U N S C R A M B L E**
 
 ```{r}
-top_terms <- chapter_topics %>%
+top_terms <- document_topics %>%
 
 ungroup() %>%
 
@@ -118,16 +115,26 @@ top_terms %>%
   mutate(term = fct_reorder(term, beta)) %>%
   ggplot(___) +
   geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free")
+  facet_wrap(vars(topic), scales = "free")
+```
+
+People who work with topic models have come up with alternate metrics for identifying important words:
+
+- FREX = high frequency *and* high exclusivity
+- lift = topic-word distribution divided by word count distribution
+
+```{r}
+tidy(___, matrix = "frex")
+tidy(___, matrix = "lift")
 ```
 
 The document-topic probabilities are called "gamma".
 
 ```{r}
-chapters_gamma <- tidy(topic_model, ___,
-                       document_names = rownames(words_sparse))
+documents_gamma <- tidy(topic_model, ___,
+                        document_names = rownames(words_sparse))
 
-chapters_gamma
+documents_gamma
 ```
 
 How well did we do in putting our books back together into the 4 topics?
@@ -137,11 +144,11 @@ What do you predict will happen if we run the following code?
 **PREDICT WITH YOUR NEIGHBOR BEFORE YOU RUN**
 
 ```{r}
-chapters_parsed <- chapters_gamma %>%
-  ___(document, c("title", "chapter"), 
+documents_parsed <- document_gamma %>%
+  ___(document, c("title", "document"), 
            sep = "_", convert = TRUE)
 
-chapters_parsed
+documents_parsed
 ```
 
 Let's visualize the results.
@@ -149,16 +156,17 @@ Let's visualize the results.
 **U N S C R A M B L E**
 
 ```{r}
-chapters_parsed %>%
+documents_parsed %>%
 
 ggplot(aes(factor(topic), gamma)) +
 
-facet_wrap(~ title)
+facet_wrap(vars(title))
 
 mutate(title = fct_reorder(title, gamma * topic)) %>%
 
 geom_boxplot() +
 ```
+
 
 ## Train many topic models
 
