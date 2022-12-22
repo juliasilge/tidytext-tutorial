@@ -1,0 +1,410 @@
+---
+title: "Text Mining"
+subtitle: "USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+format:
+  revealjs: 
+    footer: <https://bit.ly/tidytext-tutorial>
+    theme: [dark, custom.scss]
+    width: 1280
+    height: 720
+    title-slide-attributes: 
+      data-background-image: figs/p_and_p_cover.png
+      data-background-opacity: "0.7"
+highlight-style: "arrow-light"      
+knitr:
+  opts_chunk: 
+    echo: true
+    collapse: true
+    comment: "#>"    
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+```
+
+# Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.7"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}}
+\@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}}
+youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+## Let's install some packages {background-color="white"}
+
+```{r}
+#| eval: false
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr",
+                   "widyr",
+                   "tidygraph",
+                   "tidylo",
+                   "ggraph"))
+```
+
+# WHAT IS A DOCUMENT ABOUT? 🤔 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+## What is a document about?
+
+-   Term frequency
+-   Inverse document frequency
+
+. . .
+
+$$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$
+
+. . .
+
+### tf-idf is about comparing **documents** within a **collection**.
+
+## Understanding tf-idf {background-color="white"}
+
+Make a collection (*corpus*) for yourself! 💅
+
+```{r}
+library(gutenbergr)
+full_collection <- gutenberg_download(c(141, 158, 161, 1342),
+                                      meta_fields = "title",
+                                      mirror = my_mirror)
+```
+
+## Understanding tf-idf {background-color="white"}
+
+Make a collection (*corpus*) for yourself! 💅
+
+```{r}
+full_collection
+```
+
+## Counting word frequencies {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|5"
+library(tidyverse)
+library(tidytext)
+
+book_words <- full_collection %>%
+    unnest_tokens(word, text) %>%
+    count(title, word, sort = TRUE)
+```
+
+What do the columns of `book_words` tell us?
+
+## Calculating tf-idf {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|2"
+book_tf_idf <- book_words %>%
+    bind_tf_idf(word, title, n)  
+```
+
+## Calculating tf-idf {background-color="white"}
+
+```{r}
+book_tf_idf
+```
+
+. . .
+
+That's... super exciting???
+
+## Calculating tf-idf {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+book_tf_idf %>%
+    arrange(-tf_idf)
+```
+
+## Calculating tf-idf {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+book_tf_idf %>%
+    arrange(-tf_idf)
+```
+
+## Calculating tf-idf
+
+[U N S C R A M B L E]{.lavender}
+
+    group_by(title) %>%
+
+    book_tf_idf %>%
+
+    slice_max(tf_idf, n = 10) %>%
+
+    ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
+
+    facet_wrap(~title, scales = "free")
+
+    geom_col(show.legend = FALSE) +
+
+## Calculating tf-idf {background-color="white"}
+
+```{r, eval = FALSE}
+#| eval: false
+#| code-line-numbers: "|4"
+book_tf_idf %>%
+    group_by(title) %>%
+    slice_max(tf_idf, n = 10) %>%
+    ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~title, scales = "free")
+```
+
+##  {background-color="white"}
+
+```{r}
+#| echo: false
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 6
+book_tf_idf %>%
+    group_by(title) %>%
+    slice_max(tf_idf, n = 10) %>%
+    ggplot(aes(tf_idf,
+               fct_reorder(word, tf_idf), 
+               fill = title)) +
+    geom_col(alpha = 0.9, show.legend = FALSE) +
+    facet_wrap(~title, scales = "free") +
+    scale_x_continuous(expand = c(0,0)) +
+    labs(y = NULL, x = "tf-idf")
+```
+
+##  {background-image="figs/plot_tf_idf-1.png" background-size="70%" background-color="white"}
+
+::: footer
+:::
+
+# WHAT IS A DOCUMENT ABOUT? 🤔 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+## What is a document about?
+
+-   Term frequency
+-   Inverse document frequency
+
+. . .
+
+### Weighted log odds ⚖️
+
+- Log odds ratio expresses probabilities
+- Weighting helps deal with power law distribution
+
+## Weighted log odds ⚖️ {background-color="white"}
+
+```{r}
+library(tidylo)
+book_words %>%
+    bind_log_odds(title, word, n) %>%
+    arrange(-log_odds_weighted)
+```
+
+. . .
+
+Weighted log odds can distinguish between words that are used in all texts.
+
+# N-GRAMS... AND BEYOND! 🚀 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+## N-grams... and beyond! 🚀 {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|4"
+full_text <- gutenberg_download(158, mirror = my_mirror)
+
+tidy_ngram <- full_text %>%
+    unnest_tokens(bigram, text, token = "ngrams", n = 2) %>% 
+    filter(!is.na(bigram))
+```
+
+## N-grams... and beyond! 🚀 {background-color="white"}
+
+```{r}
+tidy_ngram
+```
+
+## N-grams... and beyond! 🚀 {background-color="white"}
+
+```{r}
+tidy_ngram %>%
+    count(bigram, sort = TRUE)
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
+height="150"}
+
+Can we use an anti join right away to remove stop words?
+
+-   Yes! ✅
+-   No ☹️
+
+## N-grams... and beyond! 🚀 {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|2"
+bigram_counts <- tidy_ngram %>%
+    separate(bigram, c("word1", "word2"), sep = " ") %>%
+    filter(!word1 %in% stop_words$word,
+           !word2 %in% stop_words$word) %>%
+    count(word1, word2, sort = TRUE)
+```
+
+## N-grams... and beyond! 🚀 {background-color="white"}
+
+```{r}
+bigram_counts
+```
+
+## What can you do with n-grams? {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+::: incremental
+-   tf-idf of n-grams
+-   weighted log odds of n-grams
+-   network analysis
+-   negation
+:::
+
+##  {background-image="figs/austen-1.png" background-size="60%" background-color="white"}
+
+::: footer
+:::
+
+##  {background-image="figs/slider.gif" background-size="70%" background-color="white"}
+
+::: footer
+[https://pudding.cool/2017/08/screen-direction/]{.blue}
+:::
+
+
+## {background-image="figs/change_overall-1.svg" background-size="70%" background-color="white"}
+
+::: footer
+:::
+
+## Network analysis {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|7"
+library(widyr)
+library(ggraph)
+library(tidygraph)
+
+bigram_graph <- bigram_counts %>%
+    filter(n > 5) %>%
+    as_tbl_graph() 
+```
+
+## Network analysis {background-color="white"}
+
+```{r}
+bigram_graph
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
+height="150"}
+
+Is `bigram_graph` a tidy dataset?
+
+-   Yes ☑️
+-   No 🚫
+
+## Network analysis {background-color="white"}
+
+```{r eval = FALSE}
+#| eval: false
+#| code-line-numbers: "|3,4"
+bigram_graph %>%
+    ggraph(layout = "kk") +
+    geom_edge_link(aes(edge_alpha = n)) + 
+    geom_node_text(aes(label = name)) +  
+    theme_graph() 
+```
+
+## Network analysis {background-color="white"}
+
+```{r}
+#| eval: false
+#| code-line-numbers: "|3,8"
+bigram_graph %>%
+    ggraph(layout = "kk") +
+    geom_edge_link(aes(edge_alpha = n), 
+                   show.legend = FALSE, 
+                   arrow = arrow(length = unit(1.5, 'mm')), 
+                   start_cap = circle(3, 'mm'),
+                   end_cap = circle(3, 'mm')) +
+    geom_node_text(aes(label = name)) + 
+    theme_graph()
+```
+
+## {background-color="white"}
+
+```{r}
+#| echo: false
+#| fig-height: 7
+#| fig-width: 8
+#| fig-align: center
+set.seed(2021)
+bigram_graph %>%
+    ggraph(layout = "kk") +
+    geom_edge_link(aes(edge_alpha = n), 
+                   show.legend = FALSE, 
+                   arrow = arrow(length = unit(1.5, 'mm')), 
+                   start_cap = circle(3.4, 'mm'),
+                   end_cap = circle(3.3, 'mm')) +
+    geom_node_text(aes(label = name),
+                   size = 4,
+                   family = "RobotoCondensed-Regular") +
+    theme_graph()
+```
+
+# Thanks! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}} \@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}} youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+::: footer
+Slides created with [Quarto](https://quarto.org/)
+:::

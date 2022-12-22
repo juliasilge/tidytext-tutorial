@@ -10,7 +10,7 @@ format:
     height: 720
     title-slide-attributes: 
       data-background-image: figs/p_and_p_cover.png
-      data-background-opacity: "0.8"
+      data-background-opacity: "0.7"
 knitr:
   opts_chunk: 
     echo: true
@@ -20,14 +20,13 @@ knitr:
 
 ```{r}
 #| include: false
-options(htmltools.dir.version = FALSE, width = 80)
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
 library(tidyverse)
 library(silgelib)
 theme_set(theme_roboto())
 ```
 
-# Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+# Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.7"}
 
 <center>
 

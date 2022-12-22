@@ -1,0 +1,361 @@
+---
+title: "Text Mining"
+subtitle: "USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+format:
+  revealjs: 
+    footer: <https://bit.ly/tidytext-tutorial>
+    theme: [dark, custom.scss]
+    width: 1280
+    height: 720
+    title-slide-attributes: 
+      data-background-image: figs/p_and_p_cover.png
+      data-background-opacity: "0.7"
+highlight-style: "arrow-light"      
+knitr:
+  opts_chunk: 
+    echo: true
+    collapse: true
+    comment: "#>"    
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_roboto())
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+```
+
+# Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.7"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}} \@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}} youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+## Let's install some packages {background-color="white"}
+
+```{r}
+#| eval: false
+install.packages(c("tidyverse", 
+                   "tidytext",
+                   "stopwords",
+                   "gutenbergr"))
+```
+
+## What do we mean by tidy text? {background-color="white"}
+
+![](figs/purple_emily.png){.absolute top="-50" right="0" width="100"}
+
+```{r}
+text <- c("Tell all the truth but tell it slant —",
+          "Success in Circuit lies",
+          "Too bright for our infirm Delight",
+          "The Truth's superb surprise",
+          "As Lightning to the Children eased",
+          "With explanation kind",
+          "The Truth must dazzle gradually",
+          "Or every man be blind —")
+
+text
+```
+
+## What do we mean by tidy text? {background-color="white"}
+
+![](figs/purple_emily.png){.absolute top="-50" right="0" width="100"}
+
+```{r}
+library(tidyverse)
+
+text_df <- tibble(line = 1:8, text = text)
+
+text_df
+```
+
+## What do we mean by tidy text? {background-color="white"}
+
+![](figs/purple_emily.png){.absolute top="-50" right="0" width="100"}
+
+```{r}
+#| code-line-numbers: "|4"
+library(tidytext)
+
+text_df %>%
+  unnest_tokens(word, text)
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150" height="150"}
+
+A tidy text dataset typically has
+
+-   [more]{.lavender}
+-   [fewer]{.lavender}
+
+rows than the original, non-tidy text dataset.
+
+## Gathering more data {background-color="white"}
+
+You can access the full text of many public domain works from Project Gutenberg using the gutenbergr package.
+
+```{r}
+library(gutenbergr)
+
+full_text <- gutenberg_download(1342, mirror = my_mirror)
+```
+
+What book do *you* want to analyze today? 📖🥳📖
+
+::: aside
+[https://docs.ropensci.org/gutenbergr/]{.blue}
+:::
+
+## Time to tidy your text! {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|3"
+tidy_book <- full_text %>%
+  mutate(line = row_number()) %>%
+  unnest_tokens(word, text)         
+
+glimpse(tidy_book)
+```
+
+## What are the most common words? {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+tidy_book %>%
+  count(word, sort = TRUE)
+```
+
+## What are the most common words? {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+tidy_book %>%
+  count(word, sort = TRUE)
+```
+
+## Stop words {background-image="figs/stop.gif" background-size="50%"}
+
+## Stop words {background-color="white"}
+
+```{r}
+get_stopwords()
+```
+
+## Stop words {background-color="white"}
+
+```{r}
+get_stopwords(language = "es")
+```
+
+## Stop words {background-color="white"}
+
+```{r}
+get_stopwords(language = "fr")
+```
+
+## Stop words {background-color="white"}
+
+```{r}
+get_stopwords(source = "smart")
+```
+
+## What are the most common words?
+
+[U N S C R A M B L E]{.lavender}
+
+    anti_join(get_stopwords(source = "smart")) %>%
+
+    tidy_book %>%
+
+    count(word, sort = TRUE) %>%
+
+    geom_col() +
+
+    slice_max(n, n = 20) %>%
+
+    ggplot(aes(n, fct_reorder(word, n))) + 
+
+## What are the most common words? {background-color="white"}
+
+```{r, eval = FALSE}
+#| eval: false
+#| code-line-numbers: "|5"
+tidy_book %>%
+  anti_join(get_stopwords(source = "smart")) %>%
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 20) %>%
+  ggplot(aes(n, fct_reorder(word, n))) +  
+  geom_col()
+```
+
+## {background-color="white"}
+
+```{r}
+#| echo: false
+#| fig-width: 7
+#| fig-align: center
+tidy_book %>%
+  anti_join(get_stopwords(source = "smart")) %>%
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 20) %>%
+  ggplot(aes(n, fct_reorder(word, n))) +
+  geom_col(fill = "midnightblue", alpha = 0.9) +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL, x = "Number of occurrences")
+```
+
+##  {background-image="figs/tilecounts-1.png" background-size="60%" background-color="white"}
+
+::: footer
+:::
+
+##  {background-image="figs/tilerate-1.png" background-size="60%" background-color="white"}
+
+::: footer
+:::
+
+# SENTIMENT ANALYSIS 😄😢😠 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+## Sentiment lexicons {background-color="white"}
+
+```{r}
+get_sentiments("afinn")
+```
+
+## Sentiment lexicons {background-color="white"}
+
+```{r}
+get_sentiments("bing")
+```
+
+## Sentiment lexicons {background-color="white"}
+
+```{r}
+get_sentiments("nrc")
+```
+
+## Sentiment lexicons {background-color="white"}
+
+```{r}
+get_sentiments("loughran")
+```
+
+## Implementing sentiment analysis {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|2"
+tidy_book %>%
+  inner_join(get_sentiments("bing")) %>% 
+  count(sentiment, sort = TRUE)
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150" height="150"}
+
+What kind of join is appropriate for sentiment analysis?
+
+-   [anti join]{.lavender}
+-   [full join]{.lavender}
+-   [outer join]{.lavender}
+-   [inner join]{.lavender}
+
+## Implementing sentiment analysis {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+#| code-line-numbers: "|3"
+tidy_book %>%
+  inner_join(get_sentiments("bing")) %>%            
+  count(sentiment, word, sort = TRUE) 
+```
+
+## Implementing sentiment analysis {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| code-line-numbers: "3"
+tidy_book %>%
+  inner_join(get_sentiments("bing")) %>%            
+  count(sentiment, word, sort = TRUE)   
+```
+
+## Implementing sentiment analysis {background-color="white"}
+
+```{r, eval = FALSE}
+#| eval: false
+#| code-line-numbers: "|7"
+tidy_book %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(sentiment, word, sort = TRUE) %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10) %>%
+  ungroup() %>%
+  ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
+  geom_col() +
+  facet_wrap(vars(sentiment), scales = "free") 
+```
+
+## {background-color="white"}
+
+```{r}
+#| echo: false
+#| fig-align: center
+tidy_book %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(sentiment, word, sort = TRUE) %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10) %>%
+  ungroup %>%
+  ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
+  geom_col(alpha = 0.9, show.legend = FALSE) +
+  facet_wrap(vars(sentiment), scales = "free") +
+  scale_x_continuous(expand = c(0,0)) +
+  labs(y = NULL, x = "Number of occurrences")
+```
+
+# Thanks! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}} \@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}} youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+::: footer
+Slides created with [Quarto](https://quarto.org/)
+:::
