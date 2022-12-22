@@ -5,9 +5,8 @@
 
 /*-- scss:defaults --*/
 $theme-darkblue: #202C61;
-$theme-lavender: #E2D3F3;
+$theme-lavender: #cec2dc;
 $theme-white: #F7F8F9;
-$theme-pink: #FAEBEF;
 
 $body-bg: $theme-darkblue;
 $body-color: $theme-white;
@@ -22,7 +21,7 @@ $presentation-heading-font: 'Montserrat', sans-serif;
   color: $theme-darkblue;
 }
 
-.pink {
-  color: $theme-pink;
+.lavender {
+  color: $theme-lavender;
   font-weight: bold;
 }
