@@ -54,5 +54,908 @@
     "title": "Text Mining with Tidy Data Principles",
     "section": "Instructor bio",
     "text": "Instructor bio\nJulia Silge is a data scientist and software engineer at Posit PBC (formerly RStudio) where she works on open source modeling and MLOps tools. She is an author, an international keynote speaker, and a real-world practitioner focusing on data analysis and machine learning. Julia loves text analysis, making beautiful charts, and communicating about technical topics with diverse audiences."
+  },
+  {
+    "objectID": "slides/00-intro.html#text-in-the-real-world",
+    "href": "slides/00-intro.html#text-in-the-real-world",
+    "title": "Text Mining",
+    "section": "Text in the real world",
+    "text": "Text in the real world\n\n\nText data is increasingly important 📚\n\n\n\n\nNLP training is scarce on the ground 😱"
+  },
+  {
+    "objectID": "slides/00-intro.html#section-1",
+    "href": "slides/00-intro.html#section-1",
+    "title": "Text Mining",
+    "section": "",
+    "text": "https://github.com/juliasilge/tidytext"
+  },
+  {
+    "objectID": "slides/00-intro.html#section-2",
+    "href": "slides/00-intro.html#section-2",
+    "title": "Text Mining",
+    "section": "",
+    "text": "https://tidytextmining.com/"
+  },
+  {
+    "objectID": "slides/00-intro.html#plan-for-this-workshop",
+    "href": "slides/00-intro.html#plan-for-this-workshop",
+    "title": "Text Mining",
+    "section": "Plan for this workshop",
+    "text": "Plan for this workshop\n\n\nEDA for text\n\n\n\n\nModeling for text"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#lets-install-some-packages",
+    "href": "slides/01-tidytext.html#lets-install-some-packages",
+    "title": "Text Mining",
+    "section": "Let’s install some packages",
+    "text": "Let’s install some packages\n\ninstall.packages(c(\"tidyverse\", \n                   \"tidytext\",\n                   \"stopwords\",\n                   \"gutenbergr\"))"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-do-we-mean-by-tidy-text",
+    "href": "slides/01-tidytext.html#what-do-we-mean-by-tidy-text",
+    "title": "Text Mining",
+    "section": "What do we mean by tidy text?",
+    "text": "What do we mean by tidy text?\n\n\ntext <- c(\"Tell all the truth but tell it slant —\",\n          \"Success in Circuit lies\",\n          \"Too bright for our infirm Delight\",\n          \"The Truth's superb surprise\",\n          \"As Lightning to the Children eased\",\n          \"With explanation kind\",\n          \"The Truth must dazzle gradually\",\n          \"Or every man be blind —\")\n\ntext\n#> [1] \"Tell all the truth but tell it slant —\"\n#> [2] \"Success in Circuit lies\"               \n#> [3] \"Too bright for our infirm Delight\"     \n#> [4] \"The Truth's superb surprise\"           \n#> [5] \"As Lightning to the Children eased\"    \n#> [6] \"With explanation kind\"                 \n#> [7] \"The Truth must dazzle gradually\"       \n#> [8] \"Or every man be blind —\""
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-do-we-mean-by-tidy-text-1",
+    "href": "slides/01-tidytext.html#what-do-we-mean-by-tidy-text-1",
+    "title": "Text Mining",
+    "section": "What do we mean by tidy text?",
+    "text": "What do we mean by tidy text?\n\n\nlibrary(tidyverse)\n\ntext_df <- tibble(line = 1:8, text = text)\n\ntext_df\n#> # A tibble: 8 × 2\n#>    line text                                  \n#>   <int> <chr>                                 \n#> 1     1 Tell all the truth but tell it slant —\n#> 2     2 Success in Circuit lies               \n#> 3     3 Too bright for our infirm Delight     \n#> 4     4 The Truth's superb surprise           \n#> 5     5 As Lightning to the Children eased    \n#> 6     6 With explanation kind                 \n#> 7     7 The Truth must dazzle gradually       \n#> 8     8 Or every man be blind —"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-do-we-mean-by-tidy-text-2",
+    "href": "slides/01-tidytext.html#what-do-we-mean-by-tidy-text-2",
+    "title": "Text Mining",
+    "section": "What do we mean by tidy text?",
+    "text": "What do we mean by tidy text?\n\n\nlibrary(tidytext)\n\ntext_df %>%\n    unnest_tokens(word, text)\n#> # A tibble: 41 × 2\n#>     line word   \n#>    <int> <chr>  \n#>  1     1 tell   \n#>  2     1 all    \n#>  3     1 the    \n#>  4     1 truth  \n#>  5     1 but    \n#>  6     1 tell   \n#>  7     1 it     \n#>  8     1 slant  \n#>  9     2 success\n#> 10     2 in     \n#> # … with 31 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#jane-wants-to-know",
+    "href": "slides/01-tidytext.html#jane-wants-to-know",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nA tidy text dataset typically has\n\nmore\nfewer\n\nrows than the original, non-tidy text dataset."
+  },
+  {
+    "objectID": "slides/01-tidytext.html#gathering-more-data",
+    "href": "slides/01-tidytext.html#gathering-more-data",
+    "title": "Text Mining",
+    "section": "Gathering more data",
+    "text": "Gathering more data\nYou can access the full text of many public domain works from Project Gutenberg using the gutenbergr package.\n\nlibrary(gutenbergr)\n\nfull_text <- gutenberg_download(1342, mirror = my_mirror)\n\nWhat book do you want to analyze today? 📖🥳📖\n\n\nhttps://docs.ropensci.org/gutenbergr/"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#time-to-tidy-your-text",
+    "href": "slides/01-tidytext.html#time-to-tidy-your-text",
+    "title": "Text Mining",
+    "section": "Time to tidy your text!",
+    "text": "Time to tidy your text!\n\ntidy_book <- full_text %>%\n    mutate(line = row_number()) %>%\n    unnest_tokens(word, text)         \n\nglimpse(tidy_book)\n#> Rows: 127,996\n#> Columns: 3\n#> $ gutenberg_id <int> 1342, 1342, 1342, 1342, 1342, 1342, 1342, 1342, 1342, 134…\n#> $ line         <int> 1, 3, 3, 4, 6, 6, 6, 6, 7, 9, 9, 12, 14, 14, 14, 14, 14, …\n#> $ word         <chr> \"illustration\", \"george\", \"allen\", \"publisher\", \"156\", \"c…"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-are-the-most-common-words",
+    "href": "slides/01-tidytext.html#what-are-the-most-common-words",
+    "title": "Text Mining",
+    "section": "What are the most common words?",
+    "text": "What are the most common words?\nWhat do you predict will happen if we run the following code? 🤔\n\ntidy_book %>%\n    count(word, sort = TRUE)"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-are-the-most-common-words-1",
+    "href": "slides/01-tidytext.html#what-are-the-most-common-words-1",
+    "title": "Text Mining",
+    "section": "What are the most common words?",
+    "text": "What are the most common words?\nWhat do you predict will happen if we run the following code? 🤔\n\ntidy_book %>%\n    count(word, sort = TRUE)\n#> # A tibble: 7,118 × 2\n#>    word      n\n#>    <chr> <int>\n#>  1 the    4656\n#>  2 to     4323\n#>  3 of     3838\n#>  4 and    3763\n#>  5 her    2260\n#>  6 i      2095\n#>  7 a      2036\n#>  8 in     1991\n#>  9 was    1871\n#> 10 she    1732\n#> # … with 7,108 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#stop-words",
+    "href": "slides/01-tidytext.html#stop-words",
+    "title": "Text Mining",
+    "section": "Stop words",
+    "text": "Stop words"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#stop-words-1",
+    "href": "slides/01-tidytext.html#stop-words-1",
+    "title": "Text Mining",
+    "section": "Stop words",
+    "text": "Stop words\n\nget_stopwords()\n#> # A tibble: 175 × 2\n#>    word      lexicon \n#>    <chr>     <chr>   \n#>  1 i         snowball\n#>  2 me        snowball\n#>  3 my        snowball\n#>  4 myself    snowball\n#>  5 we        snowball\n#>  6 our       snowball\n#>  7 ours      snowball\n#>  8 ourselves snowball\n#>  9 you       snowball\n#> 10 your      snowball\n#> # … with 165 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#stop-words-2",
+    "href": "slides/01-tidytext.html#stop-words-2",
+    "title": "Text Mining",
+    "section": "Stop words",
+    "text": "Stop words\n\nget_stopwords(language = \"es\")\n#> # A tibble: 308 × 2\n#>    word  lexicon \n#>    <chr> <chr>   \n#>  1 de    snowball\n#>  2 la    snowball\n#>  3 que   snowball\n#>  4 el    snowball\n#>  5 en    snowball\n#>  6 y     snowball\n#>  7 a     snowball\n#>  8 los   snowball\n#>  9 del   snowball\n#> 10 se    snowball\n#> # … with 298 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#stop-words-3",
+    "href": "slides/01-tidytext.html#stop-words-3",
+    "title": "Text Mining",
+    "section": "Stop words",
+    "text": "Stop words\n\nget_stopwords(language = \"fr\")\n#> # A tibble: 164 × 2\n#>    word  lexicon \n#>    <chr> <chr>   \n#>  1 au    snowball\n#>  2 aux   snowball\n#>  3 avec  snowball\n#>  4 ce    snowball\n#>  5 ces   snowball\n#>  6 dans  snowball\n#>  7 de    snowball\n#>  8 des   snowball\n#>  9 du    snowball\n#> 10 elle  snowball\n#> # … with 154 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#stop-words-4",
+    "href": "slides/01-tidytext.html#stop-words-4",
+    "title": "Text Mining",
+    "section": "Stop words",
+    "text": "Stop words\n\nget_stopwords(source = \"smart\")\n#> # A tibble: 571 × 2\n#>    word        lexicon\n#>    <chr>       <chr>  \n#>  1 a           smart  \n#>  2 a's         smart  \n#>  3 able        smart  \n#>  4 about       smart  \n#>  5 above       smart  \n#>  6 according   smart  \n#>  7 accordingly smart  \n#>  8 across      smart  \n#>  9 actually    smart  \n#> 10 after       smart  \n#> # … with 561 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-are-the-most-common-words-2",
+    "href": "slides/01-tidytext.html#what-are-the-most-common-words-2",
+    "title": "Text Mining",
+    "section": "What are the most common words?",
+    "text": "What are the most common words?\nU N S C R A M B L E\nanti_join(get_stopwords(source = “smart”)) %>%\ntidy_book %>%\ncount(word, sort = TRUE) %>%\ngeom_col() +\nslice_max(n, n = 20) %>%\nggplot(aes(n, fct_reorder(word, n))) +"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#what-are-the-most-common-words-3",
+    "href": "slides/01-tidytext.html#what-are-the-most-common-words-3",
+    "title": "Text Mining",
+    "section": "What are the most common words?",
+    "text": "What are the most common words?\n\ntidy_book %>%\n    anti_join(get_stopwords(source = \"smart\")) %>%\n    count(word, sort = TRUE) %>%\n    slice_max(n, n = 20) %>%\n    ggplot(aes(n, fct_reorder(word, n))) +  \n    geom_col()"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#sentiment-lexicons",
+    "href": "slides/01-tidytext.html#sentiment-lexicons",
+    "title": "Text Mining",
+    "section": "Sentiment lexicons",
+    "text": "Sentiment lexicons\n\nget_sentiments(\"afinn\")\n#> # A tibble: 2,477 × 2\n#>    word       value\n#>    <chr>      <dbl>\n#>  1 abandon       -2\n#>  2 abandoned     -2\n#>  3 abandons      -2\n#>  4 abducted      -2\n#>  5 abduction     -2\n#>  6 abductions    -2\n#>  7 abhor         -3\n#>  8 abhorred      -3\n#>  9 abhorrent     -3\n#> 10 abhors        -3\n#> # … with 2,467 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#sentiment-lexicons-1",
+    "href": "slides/01-tidytext.html#sentiment-lexicons-1",
+    "title": "Text Mining",
+    "section": "Sentiment lexicons",
+    "text": "Sentiment lexicons\n\nget_sentiments(\"bing\")\n#> # A tibble: 6,786 × 2\n#>    word        sentiment\n#>    <chr>       <chr>    \n#>  1 2-faces     negative \n#>  2 abnormal    negative \n#>  3 abolish     negative \n#>  4 abominable  negative \n#>  5 abominably  negative \n#>  6 abominate   negative \n#>  7 abomination negative \n#>  8 abort       negative \n#>  9 aborted     negative \n#> 10 aborts      negative \n#> # … with 6,776 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#sentiment-lexicons-2",
+    "href": "slides/01-tidytext.html#sentiment-lexicons-2",
+    "title": "Text Mining",
+    "section": "Sentiment lexicons",
+    "text": "Sentiment lexicons\n\nget_sentiments(\"nrc\")\n#> # A tibble: 13,872 × 2\n#>    word        sentiment\n#>    <chr>       <chr>    \n#>  1 abacus      trust    \n#>  2 abandon     fear     \n#>  3 abandon     negative \n#>  4 abandon     sadness  \n#>  5 abandoned   anger    \n#>  6 abandoned   fear     \n#>  7 abandoned   negative \n#>  8 abandoned   sadness  \n#>  9 abandonment anger    \n#> 10 abandonment fear     \n#> # … with 13,862 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#sentiment-lexicons-3",
+    "href": "slides/01-tidytext.html#sentiment-lexicons-3",
+    "title": "Text Mining",
+    "section": "Sentiment lexicons",
+    "text": "Sentiment lexicons\n\nget_sentiments(\"loughran\")\n#> # A tibble: 4,150 × 2\n#>    word         sentiment\n#>    <chr>        <chr>    \n#>  1 abandon      negative \n#>  2 abandoned    negative \n#>  3 abandoning   negative \n#>  4 abandonment  negative \n#>  5 abandonments negative \n#>  6 abandons     negative \n#>  7 abdicated    negative \n#>  8 abdicates    negative \n#>  9 abdicating   negative \n#> 10 abdication   negative \n#> # … with 4,140 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#implementing-sentiment-analysis",
+    "href": "slides/01-tidytext.html#implementing-sentiment-analysis",
+    "title": "Text Mining",
+    "section": "Implementing sentiment analysis",
+    "text": "Implementing sentiment analysis\n\ntidy_book %>%\n    inner_join(get_sentiments(\"bing\")) %>% \n    count(sentiment, sort = TRUE)\n#> # A tibble: 2 × 2\n#>   sentiment     n\n#>   <chr>     <int>\n#> 1 positive   5306\n#> 2 negative   3864"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#jane-wants-to-know-1",
+    "href": "slides/01-tidytext.html#jane-wants-to-know-1",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nWhat kind of join is appropriate for sentiment analysis?\n\nanti_join()\nfull_join()\nouter_join()\ninner_join()"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#implementing-sentiment-analysis-1",
+    "href": "slides/01-tidytext.html#implementing-sentiment-analysis-1",
+    "title": "Text Mining",
+    "section": "Implementing sentiment analysis",
+    "text": "Implementing sentiment analysis\nWhat do you predict will happen if we run the following code? 🤔\n\ntidy_book %>%\n    inner_join(get_sentiments(\"bing\")) %>%            \n    count(sentiment, word, sort = TRUE)"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#implementing-sentiment-analysis-2",
+    "href": "slides/01-tidytext.html#implementing-sentiment-analysis-2",
+    "title": "Text Mining",
+    "section": "Implementing sentiment analysis",
+    "text": "Implementing sentiment analysis\nWhat do you predict will happen if we run the following code? 🤔\n\ntidy_book %>%\n    inner_join(get_sentiments(\"bing\")) %>%            \n    count(sentiment, word, sort = TRUE)   \n#> # A tibble: 1,503 × 3\n#>    sentiment word         n\n#>    <chr>     <chr>    <int>\n#>  1 negative  miss       315\n#>  2 positive  well       230\n#>  3 positive  good       208\n#>  4 positive  great      148\n#>  5 positive  enough     111\n#>  6 positive  love       102\n#>  7 positive  better      98\n#>  8 positive  pleasure    94\n#>  9 positive  like        89\n#> 10 positive  happy       83\n#> # … with 1,493 more rows"
+  },
+  {
+    "objectID": "slides/01-tidytext.html#implementing-sentiment-analysis-3",
+    "href": "slides/01-tidytext.html#implementing-sentiment-analysis-3",
+    "title": "Text Mining",
+    "section": "Implementing sentiment analysis",
+    "text": "Implementing sentiment analysis\n\ntidy_book %>%\n    inner_join(get_sentiments(\"bing\")) %>%\n    count(sentiment, word, sort = TRUE) %>%\n    group_by(sentiment) %>%\n    slice_max(n, n = 10) %>%\n    ungroup() %>%\n    ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +\n    geom_col() +\n    facet_wrap(vars(sentiment), scales = \"free\")"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#lets-install-some-packages",
+    "href": "slides/02-more-eda.html#lets-install-some-packages",
+    "title": "Text Mining",
+    "section": "Let’s install some packages",
+    "text": "Let’s install some packages\n\ninstall.packages(c(\"tidyverse\", \n                   \"tidytext\",\n                   \"stopwords\",\n                   \"gutenbergr\",\n                   \"widyr\",\n                   \"tidygraph\",\n                   \"tidylo\",\n                   \"ggraph\"))"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#what-is-a-document-about-1",
+    "href": "slides/02-more-eda.html#what-is-a-document-about-1",
+    "title": "Text Mining",
+    "section": "What is a document about?",
+    "text": "What is a document about?\n\nTerm frequency\nInverse document frequency\n\n\n\\[idf(\\text{term}) = \\ln{\\left(\\frac{n_{\\text{documents}}}{n_{\\text{documents containing term}}}\\right)}\\]\n\n\ntf-idf is about comparing documents within a collection."
+  },
+  {
+    "objectID": "slides/02-more-eda.html#understanding-tf-idf",
+    "href": "slides/02-more-eda.html#understanding-tf-idf",
+    "title": "Text Mining",
+    "section": "Understanding tf-idf",
+    "text": "Understanding tf-idf\nMake a collection (corpus) for yourself! 💅\n\nlibrary(gutenbergr)\nfull_collection <- gutenberg_download(c(141, 158, 161, 1342),\n                                      meta_fields = \"title\",\n                                      mirror = my_mirror)"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#understanding-tf-idf-1",
+    "href": "slides/02-more-eda.html#understanding-tf-idf-1",
+    "title": "Text Mining",
+    "section": "Understanding tf-idf",
+    "text": "Understanding tf-idf\nMake a collection (corpus) for yourself! 💅\n\nfull_collection\n#> # A tibble: 59,360 × 3\n#>    gutenberg_id text             title         \n#>           <int> <chr>            <chr>         \n#>  1          141 \"MANSFIELD PARK\" Mansfield Park\n#>  2          141 \"\"               Mansfield Park\n#>  3          141 \"(1814)\"         Mansfield Park\n#>  4          141 \"\"               Mansfield Park\n#>  5          141 \"By Jane Austen\" Mansfield Park\n#>  6          141 \"\"               Mansfield Park\n#>  7          141 \"\"               Mansfield Park\n#>  8          141 \"Contents\"       Mansfield Park\n#>  9          141 \"\"               Mansfield Park\n#> 10          141 \"   CHAPTER I\"   Mansfield Park\n#> # … with 59,350 more rows"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#counting-word-frequencies",
+    "href": "slides/02-more-eda.html#counting-word-frequencies",
+    "title": "Text Mining",
+    "section": "Counting word frequencies",
+    "text": "Counting word frequencies\n\nlibrary(tidyverse)\nlibrary(tidytext)\n\nbook_words <- full_collection %>%\n    unnest_tokens(word, text) %>%\n    count(title, word, sort = TRUE)\n\nWhat do the columns of book_words tell us?"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#calculating-tf-idf",
+    "href": "slides/02-more-eda.html#calculating-tf-idf",
+    "title": "Text Mining",
+    "section": "Calculating tf-idf",
+    "text": "Calculating tf-idf\n\nbook_tf_idf <- book_words %>%\n    bind_tf_idf(word, title, n)"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#calculating-tf-idf-1",
+    "href": "slides/02-more-eda.html#calculating-tf-idf-1",
+    "title": "Text Mining",
+    "section": "Calculating tf-idf",
+    "text": "Calculating tf-idf\n\nbook_tf_idf\n#> # A tibble: 29,055 × 6\n#>    title               word      n     tf   idf tf_idf\n#>    <chr>               <chr> <int>  <dbl> <dbl>  <dbl>\n#>  1 Mansfield Park      the    6207 0.0387     0      0\n#>  2 Mansfield Park      to     5473 0.0341     0      0\n#>  3 Mansfield Park      and    5437 0.0339     0      0\n#>  4 Emma                to     5238 0.0325     0      0\n#>  5 Emma                the    5201 0.0323     0      0\n#>  6 Emma                and    4896 0.0304     0      0\n#>  7 Mansfield Park      of     4777 0.0298     0      0\n#>  8 Pride and Prejudice the    4656 0.0364     0      0\n#>  9 Pride and Prejudice to     4323 0.0338     0      0\n#> 10 Emma                of     4291 0.0266     0      0\n#> # … with 29,045 more rows\n\n\nThat’s… super exciting???"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#calculating-tf-idf-2",
+    "href": "slides/02-more-eda.html#calculating-tf-idf-2",
+    "title": "Text Mining",
+    "section": "Calculating tf-idf",
+    "text": "Calculating tf-idf\nWhat do you predict will happen if we run the following code? 🤔\n\nbook_tf_idf %>%\n    arrange(-tf_idf)"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#calculating-tf-idf-3",
+    "href": "slides/02-more-eda.html#calculating-tf-idf-3",
+    "title": "Text Mining",
+    "section": "Calculating tf-idf",
+    "text": "Calculating tf-idf\nWhat do you predict will happen if we run the following code? 🤔\n\nbook_tf_idf %>%\n    arrange(-tf_idf)\n#> # A tibble: 29,055 × 6\n#>    title                 word          n      tf   idf  tf_idf\n#>    <chr>                 <chr>     <int>   <dbl> <dbl>   <dbl>\n#>  1 Sense and Sensibility elinor      622 0.00518 1.39  0.00718\n#>  2 Sense and Sensibility marianne    492 0.00410 1.39  0.00568\n#>  3 Pride and Prejudice   darcy       383 0.00299 1.39  0.00415\n#>  4 Emma                  emma        786 0.00488 0.693 0.00338\n#>  5 Pride and Prejudice   bennet      309 0.00241 1.39  0.00335\n#>  6 Emma                  weston      388 0.00241 1.39  0.00334\n#>  7 Pride and Prejudice   elizabeth   605 0.00473 0.693 0.00328\n#>  8 Emma                  knightley   356 0.00221 1.39  0.00306\n#>  9 Pride and Prejudice   bingley     262 0.00205 1.39  0.00284\n#> 10 Emma                  elton       319 0.00198 1.39  0.00274\n#> # … with 29,045 more rows"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#calculating-tf-idf-4",
+    "href": "slides/02-more-eda.html#calculating-tf-idf-4",
+    "title": "Text Mining",
+    "section": "Calculating tf-idf",
+    "text": "Calculating tf-idf\nU N S C R A M B L E\ngroup_by(title) %>%\nbook_tf_idf %>%\nslice_max(tf_idf, n = 10) %>%\nggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +\nfacet_wrap(vars(title), scales = “free”)\ngeom_col(show.legend = FALSE) +"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#calculating-tf-idf-5",
+    "href": "slides/02-more-eda.html#calculating-tf-idf-5",
+    "title": "Text Mining",
+    "section": "Calculating tf-idf",
+    "text": "Calculating tf-idf\n\nbook_tf_idf %>%\n    group_by(title) %>%\n    slice_max(tf_idf, n = 10) %>%\n    ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +\n    geom_col(show.legend = FALSE) +\n    facet_wrap(vars(title), scales = \"free\")"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#what-is-a-document-about-3",
+    "href": "slides/02-more-eda.html#what-is-a-document-about-3",
+    "title": "Text Mining",
+    "section": "What is a document about?",
+    "text": "What is a document about?\n\nTerm frequency\nInverse document frequency\n\n\nWeighted log odds ⚖️\n\nLog odds ratio expresses probabilities\nWeighting helps deal with power law distribution"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#weighted-log-odds-1",
+    "href": "slides/02-more-eda.html#weighted-log-odds-1",
+    "title": "Text Mining",
+    "section": "Weighted log odds ⚖️",
+    "text": "Weighted log odds ⚖️\n\nlibrary(tidylo)\nbook_words %>%\n    bind_log_odds(title, word, n) %>%\n    arrange(-log_odds_weighted)\n#> # A tibble: 29,055 × 4\n#>    title                 word          n log_odds_weighted\n#>    <chr>                 <chr>     <int>             <dbl>\n#>  1 Sense and Sensibility elinor      622              35.6\n#>  2 Sense and Sensibility marianne    492              31.6\n#>  3 Emma                  emma        786              29.3\n#>  4 Pride and Prejudice   darcy       383              27.5\n#>  5 Pride and Prejudice   elizabeth   605              26.9\n#>  6 Emma                  weston      388              26.8\n#>  7 Emma                  knightley   356              25.7\n#>  8 Pride and Prejudice   bennet      309              24.7\n#>  9 Emma                  elton       319              24.3\n#> 10 Mansfield Park        crawford    493              23.2\n#> # … with 29,045 more rows\n\n\nWeighted log odds can distinguish between words that are used in all texts."
+  },
+  {
+    "objectID": "slides/02-more-eda.html#n-grams-and-beyond-1",
+    "href": "slides/02-more-eda.html#n-grams-and-beyond-1",
+    "title": "Text Mining",
+    "section": "N-grams… and beyond! 🚀",
+    "text": "N-grams… and beyond! 🚀\n\nfull_text <- gutenberg_download(158, mirror = my_mirror)\n\ntidy_ngram <- full_text %>%\n    unnest_tokens(bigram, text, token = \"ngrams\", n = 2) %>% \n    filter(!is.na(bigram))"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#n-grams-and-beyond-2",
+    "href": "slides/02-more-eda.html#n-grams-and-beyond-2",
+    "title": "Text Mining",
+    "section": "N-grams… and beyond! 🚀",
+    "text": "N-grams… and beyond! 🚀\n\ntidy_ngram\n#> # A tibble: 147,256 × 2\n#>    gutenberg_id bigram     \n#>           <int> <chr>      \n#>  1          158 by jane    \n#>  2          158 jane austen\n#>  3          158 volume i   \n#>  4          158 chapter i  \n#>  5          158 chapter ii \n#>  6          158 chapter iii\n#>  7          158 chapter iv \n#>  8          158 chapter v  \n#>  9          158 chapter vi \n#> 10          158 chapter vii\n#> # … with 147,246 more rows"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#n-grams-and-beyond-3",
+    "href": "slides/02-more-eda.html#n-grams-and-beyond-3",
+    "title": "Text Mining",
+    "section": "N-grams… and beyond! 🚀",
+    "text": "N-grams… and beyond! 🚀\n\ntidy_ngram %>%\n    count(bigram, sort = TRUE)\n#> # A tibble: 61,242 × 2\n#>    bigram       n\n#>    <chr>    <int>\n#>  1 to be      583\n#>  2 of the     523\n#>  3 it was     425\n#>  4 in the     421\n#>  5 i am       381\n#>  6 she had    316\n#>  7 she was    310\n#>  8 it is      290\n#>  9 had been   284\n#> 10 i have     265\n#> # … with 61,232 more rows"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#jane-wants-to-know",
+    "href": "slides/02-more-eda.html#jane-wants-to-know",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nCan we use an anti_join() right away to remove stop words?\n\nYes! ✅\nNo ☹️"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#n-grams-and-beyond-4",
+    "href": "slides/02-more-eda.html#n-grams-and-beyond-4",
+    "title": "Text Mining",
+    "section": "N-grams… and beyond! 🚀",
+    "text": "N-grams… and beyond! 🚀\n\nbigram_counts <- tidy_ngram %>%\n    separate(bigram, c(\"word1\", \"word2\"), sep = \" \") %>%\n    filter(!word1 %in% stop_words$word,\n           !word2 %in% stop_words$word) %>%\n    count(word1, word2, sort = TRUE)"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#n-grams-and-beyond-5",
+    "href": "slides/02-more-eda.html#n-grams-and-beyond-5",
+    "title": "Text Mining",
+    "section": "N-grams… and beyond! 🚀",
+    "text": "N-grams… and beyond! 🚀\n\nbigram_counts\n#> # A tibble: 6,526 × 3\n#>    word1 word2         n\n#>    <chr> <chr>     <int>\n#>  1 miss  woodhouse   136\n#>  2 frank churchill   110\n#>  3 miss  fairfax     101\n#>  4 miss  bates        95\n#>  5 jane  fairfax      90\n#>  6 john  knightley    47\n#>  7 miss  smith        45\n#>  8 miss  taylor       39\n#>  9 dear  emma         30\n#> 10 maple grove        28\n#> # … with 6,516 more rows"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#what-can-you-do-with-n-grams",
+    "href": "slides/02-more-eda.html#what-can-you-do-with-n-grams",
+    "title": "Text Mining",
+    "section": "What can you do with n-grams?",
+    "text": "What can you do with n-grams?\n\n\ntf-idf of n-grams\nweighted log odds of n-grams\nnetwork analysis\nnegation"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#section-3",
+    "href": "slides/02-more-eda.html#section-3",
+    "title": "Text Mining",
+    "section": "",
+    "text": "https://pudding.cool/2017/08/screen-direction/"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#network-analysis",
+    "href": "slides/02-more-eda.html#network-analysis",
+    "title": "Text Mining",
+    "section": "Network analysis",
+    "text": "Network analysis\n\nlibrary(widyr)\nlibrary(ggraph)\nlibrary(tidygraph)\n\nbigram_graph <- bigram_counts %>%\n    filter(n > 5) %>%\n    as_tbl_graph()"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#network-analysis-1",
+    "href": "slides/02-more-eda.html#network-analysis-1",
+    "title": "Text Mining",
+    "section": "Network analysis",
+    "text": "Network analysis\n\nbigram_graph\n#> # A tbl_graph: 81 nodes and 68 edges\n#> #\n#> # A directed acyclic simple graph with 19 components\n#> #\n#> # Node Data: 81 × 1 (active)\n#>   name \n#>   <chr>\n#> 1 miss \n#> 2 frank\n#> 3 jane \n#> 4 john \n#> 5 dear \n#> 6 maple\n#> # … with 75 more rows\n#> #\n#> # Edge Data: 68 × 3\n#>    from    to     n\n#>   <int> <int> <int>\n#> 1     1    30   136\n#> 2     2    31   110\n#> 3     1    32   101\n#> # … with 65 more rows"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#jane-wants-to-know-1",
+    "href": "slides/02-more-eda.html#jane-wants-to-know-1",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nIs bigram_graph a tidy dataset?\n\nYes ☑️\nNo 🚫"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#network-analysis-2",
+    "href": "slides/02-more-eda.html#network-analysis-2",
+    "title": "Text Mining",
+    "section": "Network analysis",
+    "text": "Network analysis\n\nbigram_graph %>%\n    ggraph(layout = \"kk\") +\n    geom_edge_link(aes(edge_alpha = n)) + \n    geom_node_text(aes(label = name)) +  \n    theme_graph()"
+  },
+  {
+    "objectID": "slides/02-more-eda.html#network-analysis-3",
+    "href": "slides/02-more-eda.html#network-analysis-3",
+    "title": "Text Mining",
+    "section": "Network analysis",
+    "text": "Network analysis\n\nbigram_graph %>%\n    ggraph(layout = \"kk\") +\n    geom_edge_link(aes(edge_alpha = n), \n                   show.legend = FALSE, \n                   arrow = arrow(length = unit(1.5, 'mm')), \n                   start_cap = circle(3, 'mm'),\n                   end_cap = circle(3, 'mm')) +\n    geom_node_text(aes(label = name)) + \n    theme_graph()"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#lets-install-some-packages",
+    "href": "slides/03-topic-models.html#lets-install-some-packages",
+    "title": "Text Mining",
+    "section": "Let’s install some packages",
+    "text": "Let’s install some packages\n\ninstall.packages(c(\"tidyverse\", \n                   \"tidytext\",\n                   \"stopwords\",\n                   \"gutenbergr\",\n                   \"stm\"))"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#workflow-for-text-miningmodeling",
+    "href": "slides/03-topic-models.html#workflow-for-text-miningmodeling",
+    "title": "Text Mining",
+    "section": "Workflow for text mining/modeling",
+    "text": "Workflow for text mining/modeling"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#download-your-text-data",
+    "href": "slides/03-topic-models.html#download-your-text-data",
+    "title": "Text Mining",
+    "section": "Download your text data",
+    "text": "Download your text data\n\nlibrary(tidyverse)\nlibrary(gutenbergr)\n\nbooks <- gutenberg_download(c(36, 158, 164, 345),\n                            meta_fields = \"title\",\n                            mirror = my_mirror)\nbooks %>%\n    count(title)\n#> # A tibble: 4 × 2\n#>   title                                     n\n#>   <chr>                                 <int>\n#> 1 Dracula                               15480\n#> 2 Emma                                  16488\n#> 3 The War of the Worlds                  6372\n#> 4 Twenty Thousand Leagues under the Sea 12426"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#someone-has-torn-up-your-books",
+    "href": "slides/03-topic-models.html#someone-has-torn-up-your-books",
+    "title": "Text Mining",
+    "section": "Someone has torn up your books! 😭",
+    "text": "Someone has torn up your books! 😭\nWhat do you predict will happen if we run the following code? 🤔\n\nbooks_by_document <- books %>%\n    group_by(title) %>%\n    mutate(document = row_number() %/% 500) %>%\n    ungroup() %>%\n    unite(document, title, document)\n\nglimpse(books_by_document)"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#someone-has-torn-up-your-books-1",
+    "href": "slides/03-topic-models.html#someone-has-torn-up-your-books-1",
+    "title": "Text Mining",
+    "section": "Someone has torn up your books! 😭",
+    "text": "Someone has torn up your books! 😭\nWhat do you predict will happen if we run the following code? 🤔\n\nbooks_by_document <- books %>%\n    group_by(title) %>%\n    mutate(document = row_number() %/% 500) %>%\n    ungroup() %>%\n    unite(document, title, document)\n\nglimpse(books_by_document)\n#> Rows: 50,766\n#> Columns: 3\n#> $ gutenberg_id <int> 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 3…\n#> $ text         <chr> \"cover \", \"\", \"\", \"\", \"\", \"The War of the Worlds\", \"\", \"b…\n#> $ document     <chr> \"The War of the Worlds_0\", \"The War of the Worlds_0\", \"Th…"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#can-we-put-them-back-together",
+    "href": "slides/03-topic-models.html#can-we-put-them-back-together",
+    "title": "Text Mining",
+    "section": "Can we put them back together?",
+    "text": "Can we put them back together?\n\nlibrary(tidytext)\nword_counts <- books_by_document %>%\n    unnest_tokens(word, text) %>% \n    anti_join(get_stopwords(source = \"smart\")) %>%\n    count(document, word, sort = TRUE)\n\nglimpse(word_counts)\n#> Rows: 100,572\n#> Columns: 3\n#> $ document <chr> \"Emma_0\", \"Emma_7\", \"Emma_2\", \"Emma_8\", \"Emma_11\", \"Emma_6\", …\n#> $ word     <chr> \"chapter\", \"mr\", \"mr\", \"mr\", \"mr\", \"mr\", \"mr\", \"chapter\", \"mr…\n#> $ n        <int> 57, 56, 54, 52, 51, 50, 49, 49, 48, 44, 44, 43, 43, 42, 42, 4…"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#jane-wants-to-know",
+    "href": "slides/03-topic-models.html#jane-wants-to-know",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nThe dataset word_counts contains\n\nthe counts of words per book\nthe counts of words per “chunk” (500 lines)\nthe counts of words per line"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#can-we-put-them-back-together-1",
+    "href": "slides/03-topic-models.html#can-we-put-them-back-together-1",
+    "title": "Text Mining",
+    "section": "Can we put them back together?",
+    "text": "Can we put them back together?\n\nwords_sparse <- word_counts %>%\n    cast_sparse(document, word, n)\n\nclass(words_sparse)\n#> [1] \"dgCMatrix\"\n#> attr(,\"package\")\n#> [1] \"Matrix\"\ndim(words_sparse)\n#> [1]   102 18370"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#jane-wants-to-know-1",
+    "href": "slides/03-topic-models.html#jane-wants-to-know-1",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nIs words_sparse a tidy dataset?\n\nYes ✔️\nNo 🚫"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-a-topic-model",
+    "href": "slides/03-topic-models.html#train-a-topic-model",
+    "title": "Text Mining",
+    "section": "Train a topic model",
+    "text": "Train a topic model\nUse a sparse matrix or a quanteda::dfm object as input\n\nlibrary(stm)\ntopic_model <- stm(words_sparse, K = 4, \n                   verbose = FALSE, \n                   init.type = \"Spectral\")"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-a-topic-model-1",
+    "href": "slides/03-topic-models.html#train-a-topic-model-1",
+    "title": "Text Mining",
+    "section": "Train a topic model",
+    "text": "Train a topic model\nUse a sparse matrix or a quanteda::dfm object as input\n\nsummary(topic_model)\n#> A topic model with 4 topics, 102 documents and a 18370 word dictionary.\n#> Topic 1 Top Words:\n#>       Highest Prob: mr, emma, harriet, good, miss, thing, man \n#>       FREX: charade, taylor, papa, isabella, martin, children, marry \n#>       Lift: charade, monarch, hannah, hating, humours, militia, widower \n#>       Score: emma, harriet, knightley, elton, weston, hartfield, martin \n#> Topic 2 Top Words:\n#>       Highest Prob: captain, _nautilus_, sea, nemo, ned, conseil, land \n#>       FREX: _nautilus_, nemo, ned, conseil, ocean, canadian, submarine \n#>       Lift: natives, astrolabe, canoes, galleons, gallons, morses, dillon \n#>       Score: _nautilus_, nemo, ned, conseil, captain, canadian, ocean \n#> Topic 3 Top Words:\n#>       Highest Prob: mr, mrs, emma, miss, weston, thing, jane \n#>       FREX: campbell, dixon, grove, maple, fairfax’s, engagement, jane \n#>       Lift: ford, larkins, patty, ford’s, sucklings, coxes, hodges \n#>       Score: emma, weston, jane, knightley, harriet, elton, mrs \n#> Topic 4 Top Words:\n#>       Highest Prob: time, night, man, back, van, helsing, day \n#>       FREX: helsing, lucy, mina, jonathan, martians, harker, diary \n#>       Lift: scullery, boxes, skinsky, wolves, ogilvy, renfield, galatz \n#>       Score: helsing, martians, lucy, mina, van, jonathan, diary"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#explore-the-topic-model-output",
+    "href": "slides/03-topic-models.html#explore-the-topic-model-output",
+    "title": "Text Mining",
+    "section": "Explore the topic model output",
+    "text": "Explore the topic model output\n\nchapter_topics <- tidy(topic_model, matrix = \"beta\")\nchapter_topics\n#> # A tibble: 73,480 × 3\n#>    topic term        beta\n#>    <int> <chr>      <dbl>\n#>  1     1 chapter 5.88e- 3\n#>  2     2 chapter 2.11e- 3\n#>  3     3 chapter 8.87e- 4\n#>  4     4 chapter 6.80e- 4\n#>  5     1 mr      2.82e- 2\n#>  6     2 mr      2.23e- 4\n#>  7     3 mr      1.96e- 2\n#>  8     4 mr      9.58e- 4\n#>  9     1 mrs     5.17e- 3\n#> 10     2 mrs     3.90e-42\n#> # … with 73,470 more rows"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#explore-the-topic-model-output-1",
+    "href": "slides/03-topic-models.html#explore-the-topic-model-output-1",
+    "title": "Text Mining",
+    "section": "Explore the topic model output",
+    "text": "Explore the topic model output\nU N S C R A M B L E\ntop_terms <- chapter_topics %>%\nungroup() %>%\ngroup_by(topic) %>%\narrange(topic, -beta)\nslice_max(beta, n = 10) %>%"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#explore-the-topic-model-output-2",
+    "href": "slides/03-topic-models.html#explore-the-topic-model-output-2",
+    "title": "Text Mining",
+    "section": "Explore the topic model output",
+    "text": "Explore the topic model output\n\ntop_terms <- chapter_topics %>%\n    group_by(topic) %>%\n    slice_max(beta, n = 10) %>%\n    ungroup() %>%\n    arrange(topic, -beta)"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#explore-the-topic-model-output-3",
+    "href": "slides/03-topic-models.html#explore-the-topic-model-output-3",
+    "title": "Text Mining",
+    "section": "Explore the topic model output",
+    "text": "Explore the topic model output\n\ntop_terms\n#> # A tibble: 40 × 3\n#>    topic term         beta\n#>    <int> <chr>       <dbl>\n#>  1     1 mr        0.0282 \n#>  2     1 emma      0.0125 \n#>  3     1 harriet   0.0115 \n#>  4     1 good      0.0105 \n#>  5     1 miss      0.00914\n#>  6     1 thing     0.00787\n#>  7     1 man       0.00764\n#>  8     1 knightley 0.00696\n#>  9     1 elton     0.00680\n#> 10     1 dear      0.00633\n#> # … with 30 more rows"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#explore-the-topic-model-output-4",
+    "href": "slides/03-topic-models.html#explore-the-topic-model-output-4",
+    "title": "Text Mining",
+    "section": "Explore the topic model output",
+    "text": "Explore the topic model output\n\ntop_terms %>%\n    mutate(term = fct_reorder(term, beta)) %>%\n    ggplot(aes(beta, term, fill = factor(topic))) + \n    geom_col(show.legend = FALSE) +\n    facet_wrap(vars(topic), scales = \"free\")"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#how-are-documents-classified",
+    "href": "slides/03-topic-models.html#how-are-documents-classified",
+    "title": "Text Mining",
+    "section": "How are documents classified?",
+    "text": "How are documents classified?\n\nchapters_gamma <- tidy(topic_model, matrix = \"gamma\",\n                       document_names = rownames(words_sparse))\nchapters_gamma\n#> # A tibble: 408 × 3\n#>    document                                topic    gamma\n#>    <chr>                                   <int>    <dbl>\n#>  1 Emma_0                                      1 0.999   \n#>  2 Emma_7                                      1 0.239   \n#>  3 Emma_2                                      1 0.999   \n#>  4 Emma_8                                      1 0.233   \n#>  5 Emma_11                                     1 0.00103 \n#>  6 Emma_6                                      1 0.999   \n#>  7 Emma_21                                     1 0.000715\n#>  8 Twenty Thousand Leagues under the Sea_0     1 0.000146\n#>  9 Emma_20                                     1 0.000937\n#> 10 Emma_19                                     1 0.000977\n#> # … with 398 more rows"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#how-are-documents-classified-1",
+    "href": "slides/03-topic-models.html#how-are-documents-classified-1",
+    "title": "Text Mining",
+    "section": "How are documents classified?",
+    "text": "How are documents classified?\nWhat do you predict will happen if we run the following code? 🤔\n\nchapters_parsed <- chapters_gamma %>%\n    separate(document, c(\"title\", \"chapter\"), \n             sep = \"_\", convert = TRUE)\n\nglimpse(chapters_parsed)"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#how-are-documents-classified-2",
+    "href": "slides/03-topic-models.html#how-are-documents-classified-2",
+    "title": "Text Mining",
+    "section": "How are documents classified?",
+    "text": "How are documents classified?\nWhat do you predict will happen if we run the following code? 🤔\n\nchapters_parsed <- chapters_gamma %>%\n    separate(document, c(\"title\", \"chapter\"), \n             sep = \"_\", convert = TRUE)\n\nglimpse(chapters_parsed)\n#> Rows: 408\n#> Columns: 4\n#> $ title   <chr> \"Emma\", \"Emma\", \"Emma\", \"Emma\", \"Emma\", \"Emma\", \"Emma\", \"Twent…\n#> $ chapter <int> 0, 7, 2, 8, 11, 6, 21, 0, 20, 19, 4, 9, 15, 21, 23, 27, 19, 14…\n#> $ topic   <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…\n#> $ gamma   <dbl> 9.986350e-01, 2.387502e-01, 9.988524e-01, 2.325374e-01, 1.0326…"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#how-are-documents-classified-3",
+    "href": "slides/03-topic-models.html#how-are-documents-classified-3",
+    "title": "Text Mining",
+    "section": "How are documents classified?",
+    "text": "How are documents classified?\nU N S C R A M B L E\nchapters_parsed %>%\nggplot(aes(factor(topic), gamma)) +\nfacet_wrap(vars(title))\nmutate(title = fct_reorder(title, gamma * topic)) %>%\ngeom_boxplot() +"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#how-are-documents-classified-4",
+    "href": "slides/03-topic-models.html#how-are-documents-classified-4",
+    "title": "Text Mining",
+    "section": "How are documents classified?",
+    "text": "How are documents classified?\n\nchapters_parsed %>%\n    mutate(title = fct_reorder(title, gamma * topic)) %>%\n    ggplot(aes(factor(topic), gamma)) +\n    geom_boxplot() +\n    facet_wrap(vars(title))"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#tidying-model-output",
+    "href": "slides/03-topic-models.html#tidying-model-output",
+    "title": "Text Mining",
+    "section": "Tidying model output",
+    "text": "Tidying model output\nWhich words in each document are assigned to which topics?\n\naugment()\nAdd information to each observation in the original data"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#using-stm",
+    "href": "slides/03-topic-models.html#using-stm",
+    "title": "Text Mining",
+    "section": "Using stm",
+    "text": "Using stm\n\nDocument-level covariates\n\n\ntopic_model <- stm(words_sparse, \n                   K = 0, init.type = \"Spectral\",\n                   prevalence = ~s(Year),\n                   data = covariates,\n                   verbose = FALSE)\n\n\nUse functions for semanticCoherence(), checkResiduals(), exclusivity(), and more!\nCheck out http://www.structuraltopicmodel.com/"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-many-topic-models",
+    "href": "slides/03-topic-models.html#train-many-topic-models",
+    "title": "Text Mining",
+    "section": "Train many topic models",
+    "text": "Train many topic models\n\nlibrary(furrr)\nplan(multicore)\n\nmany_models <- tibble(K = c(3, 4, 6, 8, 10)) %>% \n    mutate(topic_model = future_map(\n        K, ~stm(words_sparse, K = ., verbose = FALSE))\n    )\n\nmany_models\n#> # A tibble: 5 × 2\n#>       K topic_model\n#>   <dbl> <list>     \n#> 1     3 <STM>      \n#> 2     4 <STM>      \n#> 3     6 <STM>      \n#> 4     8 <STM>      \n#> 5    10 <STM>"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-many-topic-models-1",
+    "href": "slides/03-topic-models.html#train-many-topic-models-1",
+    "title": "Text Mining",
+    "section": "Train many topic models",
+    "text": "Train many topic models\n\nheldout <- make.heldout(words_sparse)\n\nk_result <- many_models %>%\n    mutate(exclusivity        = map(topic_model, exclusivity),\n           semantic_coherence = map(topic_model, semanticCoherence, words_sparse),\n           eval_heldout       = map(topic_model, eval.heldout, heldout$missing),\n           residual           = map(topic_model, checkResiduals, words_sparse),\n           bound              = map_dbl(topic_model, function(x) max(x$convergence$bound)),\n           lfact              = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),\n           lbound             = bound + lfact,\n           iterations         = map_dbl(topic_model, function(x) length(x$convergence$bound)))"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-many-topic-models-2",
+    "href": "slides/03-topic-models.html#train-many-topic-models-2",
+    "title": "Text Mining",
+    "section": "Train many topic models",
+    "text": "Train many topic models\n\nk_result\n#> # A tibble: 5 × 10\n#>       K topic_…¹ exclu…² seman…³ eval_heldout residual       bound lfact  lbound\n#>   <dbl> <list>   <list>  <list>  <list>       <list>         <dbl> <dbl>   <dbl>\n#> 1     3 <STM>    <dbl>   <dbl>   <named list> <named list> -1.40e6  1.79 -1.40e6\n#> 2     4 <STM>    <dbl>   <dbl>   <named list> <named list> -1.39e6  3.18 -1.39e6\n#> 3     6 <STM>    <dbl>   <dbl>   <named list> <named list> -1.37e6  6.58 -1.37e6\n#> 4     8 <STM>    <dbl>   <dbl>   <named list> <named list> -1.35e6 10.6  -1.35e6\n#> 5    10 <STM>    <dbl>   <dbl>   <named list> <named list> -1.34e6 15.1  -1.34e6\n#> # … with 1 more variable: iterations <dbl>, and abbreviated variable names\n#> #   ¹​topic_model, ²​exclusivity, ³​semantic_coherence"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-many-topic-models-3",
+    "href": "slides/03-topic-models.html#train-many-topic-models-3",
+    "title": "Text Mining",
+    "section": "Train many topic models",
+    "text": "Train many topic models\n\nk_result %>%\n    transmute(K,\n              `Lower bound`         = lbound,\n              Residuals             = map_dbl(residual, \"dispersion\"), \n              `Semantic coherence`  = map_dbl(semantic_coherence, mean), \n              `Held-out likelihood` = map_dbl(eval_heldout, \"expected.heldout\")) %>% \n    gather(Metric, Value, -K) %>%\n    ggplot(aes(K, Value, color = Metric)) +\n    geom_line() +\n    facet_wrap(~Metric, scales = \"free_y\")"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#what-is-semantic-coherence",
+    "href": "slides/03-topic-models.html#what-is-semantic-coherence",
+    "title": "Text Mining",
+    "section": "What is semantic coherence?",
+    "text": "What is semantic coherence?\n\n\nSemantic coherence is maximized when the most probable words in a given topic frequently co-occur together\nCorrelates well with human judgment of topic quality 😃\nHaving high semantic coherence is relatively easy, though, if you only have a few topics dominated by very common words 😩\nMeasure semantic coherence and exclusivity"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#train-many-topic-models-4",
+    "href": "slides/03-topic-models.html#train-many-topic-models-4",
+    "title": "Text Mining",
+    "section": "Train many topic models",
+    "text": "Train many topic models\n\nk_result %>%\n    select(K, exclusivity, semantic_coherence) %>%\n    filter(K %in% c(3, 6, 10)) %>%\n    unnest(cols = c(exclusivity, semantic_coherence)) %>%\n    ggplot(aes(semantic_coherence, exclusivity, \n               color = factor(K))) +\n    geom_point()"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#jane-wants-to-know-2",
+    "href": "slides/03-topic-models.html#jane-wants-to-know-2",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nTopic modeling is an example of…\n\nsupervised machine learning\nunsupervised machine learning\n\n\nhttps://juliasilge.com/blog/evaluating-stm/"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#workflow-for-text-miningmodeling-1",
+    "href": "slides/03-topic-models.html#workflow-for-text-miningmodeling-1",
+    "title": "Text Mining",
+    "section": "Workflow for text mining/modeling",
+    "text": "Workflow for text mining/modeling"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#go-explore-real-world-text",
+    "href": "slides/03-topic-models.html#go-explore-real-world-text",
+    "title": "Text Mining",
+    "section": "Go explore real-world text!",
+    "text": "Go explore real-world text!"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#lets-install-some-packages",
+    "href": "slides/04-sml-text.html#lets-install-some-packages",
+    "title": "Text Mining",
+    "section": "Let’s install some packages",
+    "text": "Let’s install some packages\n\ninstall.packages(c(\"glmnet\", \n                   \"tidyverse\", \n                   \"tidymodels\",\n                   \"textrecipes\",\n                   \"stopwords\",\n                   \"vip\"))"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#section-1",
+    "href": "slides/04-sml-text.html#section-1",
+    "title": "Text Mining",
+    "section": "",
+    "text": "library(tidymodels)\n#> ── Attaching packages ────────────────────────────────────── tidymodels 1.0.0 ──\n#> ✔ broom        1.0.2     ✔ rsample      1.1.1\n#> ✔ dials        1.1.0     ✔ tune         1.0.1\n#> ✔ infer        1.0.4     ✔ workflows    1.1.2\n#> ✔ modeldata    1.0.1     ✔ workflowsets 1.0.0\n#> ✔ parsnip      1.0.3     ✔ yardstick    1.1.0\n#> ✔ recipes      1.0.3\n#> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──\n#> ✖ scales::discard() masks purrr::discard()\n#> ✖ dplyr::filter()   masks stats::filter()\n#> ✖ recipes::fixed()  masks stringr::fixed()\n#> ✖ dplyr::lag()      masks stats::lag()\n#> ✖ yardstick::spec() masks readr::spec()\n#> ✖ recipes::step()   masks stats::step()\n#> • Dig deeper into tidy modeling with R at https://www.tmwr.org"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#learn-more",
+    "href": "slides/04-sml-text.html#learn-more",
+    "title": "Text Mining",
+    "section": "Learn more",
+    "text": "Learn more\n\n\nhttps://www.tidymodels.org/\nTidy Modeling with R\nSupervised Machine Learning for Text Analysis in R"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#download-your-text-data",
+    "href": "slides/04-sml-text.html#download-your-text-data",
+    "title": "Text Mining",
+    "section": "Download your text data",
+    "text": "Download your text data\n\nlibrary(tidyverse)\nlibrary(gutenbergr)\n\ntitles <- c(\"The War of the Worlds\",\n            \"Pride and Prejudice\")\n\nbooks <- gutenberg_works(title %in% titles) %>%\n    gutenberg_download(meta_fields = \"title\", mirror = my_mirror) %>%\n    mutate(title = str_replace_all(title, \" \", \"_\")) %>%\n    filter(nchar(text) > 3) %>%\n    mutate(document = row_number())"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#download-your-text-data-1",
+    "href": "slides/04-sml-text.html#download-your-text-data-1",
+    "title": "Text Mining",
+    "section": "Download your text data",
+    "text": "Download your text data\n\nbooks\n#> # A tibble: 16,846 × 4\n#>    gutenberg_id text                                               title docum…¹\n#>           <int> <chr>                                              <chr>   <int>\n#>  1           36 \"cover \"                                           The_…       1\n#>  2           36 \"The War of the Worlds\"                            The_…       2\n#>  3           36 \"by H. G. Wells\"                                   The_…       3\n#>  4           36 \"   ‘But who shall dwell in these worlds if they … The_…       4\n#>  5           36 \"    . . . Are we or they Lords of the World? . .… The_…       5\n#>  6           36 \"    how are all things made for man?’\"            The_…       6\n#>  7           36 \"                    KEPLER (quoted in _The Anato… The_…       7\n#>  8           36 \"Contents\"                                         The_…       8\n#>  9           36 \" BOOK ONE.—THE COMING OF THE MARTIANS\"            The_…       9\n#> 10           36 \" I. THE EVE OF THE WAR.\"                          The_…      10\n#> # … with 16,836 more rows, and abbreviated variable name ¹​document"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#spend-your-data-budget-1",
+    "href": "slides/04-sml-text.html#spend-your-data-budget-1",
+    "title": "Text Mining",
+    "section": "Spend your data budget",
+    "text": "Spend your data budget\n\nset.seed(123)\nbook_split <- initial_split(books, strata = title)\nbook_split\n#> <Training/Testing/Total>\n#> <12633/4213/16846>"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#spend-your-data-budget-2",
+    "href": "slides/04-sml-text.html#spend-your-data-budget-2",
+    "title": "Text Mining",
+    "section": "Spend your data budget",
+    "text": "Spend your data budget\n\nbook_train <- training(book_split)\nbook_train\n#> # A tibble: 12,633 × 4\n#>    gutenberg_id text                                               title docum…¹\n#>           <int> <chr>                                              <chr>   <int>\n#>  1         1342 \"                            [Illustration:\"       Prid…    5310\n#>  2         1342 \"                             GEORGE ALLEN\"        Prid…    5311\n#>  3         1342 \"                               PUBLISHER\"         Prid…    5312\n#>  4         1342 \"                                LONDON\"           Prid…    5314\n#>  5         1342 \"                             RUSKIN HOUSE\"        Prid…    5315\n#>  6         1342 \"                                   ]\"             Prid…    5316\n#>  7         1342 \"               _Reading Jane’s Letters._      _C… Prid…    5318\n#>  8         1342 \"                                PRIDE.\"           Prid…    5320\n#>  9         1342 \"                                  and\"            Prid…    5321\n#> 10         1342 \"                               PREJUDICE\"         Prid…    5322\n#> # … with 12,623 more rows, and abbreviated variable name ¹​document"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#spend-your-data-budget-3",
+    "href": "slides/04-sml-text.html#spend-your-data-budget-3",
+    "title": "Text Mining",
+    "section": "Spend your data budget",
+    "text": "Spend your data budget\n\nbook_test <- testing(book_split)\nbook_test\n#> # A tibble: 4,213 × 4\n#>    gutenberg_id text                                               title docum…¹\n#>           <int> <chr>                                              <chr>   <int>\n#>  1           36 \"    how are all things made for man?’\"            The_…       6\n#>  2           36 \"Contents\"                                         The_…       8\n#>  3           36 \" III. ON HORSELL COMMON.\"                         The_…      12\n#>  4           36 \" VI. THE HEAT-RAY IN THE CHOBHAM ROAD.\"           The_…      15\n#>  5           36 \" XV. WHAT HAD HAPPENED IN SURREY.\"                The_…      24\n#>  6           36 \" XVII. THE “THUNDER CHILD”.\"                      The_…      26\n#>  7           36 \" I. UNDER FOOT.\"                                  The_…      28\n#>  8           36 \" IX. WRECKAGE.\"                                   The_…      36\n#>  9           36 \"THE EVE OF THE WAR.\"                              The_…      40\n#> 10           36 \"the mental habits of those departed days. At mos… The_…      53\n#> # … with 4,203 more rows, and abbreviated variable name ¹​document"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#spend-your-data-budget-4",
+    "href": "slides/04-sml-text.html#spend-your-data-budget-4",
+    "title": "Text Mining",
+    "section": "Spend your data budget",
+    "text": "Spend your data budget\n\nset.seed(123)\nbook_split <- initial_split(books, strata = title)\nbook_train <- training(book_split) \nnrow(book_train)\n#> [1] 12633\nbook_test <- testing(book_split)\nnrow(book_test)\n#> [1] 4213"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#jane-wants-to-know",
+    "href": "slides/04-sml-text.html#jane-wants-to-know",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nIs the book_split object a tidy dataset?\n\nYes ✅\nNo 🚫"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#spend-your-data-budget-5",
+    "href": "slides/04-sml-text.html#spend-your-data-budget-5",
+    "title": "Text Mining",
+    "section": "Spend your data budget",
+    "text": "Spend your data budget\n\nset.seed(234)\nbook_folds <- vfold_cv(book_train, strata = title)\nbook_folds\n#> #  10-fold cross-validation using stratification \n#> # A tibble: 10 × 2\n#>    splits               id    \n#>    <list>               <chr> \n#>  1 <split [11368/1265]> Fold01\n#>  2 <split [11369/1264]> Fold02\n#>  3 <split [11370/1263]> Fold03\n#>  4 <split [11370/1263]> Fold04\n#>  5 <split [11370/1263]> Fold05\n#>  6 <split [11370/1263]> Fold06\n#>  7 <split [11370/1263]> Fold07\n#>  8 <split [11370/1263]> Fold08\n#>  9 <split [11370/1263]> Fold09\n#> 10 <split [11370/1263]> Fold10"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model",
+    "href": "slides/04-sml-text.html#specify-a-model",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\n\n\nPick a model\nSet the mode (if needed)\nSet the engine\n\n\n\nAll available models are listed at https://tidymodels.org/find/parsnip"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model-1",
+    "href": "slides/04-sml-text.html#specify-a-model-1",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\n\nlogistic_reg()\n#> Logistic Regression Model Specification (classification)\n#> \n#> Computational engine: glm"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model-2",
+    "href": "slides/04-sml-text.html#specify-a-model-2",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\nWhat do you predict will happen if we run the following code? 🤔\n\nlogistic_reg() %>%\n    set_engine(\"glmnet\")"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model-3",
+    "href": "slides/04-sml-text.html#specify-a-model-3",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\nWhat do you predict will happen if we run the following code? 🤔\n\nlogistic_reg() %>%\n    set_engine(\"glmnet\")\n#> Logistic Regression Model Specification (classification)\n#> \n#> Computational engine: glmnet"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model-4",
+    "href": "slides/04-sml-text.html#specify-a-model-4",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\nWhat do you predict will happen if we run the following code? 🤔\n\nlogistic_reg(penalty = tune(), mixture = 1) %>%\n    set_engine(\"glmnet\")"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model-5",
+    "href": "slides/04-sml-text.html#specify-a-model-5",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\nWhat do you predict will happen if we run the following code? 🤔\n\nlogistic_reg(penalty = tune(), mixture = 1) %>%\n    set_engine(\"glmnet\")\n#> Logistic Regression Model Specification (classification)\n#> \n#> Main Arguments:\n#>   penalty = tune()\n#>   mixture = 1\n#> \n#> Computational engine: glmnet"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-model-6",
+    "href": "slides/04-sml-text.html#specify-a-model-6",
+    "title": "Text Mining",
+    "section": "Specify a model",
+    "text": "Specify a model\n\nlasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>% \n    set_engine(\"glmnet\")\n\nlasso_spec\n#> Logistic Regression Model Specification (classification)\n#> \n#> Main Arguments:\n#>   penalty = tune()\n#>   mixture = 1\n#> \n#> Computational engine: glmnet"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#jane-wants-to-know-1",
+    "href": "slides/04-sml-text.html#jane-wants-to-know-1",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nHave we fit the lasso_spec model to our data yet?\n\nYep 💃\nNot yet 🙅‍♀️"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#section-4",
+    "href": "slides/04-sml-text.html#section-4",
+    "title": "Text Mining",
+    "section": "",
+    "text": "Illustration by Allison Horst"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#specify-a-recipe",
+    "href": "slides/04-sml-text.html#specify-a-recipe",
+    "title": "Text Mining",
+    "section": "Specify a recipe",
+    "text": "Specify a recipe\n\n\nStart the recipe()\nDefine the variables\nDescribe preprocessing step-by-step\n\n\n\nAll available recipe steps are listed at https://www.tidymodels.org/find/recipes/"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#estimate-using-training-data",
+    "href": "slides/04-sml-text.html#estimate-using-training-data",
+    "title": "Text Mining",
+    "section": "Estimate using training data",
+    "text": "Estimate using training data\n\nlibrary(textrecipes)\nrecipe(title ~ text, data = book_train)\n#> Recipe\n#> \n#> Inputs:\n#> \n#>       role #variables\n#>    outcome          1\n#>  predictor          1"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#estimate-using-training-data-1",
+    "href": "slides/04-sml-text.html#estimate-using-training-data-1",
+    "title": "Text Mining",
+    "section": "Estimate using training data",
+    "text": "Estimate using training data\nWhat do you predict will happen if we run the following code? 🤔\n\nrecipe(title ~ text, data = book_train) %>%\n    step_tokenize(text)"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#estimate-using-training-data-2",
+    "href": "slides/04-sml-text.html#estimate-using-training-data-2",
+    "title": "Text Mining",
+    "section": "Estimate using training data",
+    "text": "Estimate using training data\nWhat do you predict will happen if we run the following code? 🤔\n\nrecipe(title ~ text, data = book_train) %>%\n    step_tokenize(text)  %>%\n    step_stopwords(text)"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#estimate-using-training-data-3",
+    "href": "slides/04-sml-text.html#estimate-using-training-data-3",
+    "title": "Text Mining",
+    "section": "Estimate using training data",
+    "text": "Estimate using training data\nWhat do you predict will happen if we run the following code? 🤔\n\nrecipe(title ~ text, data = book_train) %>%\n    step_tokenize(text)  %>%\n    step_stopwords(text)\n#> Recipe\n#> \n#> Inputs:\n#> \n#>       role #variables\n#>    outcome          1\n#>  predictor          1\n#> \n#> Operations:\n#> \n#> Tokenization for text\n#> Stop word removal for text"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#estimate-using-training-data-4",
+    "href": "slides/04-sml-text.html#estimate-using-training-data-4",
+    "title": "Text Mining",
+    "section": "Estimate using training data",
+    "text": "Estimate using training data\n\nbook_rec <- recipe(title ~ text, data = book_train) %>%\n    step_tokenize(text)  %>% \n    step_stopwords(text) %>%  \n    step_tokenfilter(text, max_tokens = 500) %>%\n    step_tfidf(text)"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#estimate-using-training-data-5",
+    "href": "slides/04-sml-text.html#estimate-using-training-data-5",
+    "title": "Text Mining",
+    "section": "Estimate using training data",
+    "text": "Estimate using training data\n\nbook_rec\n#> Recipe\n#> \n#> Inputs:\n#> \n#>       role #variables\n#>    outcome          1\n#>  predictor          1\n#> \n#> Operations:\n#> \n#> Tokenization for text\n#> Stop word removal for text\n#> Text filtering for text\n#> Term frequency-inverse document frequency with text"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#combine-recipe-and-model",
+    "href": "slides/04-sml-text.html#combine-recipe-and-model",
+    "title": "Text Mining",
+    "section": "Combine recipe and model",
+    "text": "Combine recipe and model\n\nbook_wf <- workflow(book_rec, lasso_spec) \nbook_wf\n#> ══ Workflow ════════════════════════════════════════════════════════════════════\n#> Preprocessor: Recipe\n#> Model: logistic_reg()\n#> \n#> ── Preprocessor ────────────────────────────────────────────────────────────────\n#> 4 Recipe Steps\n#> \n#> • step_tokenize()\n#> • step_stopwords()\n#> • step_tokenfilter()\n#> • step_tfidf()\n#> \n#> ── Model ───────────────────────────────────────────────────────────────────────\n#> Logistic Regression Model Specification (classification)\n#> \n#> Main Arguments:\n#>   penalty = tune()\n#>   mixture = 1\n#> \n#> Computational engine: glmnet"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#tune-model-with-resampled-data",
+    "href": "slides/04-sml-text.html#tune-model-with-resampled-data",
+    "title": "Text Mining",
+    "section": "Tune model with resampled data",
+    "text": "Tune model with resampled data\n\nnarrower_penalty <- penalty(range = c(-5, 0))\n\nset.seed(2021)\nlasso_grid <- tune_grid(\n    book_wf, \n    resamples = book_folds,\n    param_info = parameters(narrower_penalty),\n    grid = 20\n)"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#tune-model-with-resampled-data-1",
+    "href": "slides/04-sml-text.html#tune-model-with-resampled-data-1",
+    "title": "Text Mining",
+    "section": "Tune model with resampled data",
+    "text": "Tune model with resampled data\n\nlasso_grid\n#> # Tuning results\n#> # 10-fold cross-validation using stratification \n#> # A tibble: 10 × 4\n#>    splits               id     .metrics          .notes          \n#>    <list>               <chr>  <list>            <list>          \n#>  1 <split [11368/1265]> Fold01 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  2 <split [11369/1264]> Fold02 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  3 <split [11370/1263]> Fold03 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  4 <split [11370/1263]> Fold04 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  5 <split [11370/1263]> Fold05 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  6 <split [11370/1263]> Fold06 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  7 <split [11370/1263]> Fold07 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  8 <split [11370/1263]> Fold08 <tibble [40 × 5]> <tibble [0 × 3]>\n#>  9 <split [11370/1263]> Fold09 <tibble [40 × 5]> <tibble [0 × 3]>\n#> 10 <split [11370/1263]> Fold10 <tibble [40 × 5]> <tibble [0 × 3]>"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#evaluate-models",
+    "href": "slides/04-sml-text.html#evaluate-models",
+    "title": "Text Mining",
+    "section": "Evaluate models",
+    "text": "Evaluate models\n\nshow_best(lasso_grid)\n#> # A tibble: 5 × 7\n#>     penalty .metric .estimator  mean     n std_err .config              \n#>       <dbl> <chr>   <chr>      <dbl> <int>   <dbl> <chr>                \n#> 1 0.0000166 roc_auc binary     0.913    10 0.00229 Preprocessor1_Model01\n#> 2 0.0000255 roc_auc binary     0.913    10 0.00229 Preprocessor1_Model02\n#> 3 0.0000529 roc_auc binary     0.913    10 0.00231 Preprocessor1_Model03\n#> 4 0.000700  roc_auc binary     0.913    10 0.00236 Preprocessor1_Model08\n#> 5 0.0000921 roc_auc binary     0.913    10 0.00232 Preprocessor1_Model04"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#evaluate-models-1",
+    "href": "slides/04-sml-text.html#evaluate-models-1",
+    "title": "Text Mining",
+    "section": "Evaluate models",
+    "text": "Evaluate models\n\nautoplot(lasso_grid)"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#finalize-and-fit-workflow",
+    "href": "slides/04-sml-text.html#finalize-and-fit-workflow",
+    "title": "Text Mining",
+    "section": "Finalize and fit workflow",
+    "text": "Finalize and fit workflow\n\nsimple_lasso <- select_by_one_std_err(\n    lasso_grid, \n    -penalty, \n    metric = \"roc_auc\"\n)\n\nsimple_lasso\n#> # A tibble: 1 × 9\n#>   penalty .metric .estimator  mean     n std_err .config            .best .bound\n#>     <dbl> <chr>   <chr>      <dbl> <int>   <dbl> <chr>              <dbl>  <dbl>\n#> 1 0.00228 roc_auc binary     0.911    10 0.00229 Preprocessor1_Mod… 0.913  0.911"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#finalize-and-fit-workflow-1",
+    "href": "slides/04-sml-text.html#finalize-and-fit-workflow-1",
+    "title": "Text Mining",
+    "section": "Finalize and fit workflow",
+    "text": "Finalize and fit workflow\n\nbook_final <- book_wf %>%\n    finalize_workflow(simple_lasso) %>% \n    last_fit(book_split) \n\ncollect_metrics(book_final)\n#> # A tibble: 2 × 4\n#>   .metric  .estimator .estimate .config             \n#>   <chr>    <chr>          <dbl> <chr>               \n#> 1 accuracy binary         0.838 Preprocessor1_Model1\n#> 2 roc_auc  binary         0.910 Preprocessor1_Model1"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#evaluate-final-model",
+    "href": "slides/04-sml-text.html#evaluate-final-model",
+    "title": "Text Mining",
+    "section": "Evaluate final model",
+    "text": "Evaluate final model\n\ncollect_predictions(book_final)\n#> # A tibble: 4,213 × 7\n#>    id               .pred_Pride_and_Prejud…¹ .pred…²  .row .pred…³ title .config\n#>    <chr>                               <dbl>   <dbl> <int> <fct>   <fct> <chr>  \n#>  1 train/test split                   0.269    0.731     6 The_Wa… The_… Prepro…\n#>  2 train/test split                   0.657    0.343     8 Pride_… The_… Prepro…\n#>  3 train/test split                   0.111    0.889    12 The_Wa… The_… Prepro…\n#>  4 train/test split                   0.0112   0.989    15 The_Wa… The_… Prepro…\n#>  5 train/test split                   0.607    0.393    24 Pride_… The_… Prepro…\n#>  6 train/test split                   0.657    0.343    26 Pride_… The_… Prepro…\n#>  7 train/test split                   0.657    0.343    28 Pride_… The_… Prepro…\n#>  8 train/test split                   0.657    0.343    36 Pride_… The_… Prepro…\n#>  9 train/test split                   0.657    0.343    40 Pride_… The_… Prepro…\n#> 10 train/test split                   0.0752   0.925    53 The_Wa… The_… Prepro…\n#> # … with 4,203 more rows, and abbreviated variable names\n#> #   ¹​.pred_Pride_and_Prejudice, ²​.pred_The_War_of_the_Worlds, ³​.pred_class"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#evaluate-final-model-1",
+    "href": "slides/04-sml-text.html#evaluate-final-model-1",
+    "title": "Text Mining",
+    "section": "Evaluate final model",
+    "text": "Evaluate final model\n\ncollect_predictions(book_final) %>%\n    conf_mat(title, .pred_class)\n#>                        Truth\n#> Prediction              Pride_and_Prejudice The_War_of_the_Worlds\n#>   Pride_and_Prejudice                  2712                   509\n#>   The_War_of_the_Worlds                 173                   819"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#evaluate-final-model-2",
+    "href": "slides/04-sml-text.html#evaluate-final-model-2",
+    "title": "Text Mining",
+    "section": "Evaluate final model",
+    "text": "Evaluate final model\n\ncollect_predictions(book_final) %>%\n    roc_curve(title, .pred_Pride_and_Prejudice) %>% \n    autoplot()"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#jane-wants-to-know-2",
+    "href": "slides/04-sml-text.html#jane-wants-to-know-2",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nIs this the ROC curve for the training or testing data?\n\nTraining\nTesting"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#variable-importance",
+    "href": "slides/04-sml-text.html#variable-importance",
+    "title": "Text Mining",
+    "section": "Variable importance",
+    "text": "Variable importance\n\nlibrary(vip)\nbook_vip <- \n    extract_fit_engine(book_final) %>%\n    vi()\n\nbook_vip\n#> # A tibble: 500 × 3\n#>    Variable             Importance Sign \n#>    <chr>                     <dbl> <chr>\n#>  1 tfidf_text_elizabeth      10.2  NEG  \n#>  2 tfidf_text_mr              8.25 NEG  \n#>  3 tfidf_text_bennet          7.73 NEG  \n#>  4 tfidf_text_martians        7.45 POS  \n#>  5 tfidf_text_jane            7.01 NEG  \n#>  6 tfidf_text_bingley         6.92 NEG  \n#>  7 tfidf_text_darcy           6.89 NEG  \n#>  8 tfidf_text_wickham         6.44 NEG  \n#>  9 tfidf_text_father          6.00 NEG  \n#> 10 tfidf_text_longbourn       5.78 NEG  \n#> # … with 490 more rows"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#variable-importance-1",
+    "href": "slides/04-sml-text.html#variable-importance-1",
+    "title": "Text Mining",
+    "section": "Variable importance",
+    "text": "Variable importance\n\nbook_vip %>%\n    group_by(Sign) %>%\n    slice_max(abs(Importance), n = 15) %>%\n    ungroup() %>%\n    mutate(\n        Importance = abs(Importance),\n        Variable = fct_reorder(Variable, Importance)\n    ) %>%\n    ggplot(aes(Importance, Variable, fill = Sign)) + \n    geom_col() +\n    facet_wrap(vars(Sign))"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#jane-wants-to-know-3",
+    "href": "slides/04-sml-text.html#jane-wants-to-know-3",
+    "title": "Text Mining",
+    "section": "Jane wants to know…",
+    "text": "Jane wants to know…\n\nText classification is an example of…\n\nsupervised machine learning\nunsupervised machine learning"
+  },
+  {
+    "objectID": "slides/04-sml-text.html#go-explore-real-world-text",
+    "href": "slides/04-sml-text.html#go-explore-real-world-text",
+    "title": "Text Mining",
+    "section": "Go explore real-world text!",
+    "text": "Go explore real-world text!"
   }
 ]

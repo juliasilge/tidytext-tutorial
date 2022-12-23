@@ -1,665 +1,1242 @@
 <!DOCTYPE html>
-<html lang="" xml:lang="">
-  <head>
-    <title>Text Mining</title>
-    <meta charset="utf-8" />
-    <meta name="author" content="Julia Silge" />
-    <script src="libs/header-attrs/header-attrs.js"></script>
-    <link href="libs/remark-css/default.css" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/5235085b15.js"></script>
-    <link rel="stylesheet" href="css/xaringanthemer.css" type="text/css" />
-    <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
-  </head>
-  <body>
-    <textarea id="source">
-
-
-
-
-layout: true
-
-&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/tidytext-tutorial&lt;/span&gt;&lt;/div&gt; 
-
----
-
-class: inverse, center, middle
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-# Text Mining
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-### USING TIDY PRINCIPLES
-
-Julia Silge
-
----
-
-class: right, middle
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-# Find me at...
-
-&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
-
-
----
-
-## Let's install some packages
-
-
-```r
-install.packages(c("tidyverse", 
-                   "tidytext",
-                   "stopwords",
-                   "gutenbergr",
-                   "widyr",
-                   "tidygraph",
-                   "ggraph"))
-```
-
-
----
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-class: inverse, center, middle
-
-## WHAT IS A DOCUMENT ABOUT? 🤔
-
----
-
-## **What is a document about?**
-
-- Term frequency
-- Inverse document frequency
-
-`$$idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}$$`
-
-### tf-idf is about comparing **documents** within a **collection**.
-
----
-
-## **Understanding tf-idf**
-
-Make a collection (*corpus*) for yourself! 💅
-
-
-```r
-library(gutenbergr)
-full_collection &lt;- gutenberg_download(c(141, 158, 161, 1342),
-                                      meta_fields = "title",
-                                      mirror = my_mirror)
-```
-
----
-
-## **Understanding tf-idf**
-
-Make a collection (*corpus*) for yourself! 💅
-
-
-```r
-full_collection
-```
-
-```
-## # A tibble: 58,460 x 3
-##    gutenberg_id text             title         
-##           &lt;int&gt; &lt;chr&gt;            &lt;chr&gt;         
-##  1          141 "MANSFIELD PARK" Mansfield Park
-##  2          141 ""               Mansfield Park
-##  3          141 "(1814)"         Mansfield Park
-##  4          141 ""               Mansfield Park
-##  5          141 ""               Mansfield Park
-##  6          141 "By Jane Austen" Mansfield Park
-##  7          141 ""               Mansfield Park
-##  8          141 ""               Mansfield Park
-##  9          141 ""               Mansfield Park
-## 10          141 ""               Mansfield Park
-## # … with 58,450 more rows
-```
-
----
-
-## **Counting word frequencies in your collection**
-
-
-```r
-library(tidyverse)
-library(tidytext)
-
-book_words &lt;- full_collection %&gt;%
-*   unnest_tokens(word, text) %&gt;%
-    count(title, word, sort = TRUE)
-```
-
-What do the columns of `book_words` tell us?
-
----
-
-## **Calculating tf-idf**
-
-
-```r
-book_tfidf &lt;- book_words %&gt;%
-*   bind_tf_idf(word, title, n)
-```
-
----
-
-## **Calculating tf-idf**
-
-That's... super exciting???
-
-
-```r
-book_tfidf
-```
-
-```
-## # A tibble: 28,498 x 6
-##    title               word      n     tf   idf tf_idf
-##    &lt;chr&gt;               &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
-##  1 Mansfield Park      the    6206 0.0387     0      0
-##  2 Mansfield Park      to     5475 0.0341     0      0
-##  3 Mansfield Park      and    5438 0.0339     0      0
-##  4 Emma                to     5239 0.0325     0      0
-##  5 Emma                the    5201 0.0323     0      0
-##  6 Emma                and    4896 0.0304     0      0
-##  7 Mansfield Park      of     4778 0.0298     0      0
-##  8 Pride and Prejudice the    4331 0.0354     0      0
-##  9 Emma                of     4291 0.0267     0      0
-## 10 Pride and Prejudice to     4162 0.0340     0      0
-## # … with 28,488 more rows
-```
-
-
----
-
-## **Calculating tf-idf**
-
-What do you predict will happen if we run the following code? 🤔
-
-
-```r
-book_tfidf %&gt;%
-    arrange(-tf_idf)
-```
-
----
-
-## **Calculating tf-idf**
-
-What do you predict will happen if we run the following code? 🤔
-
-
-```r
-book_tfidf %&gt;%
-    arrange(-tf_idf)
-```
-
-```
-## # A tibble: 28,498 x 6
-##   title                 word          n      tf   idf  tf_idf
-##   &lt;chr&gt;                 &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
-## 1 Sense and Sensibility elinor      622 0.00518 1.39  0.00718
-## 2 Emma                  emma        786 0.00488 1.39  0.00677
-## 3 Sense and Sensibility marianne    492 0.00410 1.39  0.00568
-## 4 Mansfield Park        crawford    493 0.00307 1.39  0.00426
-## 5 Pride and Prejudice   darcy       373 0.00305 1.39  0.00423
-## 6 Mansfield Park        fanny       816 0.00509 0.693 0.00352
-## 7 Pride and Prejudice   elizabeth   597 0.00488 0.693 0.00338
-## 8 Emma                  weston      389 0.00242 1.39  0.00335
-## # … with 28,490 more rows
-```
-
----
-
-## **Calculating tf-idf**
-
-.unscramble[U N S C R A M B L E]
-
-```
-group_by(title) %&gt;%
-```
-```
-book_tfidf %&gt;%
-```
-```
-slice_max(tf_idf, n = 10) %&gt;%
-```
-```
-ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
-```
-```
-facet_wrap(~title, scales = "free")
-```
-```
-geom_col(show.legend = FALSE) +
-```
----
-
-## **Calculating tf-idf**
-
-
-```r
-book_tfidf %&gt;%
-    group_by(title) %&gt;%
-    slice_max(tf_idf, n = 10) %&gt;%
-    ggplot(aes(tf_idf,
-*              fct_reorder(word, tf_idf),
-               fill = title)) +
-    geom_col(show.legend = FALSE) +
-    facet_wrap(~title, scales = "free")
-```
-
----
-
-![](02-more-eda_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
-
----
-
-background-image: url(figs/plot_tf_idf-1.png)
-background-size: 800px
-
----
-
-## **N-grams... and beyond!** 🚀
-
-
-```r
-full_text &lt;- gutenberg_download(158, mirror = my_mirror)
-
-tidy_ngram &lt;- full_text %&gt;%
-*   unnest_tokens(bigram, text, token = "ngrams", n = 2) %&gt;%
-    filter(!is.na(bigram))
-```
-
----
-
-## **N-grams... and beyond!** 🚀
-
-
-```r
-tidy_ngram
-```
-
-```
-## # A tibble: 147,313 x 2
-##    gutenberg_id bigram            
-##           &lt;int&gt; &lt;chr&gt;             
-##  1          158 by jane           
-##  2          158 jane austen       
-##  3          158 volume i          
-##  4          158 chapter i         
-##  5          158 emma woodhouse    
-##  6          158 woodhouse handsome
-##  7          158 handsome clever   
-##  8          158 clever and        
-##  9          158 and rich          
-## 10          158 rich with         
-## # … with 147,303 more rows
-```
-
-
----
-
-## **N-grams... and beyond!** 🚀
-
-
-```r
-tidy_ngram %&gt;%
-    count(bigram, sort = TRUE)
-```
-
-```
-## # A tibble: 61,209 x 2
-##    bigram       n
-##    &lt;chr&gt;    &lt;int&gt;
-##  1 to be      586
-##  2 of the     529
-##  3 it was     430
-##  4 in the     416
-##  5 i am       384
-##  6 she had    320
-##  7 she was    312
-##  8 it is      281
-##  9 had been   277
-## 10 i have     267
-## # … with 61,199 more rows
-```
-
----
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-## Jane wants to know...
-
-Can we use an `anti_join()` right away to remove stop words?
-
-- Yes! ✅
-- No ☹️
-
----
-
-## **N-grams... and beyond!** 🚀
-
-
-```r
-bigram_counts &lt;- tidy_ngram %&gt;%
-*   separate(bigram, c("word1", "word2"), sep = " ") %&gt;%
-    filter(!word1 %in% stop_words$word,
-           !word2 %in% stop_words$word) %&gt;%
-    count(word1, word2, sort = TRUE)
-```
-
----
-
-## **N-grams... and beyond!** 🚀
-
-
-```r
-bigram_counts
-```
-
-```
-## # A tibble: 6,502 x 3
-##    word1 word2         n
-##    &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;
-##  1 miss  woodhouse   143
-##  2 frank churchill   114
-##  3 miss  fairfax      98
-##  4 miss  bates        92
-##  5 jane  fairfax      88
-##  6 miss  smith        47
-##  7 john  knightley    44
-##  8 miss  taylor       38
-##  9 dear  emma         31
-## 10 maple grove        28
-## # … with 6,492 more rows
-```
-
----
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-class: inverse
-
-## What can you do with n-grams?
-
-- tf-idf of n-grams
-
---
-
-- network analysis
-
---
-
-- negation
-
----
-
-background-image: url(figs/austen-1.png)
-background-size: 750px
-
----
-
-background-image: url(figs/slider.gif)
-background-position: 50% 70%
-
-## **What can you do with n-grams?**
-
-### [She Giggles, He Gallops](https://pudding.cool/2017/08/screen-direction/)
-
----
-
-background-image: url(figs/change_overall-1.svg)
-background-size: contain
-background-position: center
-
----
-
-## **Network analysis**
-
-
-```r
-library(widyr)
-library(ggraph)
-library(tidygraph)
-
-bigram_graph &lt;- bigram_counts %&gt;%
-    filter(n &gt; 5) %&gt;%
-*   as_tbl_graph()
-```
-
----
-
-## **Network analysis**
-
-
-```r
-bigram_graph
-```
-
-```
-## # A tbl_graph: 64 nodes and 52 edges
-## #
-## # A directed acyclic simple graph with 18 components
-## #
-## # Node Data: 64 x 1 (active)
-##   name 
-##   &lt;chr&gt;
-## 1 miss 
-## 2 frank
-## 3 jane 
-## 4 john 
-## 5 dear 
-## 6 maple
-## # … with 58 more rows
-## #
-## # Edge Data: 52 x 3
-##    from    to     n
-##   &lt;int&gt; &lt;int&gt; &lt;int&gt;
-## 1     1    29   143
-## 2     2    30   114
-## 3     1    31    98
-## # … with 49 more rows
-```
-
----
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-## Jane wants to know...
-
-Is `bigram_graph` a tidy dataset?
-
-- Yes ☑️
-- No 🚫
-
----
-
-## **Network analysis**
-
-
-```r
-bigram_graph %&gt;%
-    ggraph(layout = "kk") +
-*   geom_edge_link(aes(edge_alpha = n)) +
-*   geom_node_text(aes(label = name)) +
-    theme_graph() 
-```
-
----
-
-## **Network analysis**
-
-
-```r
-bigram_graph %&gt;%
-    ggraph(layout = "kk") +
-*   geom_edge_link(aes(edge_alpha = n),
-                   show.legend = FALSE, 
-                   arrow = arrow(length = unit(1.5, 'mm')), 
-                   start_cap = circle(3, 'mm'),
-                   end_cap = circle(3, 'mm')) +
-*   geom_node_text(aes(label = name)) +
-    theme_graph()
-```
-
----
-
-
-![](02-more-eda_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
-
-
----
-
-class: left, middle
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-# Thanks!
-
-&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
-
-Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
-
-    </textarea>
-<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
-<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create({
-"highlightLanguage": "r",
-"highlightStyle": "docco",
-"highlightLines": true,
-"slideNumberFormat": "%current%",
-"ratio": "16:9"
-});
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
-  window.dispatchEvent(new Event('resize'));
-});
-(function(d) {
-  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
-  if (!r) return;
-  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
-  d.head.appendChild(s);
-})(document);
-
-(function(d) {
-  var el = d.getElementsByClassName("remark-slides-area");
-  if (!el) return;
-  var slide, slides = slideshow.getSlides(), els = el[0].children;
-  for (var i = 1; i < slides.length; i++) {
-    slide = slides[i];
-    if (slide.properties.continued === "true" || slide.properties.count === "false") {
-      els[i - 1].className += ' has-continuation';
+<html lang="en"><head>
+<link href="../favicon.ico" rel="icon">
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.2.280">
+
+  <meta name="author" content="Julia Silge">
+  <title>Text Mining with Tidy Data Principles - Text Mining</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
     }
-  }
-  var s = d.createElement("style");
-  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
-  d.head.appendChild(s);
-})(document);
-// delete the temporary CSS (for displaying all slides initially) when the user
-// starts to view slides
-(function() {
-  var deleted = false;
-  slideshow.on('beforeShowSlide', function(slide) {
-    if (deleted) return;
-    var sheets = document.styleSheets, node;
-    for (var i = 0; i < sheets.length; i++) {
-      node = sheets[i].ownerNode;
-      if (node.dataset["target"] !== "print-only") continue;
-      node.parentNode.removeChild(node);
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
     }
-    deleted = true;
-  });
-})();
-(function() {
-  "use strict"
-  // Replace <script> tags in slides area to make them executable
-  var scripts = document.querySelectorAll(
-    '.remark-slides-area .remark-slide-container script'
-  );
-  if (!scripts.length) return;
-  for (var i = 0; i < scripts.length; i++) {
-    var s = document.createElement('script');
-    var code = document.createTextNode(scripts[i].textContent);
-    s.appendChild(code);
-    var scriptAttrs = scripts[i].attributes;
-    for (var j = 0; j < scriptAttrs.length; j++) {
-      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
     }
-    scripts[i].parentElement.replaceChild(s, scripts[i]);
-  }
-})();
-(function() {
-  var links = document.getElementsByTagName('a');
-  for (var i = 0; i < links.length; i++) {
-    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
-      links[i].target = '_blank';
-    }
-  }
-})();
-// adds .remark-code-has-line-highlighted class to <pre> parent elements
-// of code chunks containing highlighted lines with class .remark-code-line-highlighted
-(function(d) {
-  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
-  const preParents = [];
-  const findPreParent = function(line, p = 0) {
-    if (p > 1) return null; // traverse up no further than grandparent
-    const el = line.parentElement;
-    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
-  };
-
-  for (let line of hlines) {
-    let pre = findPreParent(line);
-    if (pre && !preParents.includes(pre)) preParents.push(pre);
-  }
-  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
-})(document);</script>
-
-<script>
-slideshow._releaseMath = function(el) {
-  var i, text, code, codes = el.getElementsByTagName('code');
-  for (i = 0; i < codes.length;) {
-    code = codes[i];
-    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
-      text = code.textContent;
-      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
-          /^\$\$(.|\s)+\$\$$/.test(text) ||
-          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
-        code.outerHTML = code.innerHTML;  // remove <code></code>
-        continue;
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
       }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
     }
-    i++;
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto.css" id="theme">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+
+  .callout {
+    margin-top: 1em;
+    margin-bottom: 1em;  
+    border-radius: .25rem;
   }
-};
-slideshow._releaseMath(document);
-</script>
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-(function () {
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
-  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
-    script.src  = script.src.replace(/^https?:/, '');
-  document.getElementsByTagName('head')[0].appendChild(script);
-})();
-</script>
-  </body>
-</html>
+
+  .callout.callout-style-simple { 
+    padding: 0em 0.5em;
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+    display: flex;
+  }
+
+  .callout.callout-style-default {
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+  }
+
+  .callout .callout-body-container {
+    flex-grow: 1;
+  }
+
+  .callout.callout-style-simple .callout-body {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-style-default .callout-body {
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-captioned.callout-style-simple .callout-body {
+    margin-top: 0.2em;
+  }
+
+  .callout:not(.callout-captioned) .callout-body {
+      display: flex;
+  }
+
+  .callout:not(.no-icon).callout-captioned.callout-style-simple .callout-content {
+    padding-left: 1.6em;
+  }
+
+  .callout.callout-captioned .callout-header {
+    padding-top: 0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .callout.callout-captioned .callout-caption  p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+    
+  .callout.callout-captioned.callout-style-simple .callout-content  p {
+    margin-top: 0;
+  }
+
+  .callout.callout-captioned.callout-style-default .callout-content  p {
+    margin-top: 0.7em;
+  }
+
+  .callout.callout-style-simple div.callout-caption {
+    border-bottom: none;
+    font-size: .9rem;
+    font-weight: 600;
+    opacity: 75%;
+  }
+
+  .callout.callout-style-default  div.callout-caption {
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 0.9rem;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-default div.callout-content {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-simple .callout-icon::before {
+    height: 1rem;
+    width: 1rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+  }
+
+  .callout.callout-style-default .callout-icon::before {
+    height: 0.9rem;
+    width: 0.9rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 0.9rem 0.9rem;
+  }
+
+  .callout-caption {
+    display: flex
+  }
+    
+  .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  .callout.no-icon::before {
+    display: none !important;
+  }
+
+  .callout.callout-captioned .callout-body > .callout-content > :last-child {
+    margin-bottom: 0.5rem;
+  }
+
+  .callout.callout-captioned .callout-icon::before {
+    margin-top: .5rem;
+    padding-right: .5rem;
+  }
+
+  .callout:not(.callout-captioned) .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  /* Callout Types */
+
+  div.callout-note {
+    border-left-color: #4582ec !important;
+  }
+
+  div.callout-note .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEU0lEQVRYCcVXTWhcVRQ+586kSUMMxkyaElstCto2SIhitS5Ek8xUKV2poatCcVHtUlFQk8mbaaziwpWgglJwVaquitBOfhQXFlqlzSJpFSpIYyXNjBNiTCck7x2/8/LeNDOZxDuEkgOXe++553zfefee+/OYLOXFk3+1LLrRdiO81yNqZ6K9cG0P3MeFaMIQjXssE8Z1JzLO9ls20MBZX7oG8w9GxB0goaPrW5aNMp1yOZIa7Wv6o2ykpLtmAPs/vrG14Z+6d4jpbSKuhdcSyq9wGMPXjonwmESXrriLzFGOdDBLB8Y6MNYBu0dRokSygMA/mrun8MGFN3behm6VVAwg4WR3i6FvYK1T7MHo9BK7ydH+1uurECoouk5MPRyVSBrBHMYwVobG2aOXM07sWrn5qgB60rc6mcwIDJtQrnrEr44kmy+UO9r0u9O5/YbkS9juQckLed3DyW2XV/qWBBB3ptvI8EUY3I9p/67OW+g967TNr3Sotn3IuVlfMLVnsBwH4fsnebJvyGm5GeIUA3jljERmrv49SizPYuq+z7c2H/jlGC+Ghhupn/hcapqmcudB9jwJ/3jvnvu6vu5lVzF1fXyZuZZ7U8nRmVzytvT+H3kilYvH09mLWrQdwFSsFEsxFVs5fK7A0g8gMZjbif4ACpKbjv7gNGaD8bUrlk8x+KRflttr22JEMRUbTUwwDQScyzPgedQHZT0xnx7ujw2jfVfExwYHwOsDTjLdJ2ebmeQIlJ7neo41s/DrsL3kl+W2lWvAga0tR3zueGr6GL78M3ifH0rGXrBC2aAR8uYcIA5gwV8zIE8onoh8u0Fca/ciF7j1uOzEnqcIm59sEXoGc0+z6+H45V1CvAvHcD7THztu669cnp+L0okAeIc6zjbM/24LgGM1gZk7jnRu1aQWoU9sfUOuhrmtaPIO3YY1KLLWZaEO5TKUbMY5zx8W9UJ6elpLwKXbsaZ4EFl7B4bMtDv0iRipKoDQT2sNQI9b1utXFdYisi+wzZ/ri/1m7QfDgEuvgUUEIJPq3DhX/5DWNqIXDOweC2wvIR90Oq3lDpdMIgD2r0dXvGdsEW5H6x6HLRJYU7C69VefO1x8Gde1ZFSJLfWS1jbCnhtOPxmpfv2LXOA2Xk2tvnwKKPFuZ/oRmwBwqRQDcKNeVQkYcOjtWVBuM/JuYw5b6isojIkYxyYAFn5K7ZBF10fea52y8QltAg6jnMqNHFBmGkQ1j+U43HMi2xMar1Nv0zGsf1s8nUsmUtPOOrbFIR8bHFDMB5zL13Gmr/kGlCkUzedTzzmzsaJXhYawnA3UmARpiYj5ooJZiUoxFRtK3X6pgNPv+IZVPcnwbOl6f+aBaO1CNvPW9n9LmCp01nuSaTRF2YxHqZ8DYQT6WsXT+RD6eUztwYLZ8rM+rcPxamv1VQzFUkzFXvkiVrySGQgJNvXHJAxiU3/NwiC03rSf05VBaPtu/Z7/B8Yn/w7eguloAAAAAElFTkSuQmCC');
+  }
+
+  div.callout-note.callout-style-default .callout-caption {
+    background-color: #dae6fb
+  }
+
+  div.callout-important {
+    border-left-color: #d9534f !important;
+  }
+
+  div.callout-important .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEKklEQVRYCcVXTWhcVRS+575MJym48A+hSRFr00ySRQhURRfd2HYjk2SSTokuBCkU2o0LoSKKraKIBTcuFCoidGFD08nkBzdREbpQ1EDNIv8qSGMFUboImMSZd4/f9zJv8ibJMC8xJQfO3HPPPef7zrvvvnvviIkpC9nsw0UttFunbUhpFzFtarSd6WJkStVMw5xyVqYTvkwfzuf/5FgtkVoB0729j1rjXwThS7Vio+Mo6DNnvLfahoZ+i/o32lULuJ3NNiz7q6+pyAUkJaFF6JwaM2lUJlV0MlnQn5aTRbEu0SEqHUa0A4AdiGuB1kFXRfVyg5d87+Dg4DL6m2TLAub60ilj7A1Ec4odSAc8X95sHh7+ZRPCFo6Fnp7HfU/fBng/hi10CjCnWnJjsxvDNxWw0NfV6Rv5GgP3I3jGWXumdTD/3cbEOP2ZbOZp69yniG3FQ9z1jD7bnBu9Fc2tKGC2q+uAJOQHBDRiZX1x36o7fWBs7J9ownbtO+n0/qWkvW7UPIfc37WgT6ZGR++EOJyeQDSb9UB+DZ1G6DdLDzyS+b/kBCYGsYgJbSQHuThGKRcw5xdeQf8YdNHsc6ePXrlSYMBuSIAFTGAtQo+VuALo4BX83N190NWZWbynBjhOHsmNfFWLeL6v+ynsA58zDvvAC8j5PkbOcXCMg2PZFk3q8MjI7WAG/Dp9AwP7jdGBOOQkAvlFUB+irtm16I1Zw9YBcpGTGXYmk3kQIC/Cds55l+iMI3jqhjAuaoe+am2Jw5GT3Nbz3CkE12NavmzN5+erJW7046n/CH1RO/RVa8lBLozXk9uqykkGAyRXLWlLv5jyp4RFsG5vGVzpDLnIjTWgnRy2Rr+tDKvRc7Y8AyZq10jj8DqXdnIRNtFZb+t/ZRtXcDiVnzpqx8mPcDWxgARUqx0W1QB9MeUZiNrV4qP+Ehc+BpNgATsTX8ozYKL2NtFYAHc84fG7ndxUPr+AR/iQSns7uSUufAymwDOb2+NjK27lEFocm/EE2WpyIy/Hi66MWuMKJn8RvxIcj87IM5Vh9663ziW36kR0HNenXuxmfaD8JC7tfKbrhFr7LiZCrMjrzTeGx+PmkosrkNzW94ObzwocJ7A1HokLolY+AvkTiD/q1H0cN48c5EL8Crkttsa/AXQVDmutfyku0E7jShx49XqV3MFK8IryDhYVbj7Sj2P2eBxwcXoe8T8idsKKPRcnZw1b+slFTubwUwhktrfnAt7J++jwQtLZcm3sr9LQrjRzz6cfMv9aLvgmnAGvpoaGLxM4mAEaLV7iAzQ3oU0IvD5x9ix3yF2RAAuYAOO2f7PEFWCXZ4C9Pb2UsgDeVnFSpbFK7/IWu7TPTvBqzbGdCHOJQSxiEjt6IyZmxQyEJHv6xyQsYk//moVFsN2zP6fRImjfq7/n/wFDguUQFNEwugAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-important.callout-style-default .callout-caption {
+    background-color: #f7dddc
+  }
+
+  div.callout-warning {
+    border-left-color: #f0ad4e !important;
+  }
+
+  div.callout-warning .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAETklEQVRYCeVWW2gcVRg+58yaTUnizqbipZeX4uWhBEniBaoUX1Ioze52t7sRq6APio9V9MEaoWlVsFasRq0gltaAPuxms8lu0gcviE/FFOstVbSIxgcv6SU7EZqmdc7v9+9mJtNks51NTUH84ed889/PP+cmxP+d5FIbMJmNbpREu4WUkiTtCicKny0l1pIKmBzovF2S+hIJHX8iEu3hZJ5lNZGqyRrGSIQpq15AzF28jgpeY6yk6GVdrfFqdrD6Iw+QlB8g0YS2g7dyQmXM/IDhBhT0UCiRf59lfqmmDvzRt6kByV/m4JjtzuaujMUM2c5Z2d6JdKrRb3K2q6mA+oYVz8JnDdKPmmNthzkAk/lN63sYPgevrguc72aZX/L9C6x09GYyxBgCX4NlvyGUHOKELlm5rXeR1kchuChJt4SSwyddZRXgvwMGvYo4QSlk3/zkHD8UHxwVJA6zjZZqP8v8kK8OWLnIZtLyCAJagYC4rTGW/9Pqj92N/c+LUaAj27movwbi19tk/whRCIE7Q9vyI6yvRpftAKVTdUjOW40X3h5OXsKCdmFcx0xlLJoSuQngnrJe7Kcjm4OMq9FlC7CMmScQANuNvjfP3PjGXDBaUQmbp296S5L4DrpbrHN1T87ZVEZVCzg1FF0Ft+dKrlLukI+/c9ENo+TvlTDbYFvuKPtQ9+l052rXrgKoWkDAFnvh0wTOmYn8R5f4k/jN/fZiCM1tQx9jQQ4ANhqG4hiL0qIFTGViG9DKB7GYzgubnpofgYRwO+DFjh0Zin2m4b/97EDkXkc+f6xYAPX0KK2I/7fUQuwzuwo/L3AkcjugPNixC8cHf0FyPjWlItmLxWw4Ou9YsQCr5fijMGoD/zpdRy95HRysyXA74MWOnscpO4j2y3HAVisw85hX5+AFBRSHt4ShfLFkIMXTqyKFc46xdzQM6XbAi702a7sy04J0+feReMFKp5q9esYLCqAZYw/k14E/xcLLsFElaornTuJB0svMuJINy8xkIYuL+xPAlWRceH6+HX7THJ0djLUom46zREu7tTkxwmf/FdOZ/sh6Q8qvEAiHpm4PJ4a/doJe0gH1t+aHRgCzOvBvJedEK5OFE5jpm4AGP2a8Dxe3gGJ/pAutug9Gp6he92CsSsWBaEcxGx0FHytmIpuqGkOpldqNYQK8cSoXvd+xLxXADw0kf6UkJNFtdo5MOgaLjiQOQHcn+A6h5NuL2s0qsC2LOM75PcF3yr5STuBSAcGG+meA14K/CI21HcS4LBT6tv0QAh8Dr5l93AhZzG5ZJ4VxAqdZUEl9z7WJ4aN+svMvwHHL21UKTd1mqvChH7/Za5xzXBBKrUcB0TQ+Ulgkfbi/H/YT5EptrGzsEK7tR1B7ln9BBwckYfMiuSqklSznIuoIIOM42MQO+QnduCoFCI0bpkzjCjddHPN/F+2Yu+sd9bKNpVwHhbS3LluK/0zgfwD0xYI5dXuzlQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-warning.callout-style-default .callout-caption {
+    background-color: #fcefdc
+  }
+
+  div.callout-tip {
+    border-left-color: #02b875 !important;
+  }
+
+  div.callout-tip .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAADr0lEQVRYCe1XTWgTQRj9ZjZV8a9SPIkKgj8I1bMHsUWrqYLVg4Ue6v9BwZOxSYsIerFao7UiUryIqJcqgtpimhbBXoSCVxUFe9CTiogUrUp2Pt+3aUI2u5vdNh4dmMzOzHvvezuz8xNFM0mjnbXaNu1MvFWRXkXEyE6aYOYJpdW4IXuA4r0fo8qqSMDBU0v1HJUgVieAXxzCsdE/YJTdFcVIZQNMyhruOMJKXYFoLfIfIvVIMWdsrd+Rpd86ZmyzzjJmLStqRn0v8lzkb4rVIXvnpScOJuAn2ACC65FkPzEdEy4TPWRLJ2h7z4cArXzzaOdKlbOvKKX25Wl00jSnrwVxAg3o4dRxhO13RBSdNvH0xSARv3adTXbBdTf64IWO2vH0LT+cv4GR1DJt+DUItaQogeBX/chhbTBxEiZ6gftlDNXTrvT7co4ub5A6gp9HIcHvzTa46OS5fBeP87Qm0fQkr4FsYgVQ7Qg+ZayaDg9jhg1GkWj8RG6lkeSacrrHgDaxdoBiZPg+NXV/KifMuB6//JmYH4CntVEHy/keA6x4h4CU5oFy8GzrBS18cLJMXcljAKB6INjWsRcuZBWVaS3GDrqB7rdapVIeA+isQ57Eev9eCqzqOa81CY05VLd6SamW2wA2H3SiTbnbSxmzfp7WtKZkqy4mdyAlGx7ennghYf8voqp9cLSgKdqNfa6RdRsAAkPwRuJZNbpByn+RrJi1RXTwdi8RQF6ymDwGMAtZ6TVE+4uoKh+MYkcLsT0Hk8eAienbiGdjJHZTpmNjlbFJNKDVAp2fJlYju6IreQxQ08UJDNYdoLSl6AadO+fFuCQqVMB1NJwPm69T04Wv5WhfcWyfXQB+wXRs1pt+nCknRa0LVzSA/2B+a9+zQJadb7IyyV24YAxKp2Jqs3emZTuNnKxsah+uabKbMk7CbTgJx/zIgQYErIeTKRQ9yD9wxVof5YolPHqaWo7TD6tJlh7jQnK5z2n3+fGdggIOx2kaa2YI9QWarc5Ce1ipNWMKeSG4DysFF52KBmTNMmn5HqCFkwy34rDg05gDwgH3bBi+sgFhN/e8QvRn8kbamCOhgrZ9GJhFDgfcMHzFb6BAtjKpFhzTjwv1KCVuxHvCbsSiEz4CANnj84cwHdFXAbAOJ4LTSAawGWFn5tDhLMYz6nWeU2wJfIhmIJBefcd/A5FWQWGgrWzyORZ3Q6HuV+Jf0Bj+BTX69fm1zWgK7By1YTXchFDORywnfQ7GpzOo6S+qECrsx2ifVQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-tip.callout-style-default .callout-caption {
+    background-color: #ccf1e3
+  }
+
+  div.callout-caution {
+    border-left-color: #fd7e14 !important;
+  }
+
+  div.callout-caution .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAACV0lEQVRYCdVWzWoUQRCuqp2ICBLJXgITZL1EfQDBW/bkzUMUD7klD+ATSHBEfAIfQO+iXsWDxJsHL96EHAwhgzlkg8nBg25XWb0zIb0zs9muYYWkoKeru+vn664fBqElyZNuyh167NXJ8Ut8McjbmEraKHkd7uAnAFku+VWdb3reSmRV8PKSLfZ0Gjn3a6Xlcq9YGb6tADjn+lUfTXtVmaZ1KwBIvFI11rRXlWlatwIAAv2asaa9mlB9wwygiDX26qaw1yYPzFXg2N1GgG0FMF8Oj+VIx7E/03lHx8UhvYyNZLN7BwSPgekXXLribw7w5/c8EF+DBK5idvDVYtEEwMeYefjjLAdEyQ3M9nfOkgnPTEkYU+sxMq0BxNR6jExrAI31H1rzvLEfRIdgcv1XEdj6QTQAS2wtstEALLG1yEZ3QhH6oDX7ExBSFEkFINXH98NTrme5IOaaA7kIfiu2L8A3qhH9zRbukdCqdsA98TdElyeMe5BI8Rs2xHRIsoTSSVFfCFCWGPn9XHb4cdobRIWABNf0add9jakDjQJpJ1bTXOJXnnRXHRf+dNL1ZV1MBRCXhMbaHqGI1JkKIL7+i8uffuP6wVQAzO7+qVEbF6NbS0LJureYcWXUUhH66nLR5rYmva+2tjRFtojkM2aD76HEGAD3tPtKM309FJg5j/K682ywcWJ3PASCcycH/22u+Bh7Aa0ehM2Fu4z0SAE81HF9RkB21c5bEn4Dzw+/qNOyXr3DCTQDMBOdhi4nAgiFDGCinIa2owCEChUwD8qzd03PG+qdW/4fDzjUMcE1ZpIAAAAASUVORK5CYII=');
+  }
+
+  div.callout-caution.callout-style-default .callout-caption {
+    background-color: #ffe5d0
+  }
+
+  </style>
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+<meta property="og:title" content="Text Mining with Tidy Data Principles - Text Mining">
+<meta property="og:description" content="USING TIDY DATA PRINCIPLES">
+<meta property="og:site-name" content="Text Mining with Tidy Data Principles">
+<meta name="twitter:title" content="Text Mining with Tidy Data Principles - Text Mining">
+<meta name="twitter:description" content="USING TIDY DATA PRINCIPLES">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="quarto-dark">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-image="figs/p_and_p_cover.png" data-background-opacity="0.7" class="quarto-title-block center">
+  <h1 class="title">Text Mining</h1>
+  <p class="subtitle">USING TIDY DATA PRINCIPLES</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Julia Silge 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="hello" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.7">
+<h1>Hello!</h1>
+<center>
+<p><img src="figs/blue_jane.png" width="150px"></p>
+<p><a href="https://fosstodon.org/@juliasilge"><i class="fa-brands fa-mastodon" aria-label="mastodon"></i> @juliasilge</a></p>
+<p><a href="https://github.com/juliasilge"><i class="fa-brands fa-github" aria-label="github"></i> @juliasilge</a></p>
+<p><a href="https://www.youtube.com/juliasilge"><i class="fa-brands fa-youtube" aria-label="youtube"></i> youtube.com/juliasilge</a></p>
+<p><a href="https://juliasilge.com/"><i class="fa-solid fa-link" aria-label="link"></i> juliasilge.com</a></p>
+<p><a href="https://tidytextmining.com"><i class="fa-solid fa-book" aria-label="book"></i> tidytextmining.com</a></p>
+</center>
+</section>
+<section id="lets-install-some-packages" class="slide level2" data-background-color="white">
+<h2>Let’s install some packages</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-2_8692eb2621310f62a8d9afc1f6013fea">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2"></a>                   <span class="st">"tidytext"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                   <span class="st">"stopwords"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>                   <span class="st">"gutenbergr"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>                   <span class="st">"widyr"</span>,</span>
+<span id="cb1-6"><a href="#cb1-6"></a>                   <span class="st">"tidygraph"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7"></a>                   <span class="st">"tidylo"</span>,</span>
+<span id="cb1-8"><a href="#cb1-8"></a>                   <span class="st">"ggraph"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section>
+<section>
+<section id="what-is-a-document-about" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>WHAT IS A DOCUMENT ABOUT? 🤔</h1>
+
+</section>
+<section id="what-is-a-document-about-1" class="slide level2">
+<h2>What is a document about?</h2>
+<ul>
+<li>Term frequency</li>
+<li>Inverse document frequency</li>
+</ul>
+<div class="fragment">
+<p><span class="math display">\[idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}\]</span></p>
+</div>
+<div class="fragment">
+<h3 id="tf-idf-is-about-comparing-documents-within-a-collection.">tf-idf is about comparing <strong>documents</strong> within a <strong>collection</strong>.</h3>
+</div>
+</section>
+<section id="understanding-tf-idf" class="slide level2" data-background-color="white">
+<h2>Understanding tf-idf</h2>
+<p>Make a collection (<em>corpus</em>) for yourself! 💅</p>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-3_4ce4cb60c6c5147efed0f82eeab1a0dc">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(gutenbergr)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>full_collection <span class="ot">&lt;-</span> <span class="fu">gutenberg_download</span>(<span class="fu">c</span>(<span class="dv">141</span>, <span class="dv">158</span>, <span class="dv">161</span>, <span class="dv">1342</span>),</span>
+<span id="cb2-3"><a href="#cb2-3"></a>                                      <span class="at">meta_fields =</span> <span class="st">"title"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4"></a>                                      <span class="at">mirror =</span> my_mirror)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="understanding-tf-idf-1" class="slide level2" data-background-color="white">
+<h2>Understanding tf-idf</h2>
+<p>Make a collection (<em>corpus</em>) for yourself! 💅</p>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-4_858729a032821a6e8aeadb4da858b1d8">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>full_collection</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt; # A tibble: 59,360 × 3</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt;    gutenberg_id text             title         </span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt;           &lt;int&gt; &lt;chr&gt;            &lt;chr&gt;         </span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt;  1          141 "MANSFIELD PARK" Mansfield Park</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt;  2          141 ""               Mansfield Park</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt;  3          141 "(1814)"         Mansfield Park</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt;  4          141 ""               Mansfield Park</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt;  5          141 "By Jane Austen" Mansfield Park</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt;  6          141 ""               Mansfield Park</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt;  7          141 ""               Mansfield Park</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt;  8          141 "Contents"       Mansfield Park</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt;  9          141 ""               Mansfield Park</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt; 10          141 "   CHAPTER I"   Mansfield Park</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt; # … with 59,350 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="counting-word-frequencies" class="slide level2" data-background-color="white">
+<h2>Counting word frequencies</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-5_a9eb11b2563e1cb8fc39b8d88885d60c">
+<div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a>book_words <span class="ot">&lt;-</span> full_collection <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="fu">unnest_tokens</span>(word, text) <span class="sc">%&gt;%</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="fu">count</span>(title, word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>What do the columns of <code>book_words</code> tell us?</p>
+</section>
+<section id="calculating-tf-idf" class="slide level2" data-background-color="white">
+<h2>Calculating tf-idf</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-6_f16085c4bec6a0a9368ee4e926b89222">
+<div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>book_tf_idf <span class="ot">&lt;-</span> book_words <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>    <span class="fu">bind_tf_idf</span>(word, title, n)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculating-tf-idf-1" class="slide level2" data-background-color="white">
+<h2>Calculating tf-idf</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-7_257b98bfa965fc577b950b929ea1d5f4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>book_tf_idf</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co">#&gt; # A tibble: 29,055 × 6</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt;    title               word      n     tf   idf tf_idf</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt;    &lt;chr&gt;               &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt;  1 Mansfield Park      the    6207 0.0387     0      0</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt;  2 Mansfield Park      to     5473 0.0341     0      0</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt;  3 Mansfield Park      and    5437 0.0339     0      0</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt;  4 Emma                to     5238 0.0325     0      0</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt;  5 Emma                the    5201 0.0323     0      0</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt;  6 Emma                and    4896 0.0304     0      0</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co">#&gt;  7 Mansfield Park      of     4777 0.0298     0      0</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co">#&gt;  8 Pride and Prejudice the    4656 0.0364     0      0</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">#&gt;  9 Pride and Prejudice to     4323 0.0338     0      0</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co">#&gt; 10 Emma                of     4291 0.0266     0      0</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co">#&gt; # … with 29,045 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<p>That’s… super exciting???</p>
+</div>
+</section>
+<section id="calculating-tf-idf-2" class="slide level2" data-background-color="white">
+<h2>Calculating tf-idf</h2>
+<p>What do you predict will happen if we run the following code? 🤔</p>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-8_3f5c9b6b5decc96968de94b773bbb8cd">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>book_tf_idf <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>    <span class="fu">arrange</span>(<span class="sc">-</span>tf_idf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculating-tf-idf-3" class="slide level2" data-background-color="white">
+<h2>Calculating tf-idf</h2>
+<p>What do you predict will happen if we run the following code? 🤔</p>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-9_0303db28780ed0d79ae5d73cff3dc709">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>book_tf_idf <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>    <span class="fu">arrange</span>(<span class="sc">-</span>tf_idf)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; # A tibble: 29,055 × 6</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt;    title                 word          n      tf   idf  tf_idf</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;     &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt;  1 Sense and Sensibility elinor      622 0.00518 1.39  0.00718</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt;  2 Sense and Sensibility marianne    492 0.00410 1.39  0.00568</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt;  3 Pride and Prejudice   darcy       383 0.00299 1.39  0.00415</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt;  4 Emma                  emma        786 0.00488 0.693 0.00338</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt;  5 Pride and Prejudice   bennet      309 0.00241 1.39  0.00335</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt;  6 Emma                  weston      388 0.00241 1.39  0.00334</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt;  7 Pride and Prejudice   elizabeth   605 0.00473 0.693 0.00328</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt;  8 Emma                  knightley   356 0.00221 1.39  0.00306</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt;  9 Pride and Prejudice   bingley     262 0.00205 1.39  0.00284</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt; 10 Emma                  elton       319 0.00198 1.39  0.00274</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt; # … with 29,045 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculating-tf-idf-4" class="slide level2">
+<h2>Calculating tf-idf</h2>
+<p><span class="lavender">U N S C R A M B L E</span></p>
+<p>group_by(title) %&gt;%</p>
+<p>book_tf_idf %&gt;%</p>
+<p>slice_max(tf_idf, n = 10) %&gt;%</p>
+<p>ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +</p>
+<p>facet_wrap(vars(title), scales = “free”)</p>
+<p>geom_col(show.legend = FALSE) +</p>
+</section>
+<section id="calculating-tf-idf-5" class="slide level2" data-background-color="white">
+<h2>Calculating tf-idf</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-10_38dfbd73391ff081a7ba405cdd4032f5">
+<div class="sourceCode cell-code" id="cb9" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>book_tf_idf <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>    <span class="fu">group_by</span>(title) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="fu">slice_max</span>(tf_idf, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(tf_idf, <span class="fu">fct_reorder</span>(word, tf_idf), <span class="at">fill =</span> title)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(title), <span class="at">scales =</span> <span class="st">"free"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section" class="slide level2" data-background-color="white">
+<h2></h2>
+
+<img data-src="02-more-eda_files/figure-revealjs/unnamed-chunk-11-1.svg" class="r-stretch quarto-figure-center"></section>
+<section id="section-1" class="slide level2" data-background-image="figs/plot_tf_idf-1.png" data-background-size="70%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section></section>
+<section>
+<section id="what-is-a-document-about-2" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>WHAT IS A DOCUMENT ABOUT? 🤔</h1>
+
+</section>
+<section id="what-is-a-document-about-3" class="slide level2">
+<h2>What is a document about?</h2>
+<ul>
+<li>Term frequency</li>
+<li>Inverse document frequency</li>
+</ul>
+<div class="fragment">
+<h3 id="weighted-log-odds">Weighted log odds ⚖️</h3>
+<ul>
+<li>Log odds ratio expresses probabilities</li>
+<li>Weighting helps deal with power law distribution</li>
+</ul>
+</div>
+</section>
+<section id="weighted-log-odds-1" class="slide level2" data-background-color="white">
+<h2>Weighted log odds ⚖️</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-12_6685319515997a068f1379b99c4cda0f">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">library</span>(tidylo)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>book_words <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="fu">bind_log_odds</span>(title, word, n) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="fu">arrange</span>(<span class="sc">-</span>log_odds_weighted)</span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="co">#&gt; # A tibble: 29,055 × 4</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt;    title                 word          n log_odds_weighted</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt;    &lt;chr&gt;                 &lt;chr&gt;     &lt;int&gt;             &lt;dbl&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt;  1 Sense and Sensibility elinor      622              35.6</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt;  2 Sense and Sensibility marianne    492              31.6</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt;  3 Emma                  emma        786              29.3</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">#&gt;  4 Pride and Prejudice   darcy       383              27.5</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt;  5 Pride and Prejudice   elizabeth   605              26.9</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#&gt;  6 Emma                  weston      388              26.8</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#&gt;  7 Emma                  knightley   356              25.7</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt;  8 Pride and Prejudice   bennet      309              24.7</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="co">#&gt;  9 Emma                  elton       319              24.3</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="co">#&gt; 10 Mansfield Park        crawford    493              23.2</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="co">#&gt; # … with 29,045 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<p>Weighted log odds can distinguish between words that are used in all texts.</p>
+</div>
+</section></section>
+<section>
+<section id="n-grams-and-beyond" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>N-GRAMS… AND BEYOND! 🚀</h1>
+
+</section>
+<section id="n-grams-and-beyond-1" class="slide level2" data-background-color="white">
+<h2>N-grams… and beyond! 🚀</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-13_c1b9f41609a1bad9d98e87559ca91d72">
+<div class="sourceCode cell-code" id="cb11" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>full_text <span class="ot">&lt;-</span> <span class="fu">gutenberg_download</span>(<span class="dv">158</span>, <span class="at">mirror =</span> my_mirror)</span>
+<span id="cb11-2"><a href="#cb11-2"></a></span>
+<span id="cb11-3"><a href="#cb11-3"></a>tidy_ngram <span class="ot">&lt;-</span> full_text <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>    <span class="fu">unnest_tokens</span>(bigram, text, <span class="at">token =</span> <span class="st">"ngrams"</span>, <span class="at">n =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-5"><a href="#cb11-5"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(bigram))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="n-grams-and-beyond-2" class="slide level2" data-background-color="white">
+<h2>N-grams… and beyond! 🚀</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-14_3ed0b1ebcd37959b51420a431e629e75">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>tidy_ngram</span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="co">#&gt; # A tibble: 147,256 × 2</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt;    gutenberg_id bigram     </span></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co">#&gt;           &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="co">#&gt;  1          158 by jane    </span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt;  2          158 jane austen</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co">#&gt;  3          158 volume i   </span></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#&gt;  4          158 chapter i  </span></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="co">#&gt;  5          158 chapter ii </span></span>
+<span id="cb12-10"><a href="#cb12-10"></a><span class="co">#&gt;  6          158 chapter iii</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a><span class="co">#&gt;  7          158 chapter iv </span></span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="co">#&gt;  8          158 chapter v  </span></span>
+<span id="cb12-13"><a href="#cb12-13"></a><span class="co">#&gt;  9          158 chapter vi </span></span>
+<span id="cb12-14"><a href="#cb12-14"></a><span class="co">#&gt; 10          158 chapter vii</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="co">#&gt; # … with 147,246 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="n-grams-and-beyond-3" class="slide level2" data-background-color="white">
+<h2>N-grams… and beyond! 🚀</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-15_d9044fbad2abbd6717f672406ff4bef0">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>tidy_ngram <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>    <span class="fu">count</span>(bigram, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; # A tibble: 61,242 × 2</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="co">#&gt;    bigram       n</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="co">#&gt;    &lt;chr&gt;    &lt;int&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;  1 to be      583</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt;  2 of the     523</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co">#&gt;  3 it was     425</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co">#&gt;  4 in the     421</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;  5 i am       381</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt;  6 she had    316</span></span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="co">#&gt;  7 she was    310</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a><span class="co">#&gt;  8 it is      290</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt;  9 had been   284</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt; 10 i have     265</span></span>
+<span id="cb13-16"><a href="#cb13-16"></a><span class="co">#&gt; # … with 61,232 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="jane-wants-to-know" class="slide level2" data-transition="slide-in">
+<h2>Jane wants to know…</h2>
+<p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p>Can we use an <code>anti_join()</code> right away to remove stop words?</p>
+<ul>
+<li>Yes! ✅</li>
+<li>No ☹️</li>
+</ul>
+</section>
+<section id="n-grams-and-beyond-4" class="slide level2" data-background-color="white">
+<h2>N-grams… and beyond! 🚀</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-16_5a46ac510466895470b9945ff5b1a27a">
+<div class="sourceCode cell-code" id="cb14" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>bigram_counts <span class="ot">&lt;-</span> tidy_ngram <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">"word1"</span>, <span class="st">"word2"</span>), <span class="at">sep =</span> <span class="st">" "</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>    <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word,</span>
+<span id="cb14-4"><a href="#cb14-4"></a>           <span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a>    <span class="fu">count</span>(word1, word2, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="n-grams-and-beyond-5" class="slide level2" data-background-color="white">
+<h2>N-grams… and beyond! 🚀</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-17_f304aa0c35f063ff49ea4e391b468262">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>bigram_counts</span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="co">#&gt; # A tibble: 6,526 × 3</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co">#&gt;    word1 word2         n</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;     &lt;int&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="co">#&gt;  1 miss  woodhouse   136</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt;  2 frank churchill   110</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt;  3 miss  fairfax     101</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt;  4 miss  bates        95</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt;  5 jane  fairfax      90</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a><span class="co">#&gt;  6 john  knightley    47</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a><span class="co">#&gt;  7 miss  smith        45</span></span>
+<span id="cb15-12"><a href="#cb15-12"></a><span class="co">#&gt;  8 miss  taylor       39</span></span>
+<span id="cb15-13"><a href="#cb15-13"></a><span class="co">#&gt;  9 dear  emma         30</span></span>
+<span id="cb15-14"><a href="#cb15-14"></a><span class="co">#&gt; 10 maple grove        28</span></span>
+<span id="cb15-15"><a href="#cb15-15"></a><span class="co">#&gt; # … with 6,516 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="what-can-you-do-with-n-grams" class="slide level2" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h2>What can you do with n-grams?</h2>
+<div>
+<ul>
+<li class="fragment">tf-idf of n-grams</li>
+<li class="fragment">weighted log odds of n-grams</li>
+<li class="fragment">network analysis</li>
+<li class="fragment">negation</li>
+</ul>
+</div>
+</section>
+<section id="section-2" class="slide level2" data-background-image="figs/austen-1.png" data-background-size="60%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section>
+<section id="section-3" class="slide level2" data-background-image="figs/slider.gif" data-background-size="70%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+<p><span class="blue">https://pudding.cool/2017/08/screen-direction/</span></p>
+</div>
+</section>
+<section id="section-4" class="slide level2" data-background-image="https://juliasilge.github.io/tidylo/articles/tidylo_files/figure-html/bigram_plot-1.png" data-background-size="60%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section>
+<section id="section-5" class="slide level2" data-background-image="figs/change_overall-1.svg" data-background-size="70%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section>
+<section id="network-analysis" class="slide level2" data-background-color="white">
+<h2>Network analysis</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-18_0e6880e59a92ea04d1bba1e65a2257a5">
+<div class="sourceCode cell-code" id="cb16" data-code-line-numbers="|7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">library</span>(widyr)</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="fu">library</span>(ggraph)</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="fu">library</span>(tidygraph)</span>
+<span id="cb16-4"><a href="#cb16-4"></a></span>
+<span id="cb16-5"><a href="#cb16-5"></a>bigram_graph <span class="ot">&lt;-</span> bigram_counts <span class="sc">%&gt;%</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>    <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>    <span class="fu">as_tbl_graph</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="network-analysis-1" class="slide level2" data-background-color="white">
+<h2>Network analysis</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-19_88da1588b7bf9a036588632f102cdd84">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>bigram_graph</span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="co">#&gt; # A tbl_graph: 81 nodes and 68 edges</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="co">#&gt; #</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="co">#&gt; # A directed acyclic simple graph with 19 components</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a><span class="co">#&gt; #</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="co">#&gt; # Node Data: 81 × 1 (active)</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a><span class="co">#&gt;   name </span></span>
+<span id="cb17-8"><a href="#cb17-8"></a><span class="co">#&gt;   &lt;chr&gt;</span></span>
+<span id="cb17-9"><a href="#cb17-9"></a><span class="co">#&gt; 1 miss </span></span>
+<span id="cb17-10"><a href="#cb17-10"></a><span class="co">#&gt; 2 frank</span></span>
+<span id="cb17-11"><a href="#cb17-11"></a><span class="co">#&gt; 3 jane </span></span>
+<span id="cb17-12"><a href="#cb17-12"></a><span class="co">#&gt; 4 john </span></span>
+<span id="cb17-13"><a href="#cb17-13"></a><span class="co">#&gt; 5 dear </span></span>
+<span id="cb17-14"><a href="#cb17-14"></a><span class="co">#&gt; 6 maple</span></span>
+<span id="cb17-15"><a href="#cb17-15"></a><span class="co">#&gt; # … with 75 more rows</span></span>
+<span id="cb17-16"><a href="#cb17-16"></a><span class="co">#&gt; #</span></span>
+<span id="cb17-17"><a href="#cb17-17"></a><span class="co">#&gt; # Edge Data: 68 × 3</span></span>
+<span id="cb17-18"><a href="#cb17-18"></a><span class="co">#&gt;    from    to     n</span></span>
+<span id="cb17-19"><a href="#cb17-19"></a><span class="co">#&gt;   &lt;int&gt; &lt;int&gt; &lt;int&gt;</span></span>
+<span id="cb17-20"><a href="#cb17-20"></a><span class="co">#&gt; 1     1    30   136</span></span>
+<span id="cb17-21"><a href="#cb17-21"></a><span class="co">#&gt; 2     2    31   110</span></span>
+<span id="cb17-22"><a href="#cb17-22"></a><span class="co">#&gt; 3     1    32   101</span></span>
+<span id="cb17-23"><a href="#cb17-23"></a><span class="co">#&gt; # … with 65 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="jane-wants-to-know-1" class="slide level2" data-transition="slide-in">
+<h2>Jane wants to know…</h2>
+<p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p>Is <code>bigram_graph</code> a tidy dataset?</p>
+<ul>
+<li>Yes ☑️</li>
+<li>No 🚫</li>
+</ul>
+</section>
+<section id="network-analysis-2" class="slide level2" data-background-color="white">
+<h2>Network analysis</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-20_5c7fa11717262d5b20cda2a2c72416d7">
+<div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|3,4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>bigram_graph <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>    <span class="fu">ggraph</span>(<span class="at">layout =</span> <span class="st">"kk"</span>) <span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">geom_edge_link</span>(<span class="fu">aes</span>(<span class="at">edge_alpha =</span> n)) <span class="sc">+</span> </span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="fu">geom_node_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> name)) <span class="sc">+</span>  </span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="fu">theme_graph</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="network-analysis-3" class="slide level2" data-background-color="white">
+<h2>Network analysis</h2>
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-21_c8139398c48f4a879922bf825c515b25">
+<div class="sourceCode cell-code" id="cb19" data-code-line-numbers="|3,8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>bigram_graph <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>    <span class="fu">ggraph</span>(<span class="at">layout =</span> <span class="st">"kk"</span>) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a>    <span class="fu">geom_edge_link</span>(<span class="fu">aes</span>(<span class="at">edge_alpha =</span> n), </span>
+<span id="cb19-4"><a href="#cb19-4"></a>                   <span class="at">show.legend =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb19-5"><a href="#cb19-5"></a>                   <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">1.5</span>, <span class="st">'mm'</span>)), </span>
+<span id="cb19-6"><a href="#cb19-6"></a>                   <span class="at">start_cap =</span> <span class="fu">circle</span>(<span class="dv">3</span>, <span class="st">'mm'</span>),</span>
+<span id="cb19-7"><a href="#cb19-7"></a>                   <span class="at">end_cap =</span> <span class="fu">circle</span>(<span class="dv">3</span>, <span class="st">'mm'</span>)) <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a>    <span class="fu">geom_node_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> name)) <span class="sc">+</span> </span>
+<span id="cb19-9"><a href="#cb19-9"></a>    <span class="fu">theme_graph</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section-6" class="slide level2" data-background-color="white">
+<h2></h2>
+
+<img data-src="02-more-eda_files/figure-revealjs/unnamed-chunk-22-1.svg" class="r-stretch quarto-figure-center"></section></section>
+<section id="thanks" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>Thanks!</h1>
+<center>
+<p><img src="figs/blue_jane.png" width="150px"></p>
+<p><a href="https://fosstodon.org/@juliasilge"><i class="fa-brands fa-mastodon" aria-label="mastodon"></i> @juliasilge</a></p>
+<p><a href="https://github.com/juliasilge"><i class="fa-brands fa-github" aria-label="github"></i> @juliasilge</a></p>
+<p><a href="https://www.youtube.com/juliasilge"><i class="fa-brands fa-youtube" aria-label="youtube"></i> youtube.com/juliasilge</a></p>
+<p><a href="https://juliasilge.com/"><i class="fa-solid fa-link" aria-label="link"></i> juliasilge.com</a></p>
+<p><a href="https://tidytextmining.com"><i class="fa-solid fa-book" aria-label="book"></i> tidytextmining.com</a></p>
+</center>
+<div class="footer">
+<p>Slides created with <a href="https://quarto.org/">Quarto</a></p>
+</div>
+
+<div class="footer footer-default">
+<p><a href="https://bit.ly/tidytext-tutorial" class="uri">https://bit.ly/tidytext-tutorial</a></p>
+</div>
+</section>
+    </div>
+  </div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'smaller': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 720,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const clipboard = new window.ClipboardJS('.code-copy-button', {
+        target: function(trigger) {
+          return trigger.previousElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      });
+      function tippyHover(el, contentFn) {
+        const config = {
+          allowHTML: true,
+          content: contentFn,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'quarto-reveal',
+          placement: 'bottom-start'
+        };
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          return note.innerHTML;
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

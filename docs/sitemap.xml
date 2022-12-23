@@ -2,6 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bit.ly/tidytext-tutorial/index.html</loc>
-    <lastmod>2022-12-21T01:25:36.132Z</lastmod>
+    <lastmod>2022-12-23T18:24:09.677Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bit.ly/tidytext-tutorial/slides/00-intro.html</loc>
+    <lastmod>2022-12-23T18:24:13.200Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bit.ly/tidytext-tutorial/slides/01-tidytext.html</loc>
+    <lastmod>2022-12-23T18:24:17.255Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bit.ly/tidytext-tutorial/slides/02-more-eda.html</loc>
+    <lastmod>2022-12-23T18:24:21.194Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bit.ly/tidytext-tutorial/slides/03-topic-models.html</loc>
+    <lastmod>2022-12-23T18:24:23.648Z</lastmod>
+  </url>
+  <url>
+    <loc>https://bit.ly/tidytext-tutorial/slides/04-sml-text.html</loc>
+    <lastmod>2022-12-23T18:24:26.014Z</lastmod>
   </url>
 </urlset>

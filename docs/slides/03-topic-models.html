@@ -1,894 +1,1344 @@
 <!DOCTYPE html>
-<html lang="" xml:lang="">
-  <head>
-    <title>Text Mining</title>
-    <meta charset="utf-8" />
-    <meta name="author" content="Julia Silge" />
-    <script src="libs/header-attrs/header-attrs.js"></script>
-    <link href="libs/remark-css/default.css" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/5235085b15.js"></script>
-    <link rel="stylesheet" href="css/xaringanthemer.css" type="text/css" />
-    <link rel="stylesheet" href="css/footer_plus.css" type="text/css" />
-  </head>
-  <body>
-    <textarea id="source">
-
-
-
-
-layout: true
-
-&lt;div class="my-footer"&gt;&lt;span&gt;bit.ly/tidytext-tutorial&lt;/span&gt;&lt;/div&gt; 
-
----
-
-class: inverse, center, middle
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-
-# Text Mining
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-### USING TIDY PRINCIPLES
-
-Julia Silge
-
----
-
-class: right, middle
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-# Find me at...
-
-&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
-
-
----
-
-## Let's install some packages
-
-
-```r
-install.packages(c("tidyverse", 
-                   "tidytext",
-                   "stopwords",
-                   "gutenbergr",
-                   "stm"))
-```
-
----
-
-background-image: url(figs/tmwr_0601.png)
-background-position: 50% 70%
-background-size: 750px
-
-## **Workflow for text mining/modeling**
-
----
-
-class: inverse
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-# Topic modeling
-
---
-
-### 📖 Each DOCUMENT = mixture of topics
-
---
-
-### 📑 Each TOPIC = mixture of tokens
-
----
-
-class: top
-
-background-image: url(figs/top_tags-1.png)
-background-size: 800px
-
----
-
-class: center, middle, inverse
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-# GREAT LIBRARY HEIST 🕵️‍♀️
-
----
-
-## **Downloading your text data**
-
-
-```r
-library(tidyverse)
-library(gutenbergr)
-
-books &lt;- gutenberg_download(c(36, 158, 164, 345),
-                            meta_fields = "title",
-                            mirror = my_mirror)
-books %&gt;%
-  count(title)
-```
-
-```
-## # A tibble: 4 x 2
-##   title                                     n
-## * &lt;chr&gt;                                 &lt;int&gt;
-## 1 Dracula                               15568
-## 2 Emma                                  16235
-## 3 The War of the Worlds                  6474
-## 4 Twenty Thousand Leagues under the Sea 12135
-```
-
----
-
-## **Someone has torn your books apart!** 😭
-
-What do you predict will happen if we run the following code? 🤔
-
-
-```r
-by_chapter &lt;- books %&gt;%
-  group_by(title) %&gt;%
-  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
-                                                 ignore_case = TRUE)))) %&gt;%
-  ungroup() %&gt;%
-  filter(chapter &gt; 0) %&gt;%
-  unite(document, title, chapter)
-
-glimpse(by_chapter)
-```
-
----
-
-## **Someone has torn your books apart!** 😭
-
-What do you predict will happen if we run the following code? 🤔
-
-
-```r
-by_chapter &lt;- books %&gt;%
-  group_by(title) %&gt;%
-  mutate(chapter = cumsum(str_detect(text, regex("^chapter ", 
-                                                 ignore_case = TRUE)))) %&gt;%
-  ungroup() %&gt;%
-  filter(chapter &gt; 0) %&gt;%
-  unite(document, title, chapter)
-
-glimpse(by_chapter)
-```
-
-```
-## Rows: 50,315
-## Columns: 3
-## $ gutenberg_id &lt;int&gt; 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, …
-## $ text         &lt;chr&gt; "CHAPTER ONE", "", "THE EVE OF THE WAR", "", "", "No one…
-## $ document     &lt;chr&gt; "The War of the Worlds_1", "The War of the Worlds_1", "T…
-```
-
----
-
-## **Can we put them back together?**
-
-
-```r
-library(tidytext)
-word_counts &lt;- by_chapter %&gt;%
-* unnest_tokens(word, text) %&gt;%
-  anti_join(get_stopwords(source = "smart")) %&gt;%
-  count(document, word, sort = TRUE)
-
-glimpse(word_counts)
-```
-
-```
-## Rows: 105,779
-## Columns: 3
-## $ document &lt;chr&gt; "Emma_26", "Emma_47", "The War of the Worlds_16", "Emma_38",…
-## $ word     &lt;chr&gt; "mr", "harriet", "brother", "mr", "mrs", "mr", "miss", "mr",…
-## $ n        &lt;int&gt; 54, 52, 50, 49, 49, 49, 44, 43, 40, 39, 37, 37, 37, 37, 37, …
-```
-
----
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-## Jane wants to know...
-
-The dataset `word_counts` contains
-
-- the counts of words per book
-- the counts of words per chapter
-- the counts of words per line
-
----
-
-## **Can we put them back together?**
-
-
-```r
-words_sparse &lt;- word_counts %&gt;%
-* cast_sparse(document, word, n)
-
-class(words_sparse)
-```
-
-```
-## [1] "dgCMatrix"
-## attr(,"package")
-## [1] "Matrix"
-```
-
-```r
-dim(words_sparse)
-```
-
-```
-## [1]   182 18124
-```
-
----
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-## Jane wants to know...
-
-Is `words_sparse` a tidy dataset?
-
-- Yes ✅
-- No 🚫
-
----
-
-## **Train a topic model**
-
-Use a sparse matrix or a `quanteda::dfm` object as input
-
-
-```r
-library(stm)
-topic_model &lt;- stm(words_sparse, K = 4, 
-                   verbose = FALSE, 
-                   init.type = "Spectral")
-```
----
-
-## **Train a topic model**
-
-Use a sparse matrix or a `quanteda::dfm` object as input
-
-
-```r
-summary(topic_model)
-```
-
-```
-## A topic model with 4 topics, 182 documents and a 18124 word dictionary.
-```
-
-```
-## Topic 1 Top Words:
-##  	 Highest Prob: time, van, night, helsing, back, good, room 
-##  	 FREX: van, helsing, lucy, mina, jonathan, harker, diary 
-##  	 Lift: wolves, herr, kitten, tombstones, july_, pin, bilder 
-##  	 Score: helsing, van, mina, lucy, jonathan, harker, dr 
-## Topic 2 Top Words:
-##  	 Highest Prob: captain, nautilus, sea, nemo, ned, conseil, land 
-##  	 FREX: nautilus, nemo, ned, conseil, ocean, canadian, submarine 
-##  	 Lift: natives, canadian, harpoon, perouse, coral, whales, lincoln 
-##  	 Score: nautilus, nemo, ned, conseil, canadian, captain, ocean 
-## Topic 3 Top Words:
-##  	 Highest Prob: mr, emma, mrs, miss, harriet, thing, weston 
-##  	 FREX: emma, harriet, weston, knightley, elton, jane, woodhouse 
-##  	 Lift: patty, ford, otway, bathing, ford's, larkins, improvement 
-##  	 Score: emma, harriet, weston, knightley, elton, jane, fairfax 
-## Topic 4 Top Words:
-##  	 Highest Prob: people, martians, black, time, man, road, men 
-##  	 FREX: martians, martian, woking, mars, curate, streets, ulla 
-##  	 Lift: maybury, chertsey, martians, mars, shepperton, pony, barnet 
-##  	 Score: martians, martian, woking, mars, ulla, artilleryman, weybridge
-```
-
-
----
-
-## **Exploring the output of topic modeling**
-
-
-
-```r
-chapter_topics &lt;- tidy(topic_model, matrix = "beta")
-chapter_topics
-```
-
-```
-## # A tibble: 72,496 x 3
-##    topic term         beta
-##    &lt;int&gt; &lt;chr&gt;       &lt;dbl&gt;
-##  1     1 mr      1.81e-  3
-##  2     2 mr      1.71e-  4
-##  3     3 mr      2.17e-  2
-##  4     4 mr      1.55e- 57
-##  5     1 harriet 0.       
-##  6     2 harriet 0.       
-##  7     3 harriet 7.72e-  3
-##  8     4 harriet 7.03e-145
-##  9     1 brother 8.61e-  5
-## 10     2 brother 2.14e- 91
-## # … with 72,486 more rows
-```
-
----
-
-## **Exploring the output of topic modeling**
-
-.unscramble[U N S C R A M B L E]
-
-```
-top_terms &lt;- chapter_topics %&gt;%
-```
-```
-ungroup() %&gt;%
-```
-```
-group_by(topic) %&gt;%
-```
-```
-arrange(topic, -beta)
-```
-```
-slice_max(beta, n = 10) %&gt;%
-```
-
-
----
-
-## **Exploring the output of topic modeling**
-
-
-```r
-top_terms &lt;- chapter_topics %&gt;%
-  group_by(topic) %&gt;%
-  slice_max(beta, n = 10) %&gt;%
-  ungroup() %&gt;%
-  arrange(topic, -beta)
-```
-
----
-
-## **Exploring the output of topic modeling**
-
-
-```r
-top_terms
-```
-
-```
-## # A tibble: 40 x 3
-##    topic term       beta
-##    &lt;int&gt; &lt;chr&gt;     &lt;dbl&gt;
-##  1     1 time    0.00729
-##  2     1 van     0.00621
-##  3     1 night   0.00583
-##  4     1 helsing 0.00577
-##  5     1 back    0.00493
-##  6     1 good    0.00484
-##  7     1 room    0.00441
-##  8     1 lucy    0.00427
-##  9     1 dear    0.00420
-## 10     1 man     0.00411
-## # … with 30 more rows
-```
-
----
-## **Exploring the output of topic modeling**
-
-
-```r
-top_terms %&gt;%
-  mutate(term = fct_reorder(term, beta)) %&gt;%
-* ggplot(aes(beta, term, fill = factor(topic))) +
-  geom_col(show.legend = FALSE) +
-  facet_wrap(~ topic, scales = "free")
-```
-
----
-
-class: center, middle
-
-![](03-topic-models_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
-
----
-
-## **How are documents classified?**
-
-
-```r
-chapters_gamma &lt;- tidy(topic_model, matrix = "gamma",
-                       document_names = rownames(words_sparse))
-chapters_gamma
-```
-
-```
-## # A tibble: 728 x 3
-##    document                 topic    gamma
-##    &lt;chr&gt;                    &lt;int&gt;    &lt;dbl&gt;
-##  1 Emma_26                      1 0.000137
-##  2 Emma_47                      1 0.000200
-##  3 The War of the Worlds_16     1 0.000386
-##  4 Emma_38                      1 0.000484
-##  5 Emma_8                       1 0.000206
-##  6 Emma_21                      1 0.000232
-##  7 Emma_13                      1 0.000569
-##  8 Dracula_35                   1 0.991   
-##  9 Dracula_39                   1 0.999   
-## 10 Emma_1                       1 0.000268
-## # … with 718 more rows
-```
-
----
-
-## **How are documents classified?**
-
-What do you predict will happen if we run the following code? 🤔
-
-
-```r
-chapters_parsed &lt;- chapters_gamma %&gt;%
-  separate(document, c("title", "chapter"), 
-           sep = "_", convert = TRUE)
-
-glimpse(chapters_parsed)
-```
-
----
-
-## **How are documents classified?**
-
-What do you predict will happen if we run the following code? 🤔
-
-
-```r
-chapters_parsed &lt;- chapters_gamma %&gt;%
-  separate(document, c("title", "chapter"), 
-           sep = "_", convert = TRUE)
-
-glimpse(chapters_parsed)
-```
-
-```
-## Rows: 728
-## Columns: 4
-## $ title   &lt;chr&gt; "Emma", "Emma", "The War of the Worlds", "Emma", "Emma", "Emm…
-## $ chapter &lt;int&gt; 26, 47, 16, 38, 8, 21, 13, 35, 39, 1, 33, 4, 42, 54, 27, 26, …
-## $ topic   &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-## $ gamma   &lt;dbl&gt; 0.0001369224, 0.0001998893, 0.0003864005, 0.0004841684, 0.000…
-```
-
----
-
-## **How are documents classified?**
-
-.unscramble[U N S C R A M B L E]
-
-```
-chapters_parsed %&gt;%
-```
-```
-ggplot(aes(factor(topic), gamma)) +
-```
-```
-facet_wrap(~ title)
-```
-```
-mutate(title = fct_reorder(title, gamma * topic)) %&gt;%
-```
-```
-geom_boxplot() +
-```
-
----
-
-## **How are documents classified?**
-
-
-```r
-chapters_parsed %&gt;%
-  mutate(title = fct_reorder(title, gamma * topic)) %&gt;%
-  ggplot(aes(factor(topic), gamma)) +
-  geom_boxplot() +
-  facet_wrap(~ title)
-```
-
----
-
-![](03-topic-models_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
-
----
-
-class: center, middle, inverse
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-# GOING FARTHER 🚀
-
----
-## Tidying model output
-
-### Which words in each document are assigned to which topics?
-
-- `augment()`
-- Add information to each observation in the original data
-
----
-
-background-image: url(figs/stm_video.png)
-background-size: 850px
-
----
-
-## **Using stm**
-
-- Document-level covariates
-
-
-```r
-topic_model &lt;- stm(words_sparse, 
-                   K = 0, init.type = "Spectral",
-                   prevalence = ~s(Year),
-                   data = covariates,
-                   verbose = FALSE)
-```
-
-- Use functions for `semanticCoherence()`, `checkResiduals()`, `exclusivity()`, and more!
-
-- Check out &lt;http://www.structuraltopicmodel.com/&gt;
-
----
-
-# Stemming?
-
-Advice from Schofield &amp; Mimno (2016):
-
-.large["Comparing Apples to Apple: The Effects of Stemmers on Topic Models"]
-
-.footnote[&lt;https://mimno.infosci.cornell.edu/papers/schofield_tacl_2016.pdf&gt;]
-
----
-
-class: right, middle
-
-&lt;h1 class="fa fa-quote-left fa-fw"&gt;&lt;/h1&gt;
-
-&lt;h2&gt; Despite their frequent use in topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability. &lt;/h2&gt;
-
-&lt;h1 class="fa fa-quote-right fa-fw"&gt;&lt;/h1&gt;
-
----
-
-class: center, middle, inverse
-
-background-image: url(figs/p_and_p_cover.png)
-background-size: cover
-
-# HOW DO WE CHOOSE `\(K\)`? 😕
-
-
----
-
-
-background-image: url(figs/model_diagnostic-1.png)
-background-position: 50% 50%
-background-size: 950px
-
----
-
-## **Train many topic models**
-
-
-```r
-library(furrr)
-plan(multicore)
-
-*many_models &lt;- tibble(K = c(3, 4, 6, 8, 10)) %&gt;%
-  mutate(topic_model = future_map(
-    K, ~stm(words_sparse, K = ., verbose = FALSE))
-  )
-
-many_models
-```
-
-```
-## # A tibble: 5 x 2
-##       K topic_model
-##   &lt;dbl&gt; &lt;list&gt;     
-## 1     3 &lt;STM&gt;      
-## 2     4 &lt;STM&gt;      
-## 3     6 &lt;STM&gt;      
-## 4     8 &lt;STM&gt;      
-## 5    10 &lt;STM&gt;
-```
-
----
-
-## **Train many topic models**
-
-
-```r
-heldout &lt;- make.heldout(words_sparse)
-
-k_result &lt;- many_models %&gt;%
-  mutate(exclusivity        = map(topic_model, exclusivity),
-         semantic_coherence = map(topic_model, semanticCoherence, words_sparse),
-         eval_heldout       = map(topic_model, eval.heldout, heldout$missing),
-         residual           = map(topic_model, checkResiduals, words_sparse),
-         bound              = map_dbl(topic_model, function(x) max(x$convergence$bound)),
-         lfact              = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),
-         lbound             = bound + lfact,
-         iterations         = map_dbl(topic_model, function(x) length(x$convergence$bound)))
-```
-
----
-
-## **Train many topic models**
-
-
-```r
-k_result
-```
-
-```
-## # A tibble: 5 x 10
-##       K topic_model exclusivity semantic_cohere… eval_heldout residual   bound
-##   &lt;dbl&gt; &lt;list&gt;      &lt;list&gt;      &lt;list&gt;           &lt;list&gt;       &lt;list&gt;     &lt;dbl&gt;
-## 1     3 &lt;STM&gt;       &lt;dbl [3]&gt;   &lt;dbl [3]&gt;        &lt;named list… &lt;named … -1.39e6
-## 2     4 &lt;STM&gt;       &lt;dbl [4]&gt;   &lt;dbl [4]&gt;        &lt;named list… &lt;named … -1.37e6
-## 3     6 &lt;STM&gt;       &lt;dbl [6]&gt;   &lt;dbl [6]&gt;        &lt;named list… &lt;named … -1.36e6
-## 4     8 &lt;STM&gt;       &lt;dbl [8]&gt;   &lt;dbl [8]&gt;        &lt;named list… &lt;named … -1.34e6
-## 5    10 &lt;STM&gt;       &lt;dbl [10]&gt;  &lt;dbl [10]&gt;       &lt;named list… &lt;named … -1.34e6
-## # … with 3 more variables: lfact &lt;dbl&gt;, lbound &lt;dbl&gt;, iterations &lt;dbl&gt;
-```
-
----
-
-## **Train many topic models**
-
-
-```r
-k_result %&gt;%
-  transmute(K,
-            `Lower bound`         = lbound,
-*           Residuals             = map_dbl(residual, "dispersion"),
-*           `Semantic coherence`  = map_dbl(semantic_coherence, mean),
-*           `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %&gt;%
-  gather(Metric, Value, -K) %&gt;%
-  ggplot(aes(K, Value, color = Metric)) +
-  geom_line() +
-  facet_wrap(~Metric, scales = "free_y")
-```
-
----
-
-![](03-topic-models_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
-
----
-
-## **What is semantic coherence?**
-
-- Semantic coherence is maximized when the most probable words in a given topic frequently co-occur together
-
---
-
-- Correlates well with human judgment of topic quality 😄
-
---
-
-- Having high semantic coherence is relatively easy, though, if you only have a few topics dominated by very common words 😩
-
---
-
-- Measure semantic coherence **and** exclusivity
-
----
-
-## **Train many topic models**
-
-
-```r
-k_result %&gt;%
-  select(K, exclusivity, semantic_coherence) %&gt;%
-  filter(K %in% c(3, 6, 10)) %&gt;%
-  unnest(cols = c(exclusivity, semantic_coherence)) %&gt;%
-  ggplot(aes(semantic_coherence, exclusivity, 
-             color = factor(K))) +
-  geom_point()
-```
-
----
-
-class: center, middle
-
-![](03-topic-models_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
-
----
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-## Jane wants to know...
-
-Topic modeling is an example of...
-
-- .unscramble[supervised machine learning]
-- .unscramble[unsupervised machine learning]
-
-.footnote[&lt;https://juliasilge.com/blog/evaluating-stm/&gt;]
-
----
-
-background-image: url(figs/tmwr_0601.png)
-background-position: 50% 70%
-background-size: 750px
-
-## **Workflow for text mining/modeling**
-
----
-
-
-background-image: url(figs/lizzieskipping.gif)
-background-position: 50% 55%
-background-size: 750px
-
-# **Go explore real-world text!**
-
----
-
-class: left, middle
-
-&lt;img src="figs/blue_jane.png" width="150px"/&gt;
-
-# Thanks!
-
-&lt;a href="http://twitter.com/juliasilge"&gt;&lt;i class="fa fa-twitter fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="http://github.com/juliasilge"&gt;&lt;i class="fa fa-github fa-fw"&gt;&lt;/i&gt;&amp;nbsp; @juliasilge&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://juliasilge.com"&gt;&lt;i class="fa fa-link fa-fw"&gt;&lt;/i&gt;&amp;nbsp; juliasilge.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="https://tidytextmining.com"&gt;&lt;i class="fa fa-book fa-fw"&gt;&lt;/i&gt;&amp;nbsp; tidytextmining.com&lt;/a&gt;&lt;br&gt;
-&lt;a href="mailto:julia.silge@gmail.com"&gt;&lt;i class="fa fa-paper-plane fa-fw"&gt;&lt;/i&gt;&amp;nbsp; julia.silge@gmail.com&lt;/a&gt;
-
-Slides created with [**remark.js**](http://remarkjs.com/) and the R package [**xaringan**](https://github.com/yihui/xaringan)
-    </textarea>
-<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
-<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create({
-"highlightLanguage": "r",
-"highlightStyle": "docco",
-"highlightLines": true,
-"slideNumberFormat": "%current%",
-"ratio": "16:9"
-});
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
-  window.dispatchEvent(new Event('resize'));
-});
-(function(d) {
-  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
-  if (!r) return;
-  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
-  d.head.appendChild(s);
-})(document);
-
-(function(d) {
-  var el = d.getElementsByClassName("remark-slides-area");
-  if (!el) return;
-  var slide, slides = slideshow.getSlides(), els = el[0].children;
-  for (var i = 1; i < slides.length; i++) {
-    slide = slides[i];
-    if (slide.properties.continued === "true" || slide.properties.count === "false") {
-      els[i - 1].className += ' has-continuation';
+<html lang="en"><head>
+<link href="../favicon.ico" rel="icon">
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.2.280">
+
+  <meta name="author" content="Julia Silge">
+  <title>Text Mining with Tidy Data Principles - Text Mining</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
     }
-  }
-  var s = d.createElement("style");
-  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
-  d.head.appendChild(s);
-})(document);
-// delete the temporary CSS (for displaying all slides initially) when the user
-// starts to view slides
-(function() {
-  var deleted = false;
-  slideshow.on('beforeShowSlide', function(slide) {
-    if (deleted) return;
-    var sheets = document.styleSheets, node;
-    for (var i = 0; i < sheets.length; i++) {
-      node = sheets[i].ownerNode;
-      if (node.dataset["target"] !== "print-only") continue;
-      node.parentNode.removeChild(node);
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
     }
-    deleted = true;
-  });
-})();
-(function() {
-  "use strict"
-  // Replace <script> tags in slides area to make them executable
-  var scripts = document.querySelectorAll(
-    '.remark-slides-area .remark-slide-container script'
-  );
-  if (!scripts.length) return;
-  for (var i = 0; i < scripts.length; i++) {
-    var s = document.createElement('script');
-    var code = document.createTextNode(scripts[i].textContent);
-    s.appendChild(code);
-    var scriptAttrs = scripts[i].attributes;
-    for (var j = 0; j < scriptAttrs.length; j++) {
-      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
     }
-    scripts[i].parentElement.replaceChild(s, scripts[i]);
-  }
-})();
-(function() {
-  var links = document.getElementsByTagName('a');
-  for (var i = 0; i < links.length; i++) {
-    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
-      links[i].target = '_blank';
-    }
-  }
-})();
-// adds .remark-code-has-line-highlighted class to <pre> parent elements
-// of code chunks containing highlighted lines with class .remark-code-line-highlighted
-(function(d) {
-  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
-  const preParents = [];
-  const findPreParent = function(line, p = 0) {
-    if (p > 1) return null; // traverse up no further than grandparent
-    const el = line.parentElement;
-    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
-  };
-
-  for (let line of hlines) {
-    let pre = findPreParent(line);
-    if (pre && !preParents.includes(pre)) preParents.push(pre);
-  }
-  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
-})(document);</script>
-
-<script>
-slideshow._releaseMath = function(el) {
-  var i, text, code, codes = el.getElementsByTagName('code');
-  for (i = 0; i < codes.length;) {
-    code = codes[i];
-    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
-      text = code.textContent;
-      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
-          /^\$\$(.|\s)+\$\$$/.test(text) ||
-          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
-        code.outerHTML = code.innerHTML;  // remove <code></code>
-        continue;
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
       }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
     }
-    i++;
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto.css" id="theme">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+
+  .callout {
+    margin-top: 1em;
+    margin-bottom: 1em;  
+    border-radius: .25rem;
   }
-};
-slideshow._releaseMath(document);
-</script>
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-(function () {
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
-  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
-    script.src  = script.src.replace(/^https?:/, '');
-  document.getElementsByTagName('head')[0].appendChild(script);
-})();
-</script>
-  </body>
-</html>
+
+  .callout.callout-style-simple { 
+    padding: 0em 0.5em;
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+    display: flex;
+  }
+
+  .callout.callout-style-default {
+    border-left: solid #acacac .3rem;
+    border-right: solid 1px silver;
+    border-top: solid 1px silver;
+    border-bottom: solid 1px silver;
+  }
+
+  .callout .callout-body-container {
+    flex-grow: 1;
+  }
+
+  .callout.callout-style-simple .callout-body {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-style-default .callout-body {
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .callout.callout-captioned.callout-style-simple .callout-body {
+    margin-top: 0.2em;
+  }
+
+  .callout:not(.callout-captioned) .callout-body {
+      display: flex;
+  }
+
+  .callout:not(.no-icon).callout-captioned.callout-style-simple .callout-content {
+    padding-left: 1.6em;
+  }
+
+  .callout.callout-captioned .callout-header {
+    padding-top: 0.2em;
+    margin-bottom: -0.2em;
+  }
+
+  .callout.callout-captioned .callout-caption  p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+    
+  .callout.callout-captioned.callout-style-simple .callout-content  p {
+    margin-top: 0;
+  }
+
+  .callout.callout-captioned.callout-style-default .callout-content  p {
+    margin-top: 0.7em;
+  }
+
+  .callout.callout-style-simple div.callout-caption {
+    border-bottom: none;
+    font-size: .9rem;
+    font-weight: 600;
+    opacity: 75%;
+  }
+
+  .callout.callout-style-default  div.callout-caption {
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 0.9rem;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-default div.callout-content {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+
+  .callout.callout-style-simple .callout-icon::before {
+    height: 1rem;
+    width: 1rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+  }
+
+  .callout.callout-style-default .callout-icon::before {
+    height: 0.9rem;
+    width: 0.9rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 0.9rem 0.9rem;
+  }
+
+  .callout-caption {
+    display: flex
+  }
+    
+  .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  .callout.no-icon::before {
+    display: none !important;
+  }
+
+  .callout.callout-captioned .callout-body > .callout-content > :last-child {
+    margin-bottom: 0.5rem;
+  }
+
+  .callout.callout-captioned .callout-icon::before {
+    margin-top: .5rem;
+    padding-right: .5rem;
+  }
+
+  .callout:not(.callout-captioned) .callout-icon::before {
+    margin-top: 1rem;
+    padding-right: .5rem;
+  }
+
+  /* Callout Types */
+
+  div.callout-note {
+    border-left-color: #4582ec !important;
+  }
+
+  div.callout-note .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEU0lEQVRYCcVXTWhcVRQ+586kSUMMxkyaElstCto2SIhitS5Ek8xUKV2poatCcVHtUlFQk8mbaaziwpWgglJwVaquitBOfhQXFlqlzSJpFSpIYyXNjBNiTCck7x2/8/LeNDOZxDuEkgOXe++553zfefee+/OYLOXFk3+1LLrRdiO81yNqZ6K9cG0P3MeFaMIQjXssE8Z1JzLO9ls20MBZX7oG8w9GxB0goaPrW5aNMp1yOZIa7Wv6o2ykpLtmAPs/vrG14Z+6d4jpbSKuhdcSyq9wGMPXjonwmESXrriLzFGOdDBLB8Y6MNYBu0dRokSygMA/mrun8MGFN3behm6VVAwg4WR3i6FvYK1T7MHo9BK7ydH+1uurECoouk5MPRyVSBrBHMYwVobG2aOXM07sWrn5qgB60rc6mcwIDJtQrnrEr44kmy+UO9r0u9O5/YbkS9juQckLed3DyW2XV/qWBBB3ptvI8EUY3I9p/67OW+g967TNr3Sotn3IuVlfMLVnsBwH4fsnebJvyGm5GeIUA3jljERmrv49SizPYuq+z7c2H/jlGC+Ghhupn/hcapqmcudB9jwJ/3jvnvu6vu5lVzF1fXyZuZZ7U8nRmVzytvT+H3kilYvH09mLWrQdwFSsFEsxFVs5fK7A0g8gMZjbif4ACpKbjv7gNGaD8bUrlk8x+KRflttr22JEMRUbTUwwDQScyzPgedQHZT0xnx7ujw2jfVfExwYHwOsDTjLdJ2ebmeQIlJ7neo41s/DrsL3kl+W2lWvAga0tR3zueGr6GL78M3ifH0rGXrBC2aAR8uYcIA5gwV8zIE8onoh8u0Fca/ciF7j1uOzEnqcIm59sEXoGc0+z6+H45V1CvAvHcD7THztu669cnp+L0okAeIc6zjbM/24LgGM1gZk7jnRu1aQWoU9sfUOuhrmtaPIO3YY1KLLWZaEO5TKUbMY5zx8W9UJ6elpLwKXbsaZ4EFl7B4bMtDv0iRipKoDQT2sNQI9b1utXFdYisi+wzZ/ri/1m7QfDgEuvgUUEIJPq3DhX/5DWNqIXDOweC2wvIR90Oq3lDpdMIgD2r0dXvGdsEW5H6x6HLRJYU7C69VefO1x8Gde1ZFSJLfWS1jbCnhtOPxmpfv2LXOA2Xk2tvnwKKPFuZ/oRmwBwqRQDcKNeVQkYcOjtWVBuM/JuYw5b6isojIkYxyYAFn5K7ZBF10fea52y8QltAg6jnMqNHFBmGkQ1j+U43HMi2xMar1Nv0zGsf1s8nUsmUtPOOrbFIR8bHFDMB5zL13Gmr/kGlCkUzedTzzmzsaJXhYawnA3UmARpiYj5ooJZiUoxFRtK3X6pgNPv+IZVPcnwbOl6f+aBaO1CNvPW9n9LmCp01nuSaTRF2YxHqZ8DYQT6WsXT+RD6eUztwYLZ8rM+rcPxamv1VQzFUkzFXvkiVrySGQgJNvXHJAxiU3/NwiC03rSf05VBaPtu/Z7/B8Yn/w7eguloAAAAAElFTkSuQmCC');
+  }
+
+  div.callout-note.callout-style-default .callout-caption {
+    background-color: #dae6fb
+  }
+
+  div.callout-important {
+    border-left-color: #d9534f !important;
+  }
+
+  div.callout-important .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAEKklEQVRYCcVXTWhcVRS+575MJym48A+hSRFr00ySRQhURRfd2HYjk2SSTokuBCkU2o0LoSKKraKIBTcuFCoidGFD08nkBzdREbpQ1EDNIv8qSGMFUboImMSZd4/f9zJv8ibJMC8xJQfO3HPPPef7zrvvvnvviIkpC9nsw0UttFunbUhpFzFtarSd6WJkStVMw5xyVqYTvkwfzuf/5FgtkVoB0729j1rjXwThS7Vio+Mo6DNnvLfahoZ+i/o32lULuJ3NNiz7q6+pyAUkJaFF6JwaM2lUJlV0MlnQn5aTRbEu0SEqHUa0A4AdiGuB1kFXRfVyg5d87+Dg4DL6m2TLAub60ilj7A1Ec4odSAc8X95sHh7+ZRPCFo6Fnp7HfU/fBng/hi10CjCnWnJjsxvDNxWw0NfV6Rv5GgP3I3jGWXumdTD/3cbEOP2ZbOZp69yniG3FQ9z1jD7bnBu9Fc2tKGC2q+uAJOQHBDRiZX1x36o7fWBs7J9ownbtO+n0/qWkvW7UPIfc37WgT6ZGR++EOJyeQDSb9UB+DZ1G6DdLDzyS+b/kBCYGsYgJbSQHuThGKRcw5xdeQf8YdNHsc6ePXrlSYMBuSIAFTGAtQo+VuALo4BX83N190NWZWbynBjhOHsmNfFWLeL6v+ynsA58zDvvAC8j5PkbOcXCMg2PZFk3q8MjI7WAG/Dp9AwP7jdGBOOQkAvlFUB+irtm16I1Zw9YBcpGTGXYmk3kQIC/Cds55l+iMI3jqhjAuaoe+am2Jw5GT3Nbz3CkE12NavmzN5+erJW7046n/CH1RO/RVa8lBLozXk9uqykkGAyRXLWlLv5jyp4RFsG5vGVzpDLnIjTWgnRy2Rr+tDKvRc7Y8AyZq10jj8DqXdnIRNtFZb+t/ZRtXcDiVnzpqx8mPcDWxgARUqx0W1QB9MeUZiNrV4qP+Ehc+BpNgATsTX8ozYKL2NtFYAHc84fG7ndxUPr+AR/iQSns7uSUufAymwDOb2+NjK27lEFocm/EE2WpyIy/Hi66MWuMKJn8RvxIcj87IM5Vh9663ziW36kR0HNenXuxmfaD8JC7tfKbrhFr7LiZCrMjrzTeGx+PmkosrkNzW94ObzwocJ7A1HokLolY+AvkTiD/q1H0cN48c5EL8Crkttsa/AXQVDmutfyku0E7jShx49XqV3MFK8IryDhYVbj7Sj2P2eBxwcXoe8T8idsKKPRcnZw1b+slFTubwUwhktrfnAt7J++jwQtLZcm3sr9LQrjRzz6cfMv9aLvgmnAGvpoaGLxM4mAEaLV7iAzQ3oU0IvD5x9ix3yF2RAAuYAOO2f7PEFWCXZ4C9Pb2UsgDeVnFSpbFK7/IWu7TPTvBqzbGdCHOJQSxiEjt6IyZmxQyEJHv6xyQsYk//moVFsN2zP6fRImjfq7/n/wFDguUQFNEwugAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-important.callout-style-default .callout-caption {
+    background-color: #f7dddc
+  }
+
+  div.callout-warning {
+    border-left-color: #f0ad4e !important;
+  }
+
+  div.callout-warning .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAAETklEQVRYCeVWW2gcVRg+58yaTUnizqbipZeX4uWhBEniBaoUX1Ioze52t7sRq6APio9V9MEaoWlVsFasRq0gltaAPuxms8lu0gcviE/FFOstVbSIxgcv6SU7EZqmdc7v9+9mJtNks51NTUH84ed889/PP+cmxP+d5FIbMJmNbpREu4WUkiTtCicKny0l1pIKmBzovF2S+hIJHX8iEu3hZJ5lNZGqyRrGSIQpq15AzF28jgpeY6yk6GVdrfFqdrD6Iw+QlB8g0YS2g7dyQmXM/IDhBhT0UCiRf59lfqmmDvzRt6kByV/m4JjtzuaujMUM2c5Z2d6JdKrRb3K2q6mA+oYVz8JnDdKPmmNthzkAk/lN63sYPgevrguc72aZX/L9C6x09GYyxBgCX4NlvyGUHOKELlm5rXeR1kchuChJt4SSwyddZRXgvwMGvYo4QSlk3/zkHD8UHxwVJA6zjZZqP8v8kK8OWLnIZtLyCAJagYC4rTGW/9Pqj92N/c+LUaAj27movwbi19tk/whRCIE7Q9vyI6yvRpftAKVTdUjOW40X3h5OXsKCdmFcx0xlLJoSuQngnrJe7Kcjm4OMq9FlC7CMmScQANuNvjfP3PjGXDBaUQmbp296S5L4DrpbrHN1T87ZVEZVCzg1FF0Ft+dKrlLukI+/c9ENo+TvlTDbYFvuKPtQ9+l052rXrgKoWkDAFnvh0wTOmYn8R5f4k/jN/fZiCM1tQx9jQQ4ANhqG4hiL0qIFTGViG9DKB7GYzgubnpofgYRwO+DFjh0Zin2m4b/97EDkXkc+f6xYAPX0KK2I/7fUQuwzuwo/L3AkcjugPNixC8cHf0FyPjWlItmLxWw4Ou9YsQCr5fijMGoD/zpdRy95HRysyXA74MWOnscpO4j2y3HAVisw85hX5+AFBRSHt4ShfLFkIMXTqyKFc46xdzQM6XbAi702a7sy04J0+feReMFKp5q9esYLCqAZYw/k14E/xcLLsFElaornTuJB0svMuJINy8xkIYuL+xPAlWRceH6+HX7THJ0djLUom46zREu7tTkxwmf/FdOZ/sh6Q8qvEAiHpm4PJ4a/doJe0gH1t+aHRgCzOvBvJedEK5OFE5jpm4AGP2a8Dxe3gGJ/pAutug9Gp6he92CsSsWBaEcxGx0FHytmIpuqGkOpldqNYQK8cSoXvd+xLxXADw0kf6UkJNFtdo5MOgaLjiQOQHcn+A6h5NuL2s0qsC2LOM75PcF3yr5STuBSAcGG+meA14K/CI21HcS4LBT6tv0QAh8Dr5l93AhZzG5ZJ4VxAqdZUEl9z7WJ4aN+svMvwHHL21UKTd1mqvChH7/Za5xzXBBKrUcB0TQ+Ulgkfbi/H/YT5EptrGzsEK7tR1B7ln9BBwckYfMiuSqklSznIuoIIOM42MQO+QnduCoFCI0bpkzjCjddHPN/F+2Yu+sd9bKNpVwHhbS3LluK/0zgfwD0xYI5dXuzlQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-warning.callout-style-default .callout-caption {
+    background-color: #fcefdc
+  }
+
+  div.callout-tip {
+    border-left-color: #02b875 !important;
+  }
+
+  div.callout-tip .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAADr0lEQVRYCe1XTWgTQRj9ZjZV8a9SPIkKgj8I1bMHsUWrqYLVg4Ue6v9BwZOxSYsIerFao7UiUryIqJcqgtpimhbBXoSCVxUFe9CTiogUrUp2Pt+3aUI2u5vdNh4dmMzOzHvvezuz8xNFM0mjnbXaNu1MvFWRXkXEyE6aYOYJpdW4IXuA4r0fo8qqSMDBU0v1HJUgVieAXxzCsdE/YJTdFcVIZQNMyhruOMJKXYFoLfIfIvVIMWdsrd+Rpd86ZmyzzjJmLStqRn0v8lzkb4rVIXvnpScOJuAn2ACC65FkPzEdEy4TPWRLJ2h7z4cArXzzaOdKlbOvKKX25Wl00jSnrwVxAg3o4dRxhO13RBSdNvH0xSARv3adTXbBdTf64IWO2vH0LT+cv4GR1DJt+DUItaQogeBX/chhbTBxEiZ6gftlDNXTrvT7co4ub5A6gp9HIcHvzTa46OS5fBeP87Qm0fQkr4FsYgVQ7Qg+ZayaDg9jhg1GkWj8RG6lkeSacrrHgDaxdoBiZPg+NXV/KifMuB6//JmYH4CntVEHy/keA6x4h4CU5oFy8GzrBS18cLJMXcljAKB6INjWsRcuZBWVaS3GDrqB7rdapVIeA+isQ57Eev9eCqzqOa81CY05VLd6SamW2wA2H3SiTbnbSxmzfp7WtKZkqy4mdyAlGx7ennghYf8voqp9cLSgKdqNfa6RdRsAAkPwRuJZNbpByn+RrJi1RXTwdi8RQF6ymDwGMAtZ6TVE+4uoKh+MYkcLsT0Hk8eAienbiGdjJHZTpmNjlbFJNKDVAp2fJlYju6IreQxQ08UJDNYdoLSl6AadO+fFuCQqVMB1NJwPm69T04Wv5WhfcWyfXQB+wXRs1pt+nCknRa0LVzSA/2B+a9+zQJadb7IyyV24YAxKp2Jqs3emZTuNnKxsah+uabKbMk7CbTgJx/zIgQYErIeTKRQ9yD9wxVof5YolPHqaWo7TD6tJlh7jQnK5z2n3+fGdggIOx2kaa2YI9QWarc5Ce1ipNWMKeSG4DysFF52KBmTNMmn5HqCFkwy34rDg05gDwgH3bBi+sgFhN/e8QvRn8kbamCOhgrZ9GJhFDgfcMHzFb6BAtjKpFhzTjwv1KCVuxHvCbsSiEz4CANnj84cwHdFXAbAOJ4LTSAawGWFn5tDhLMYz6nWeU2wJfIhmIJBefcd/A5FWQWGgrWzyORZ3Q6HuV+Jf0Bj+BTX69fm1zWgK7By1YTXchFDORywnfQ7GpzOo6S+qECrsx2ifVQAAAABJRU5ErkJggg==');
+  }
+
+  div.callout-tip.callout-style-default .callout-caption {
+    background-color: #ccf1e3
+  }
+
+  div.callout-caution {
+    border-left-color: #fd7e14 !important;
+  }
+
+  div.callout-caution .callout-icon::before {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAIKADAAQAAAABAAAAIAAAAACshmLzAAACV0lEQVRYCdVWzWoUQRCuqp2ICBLJXgITZL1EfQDBW/bkzUMUD7klD+ATSHBEfAIfQO+iXsWDxJsHL96EHAwhgzlkg8nBg25XWb0zIb0zs9muYYWkoKeru+vn664fBqElyZNuyh167NXJ8Ut8McjbmEraKHkd7uAnAFku+VWdb3reSmRV8PKSLfZ0Gjn3a6Xlcq9YGb6tADjn+lUfTXtVmaZ1KwBIvFI11rRXlWlatwIAAv2asaa9mlB9wwygiDX26qaw1yYPzFXg2N1GgG0FMF8Oj+VIx7E/03lHx8UhvYyNZLN7BwSPgekXXLribw7w5/c8EF+DBK5idvDVYtEEwMeYefjjLAdEyQ3M9nfOkgnPTEkYU+sxMq0BxNR6jExrAI31H1rzvLEfRIdgcv1XEdj6QTQAS2wtstEALLG1yEZ3QhH6oDX7ExBSFEkFINXH98NTrme5IOaaA7kIfiu2L8A3qhH9zRbukdCqdsA98TdElyeMe5BI8Rs2xHRIsoTSSVFfCFCWGPn9XHb4cdobRIWABNf0add9jakDjQJpJ1bTXOJXnnRXHRf+dNL1ZV1MBRCXhMbaHqGI1JkKIL7+i8uffuP6wVQAzO7+qVEbF6NbS0LJureYcWXUUhH66nLR5rYmva+2tjRFtojkM2aD76HEGAD3tPtKM309FJg5j/K682ywcWJ3PASCcycH/22u+Bh7Aa0ehM2Fu4z0SAE81HF9RkB21c5bEn4Dzw+/qNOyXr3DCTQDMBOdhi4nAgiFDGCinIa2owCEChUwD8qzd03PG+qdW/4fDzjUMcE1ZpIAAAAASUVORK5CYII=');
+  }
+
+  div.callout-caution.callout-style-default .callout-caption {
+    background-color: #ffe5d0
+  }
+
+  </style>
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+<meta property="og:title" content="Text Mining with Tidy Data Principles - Text Mining">
+<meta property="og:description" content="USING TIDY DATA PRINCIPLES">
+<meta property="og:site-name" content="Text Mining with Tidy Data Principles">
+<meta name="twitter:title" content="Text Mining with Tidy Data Principles - Text Mining">
+<meta name="twitter:description" content="USING TIDY DATA PRINCIPLES">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="quarto-dark">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-image="figs/p_and_p_cover.png" data-background-opacity="0.7" class="quarto-title-block center">
+  <h1 class="title">Text Mining</h1>
+  <p class="subtitle">USING TIDY DATA PRINCIPLES</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Julia Silge 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="hello" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.7">
+<h1>Hello!</h1>
+<center>
+<p><img src="figs/blue_jane.png" width="150px"></p>
+<p><a href="https://fosstodon.org/@juliasilge"><i class="fa-brands fa-mastodon" aria-label="mastodon"></i> @juliasilge</a></p>
+<p><a href="https://github.com/juliasilge"><i class="fa-brands fa-github" aria-label="github"></i> @juliasilge</a></p>
+<p><a href="https://www.youtube.com/juliasilge"><i class="fa-brands fa-youtube" aria-label="youtube"></i> youtube.com/juliasilge</a></p>
+<p><a href="https://juliasilge.com/"><i class="fa-solid fa-link" aria-label="link"></i> juliasilge.com</a></p>
+<p><a href="https://tidytextmining.com"><i class="fa-solid fa-book" aria-label="book"></i> tidytextmining.com</a></p>
+</center>
+</section>
+<section id="lets-install-some-packages" class="slide level2" data-background-color="white">
+<h2>Let’s install some packages</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-2_39e13d149c22a756314862405bf619ed">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, </span>
+<span id="cb1-2"><a href="#cb1-2"></a>                   <span class="st">"tidytext"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                   <span class="st">"stopwords"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>                   <span class="st">"gutenbergr"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>                   <span class="st">"stm"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="workflow-for-text-miningmodeling" class="slide level2" data-background-image="figs/tmwr_0601.png" data-background-size="60%" data-background-color="white">
+<h2>Workflow for text mining/modeling</h2>
+<div class="footer">
+
+</div>
+</section></section>
+<section>
+<section id="topic-modeling" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>Topic modeling</h1>
+<div class="fragment">
+<p>📖 Each DOCUMENT = mixture of topics</p>
+</div>
+<div class="fragment">
+<p>📑 Each TOPIC = mixture of tokens</p>
+</div>
+</section>
+<section id="section" class="slide level2" data-background-image="figs/top_tags-1.png" data-background-size="60%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section></section>
+<section>
+<section id="great-library-heist" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>GREAT LIBRARY HEIST 🕵</h1>
+
+</section>
+<section id="download-your-text-data" class="slide level2" data-background-color="white">
+<h2>Download your text data</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-3_75c06afcf0b851028e09f9e9d962812e">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(gutenbergr)</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a>books <span class="ot">&lt;-</span> <span class="fu">gutenberg_download</span>(<span class="fu">c</span>(<span class="dv">36</span>, <span class="dv">158</span>, <span class="dv">164</span>, <span class="dv">345</span>),</span>
+<span id="cb2-5"><a href="#cb2-5"></a>                            <span class="at">meta_fields =</span> <span class="st">"title"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6"></a>                            <span class="at">mirror =</span> my_mirror)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>books <span class="sc">%&gt;%</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>    <span class="fu">count</span>(title)</span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; # A tibble: 4 × 2</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt;   title                                     n</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt;   &lt;chr&gt;                                 &lt;int&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt; 1 Dracula                               15480</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt; 2 Emma                                  16488</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt; 3 The War of the Worlds                  6372</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt; 4 Twenty Thousand Leagues under the Sea 12426</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="someone-has-torn-up-your-books" class="slide level2" data-background-color="white">
+<h2>Someone has torn up your books! 😭</h2>
+<p>What do you predict will happen if we run the following code? 🤔</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-4_ff857f56a8ed3ef78ad808a007ce1454">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>books_by_document <span class="ot">&lt;-</span> books <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="fu">group_by</span>(title) <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">mutate</span>(<span class="at">document =</span> <span class="fu">row_number</span>() <span class="sc">%/%</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="fu">unite</span>(document, title, document)</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="fu">glimpse</span>(books_by_document)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="someone-has-torn-up-your-books-1" class="slide level2" data-background-color="white">
+<h2>Someone has torn up your books! 😭</h2>
+<p>What do you predict will happen if we run the following code? 🤔</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-5_7a3fc11a34d21a45de857bdddd65fdd0">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>books_by_document <span class="ot">&lt;-</span> books <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="fu">group_by</span>(title) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    <span class="fu">mutate</span>(<span class="at">document =</span> <span class="fu">row_number</span>() <span class="sc">%/%</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="fu">unite</span>(document, title, document)</span>
+<span id="cb4-6"><a href="#cb4-6"></a></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="fu">glimpse</span>(books_by_document)</span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="co">#&gt; Rows: 50,766</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="co">#&gt; Columns: 3</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="co">#&gt; $ gutenberg_id &lt;int&gt; 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 3…</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="co">#&gt; $ text         &lt;chr&gt; "cover ", "", "", "", "", "The War of the Worlds", "", "b…</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="co">#&gt; $ document     &lt;chr&gt; "The War of the Worlds_0", "The War of the Worlds_0", "Th…</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="can-we-put-them-back-together" class="slide level2" data-background-color="white">
+<h2>Can we put them back together?</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-6_31bdc13b849daec32fa2910bf0f9345b">
+<div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>word_counts <span class="ot">&lt;-</span> books_by_document <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">unnest_tokens</span>(word, text) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-4"><a href="#cb5-4"></a>    <span class="fu">anti_join</span>(<span class="fu">get_stopwords</span>(<span class="at">source =</span> <span class="st">"smart"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>    <span class="fu">count</span>(document, word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="fu">glimpse</span>(word_counts)</span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt; Rows: 100,572</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; Columns: 3</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#&gt; $ document &lt;chr&gt; "Emma_0", "Emma_7", "Emma_2", "Emma_8", "Emma_11", "Emma_6", …</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt; $ word     &lt;chr&gt; "chapter", "mr", "mr", "mr", "mr", "mr", "mr", "chapter", "mr…</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt; $ n        &lt;int&gt; 57, 56, 54, 52, 51, 50, 49, 49, 48, 44, 44, 43, 43, 42, 42, 4…</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="jane-wants-to-know" class="slide level2" data-transition="slide-in">
+<h2>Jane wants to know…</h2>
+<p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p>The dataset <code>word_counts</code> contains</p>
+<ul>
+<li>the counts of words per book</li>
+<li>the counts of words per “chunk” (500 lines)</li>
+<li>the counts of words per line</li>
+</ul>
+</section>
+<section id="can-we-put-them-back-together-1" class="slide level2" data-background-color="white">
+<h2>Can we put them back together?</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-7_033673ab347c4ffed3263f3ad03e123b">
+<div class="sourceCode cell-code" id="cb6" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>words_sparse <span class="ot">&lt;-</span> word_counts <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>    <span class="fu">cast_sparse</span>(document, word, n)</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="fu">class</span>(words_sparse)</span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; [1] "dgCMatrix"</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; attr(,"package")</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; [1] "Matrix"</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="fu">dim</span>(words_sparse)</span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; [1]   102 18370</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="jane-wants-to-know-1" class="slide level2" data-transition="slide-in">
+<h2>Jane wants to know…</h2>
+<p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p>Is <code>words_sparse</code> a tidy dataset?</p>
+<ul>
+<li>Yes ✔️</li>
+<li>No 🚫</li>
+</ul>
+</section>
+<section id="train-a-topic-model" class="slide level2" data-background-color="white">
+<h2>Train a topic model</h2>
+<p>Use a sparse matrix or a <code>quanteda::dfm</code> object as input</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-8_28a52d5b11b4dfbac7b4614acdb760ec">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">library</span>(stm)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(words_sparse, <span class="at">K =</span> <span class="dv">4</span>, </span>
+<span id="cb7-3"><a href="#cb7-3"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb7-4"><a href="#cb7-4"></a>                   <span class="at">init.type =</span> <span class="st">"Spectral"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="train-a-topic-model-1" class="slide level2" data-background-color="white">
+<h2>Train a topic model</h2>
+<p>Use a sparse matrix or a <code>quanteda::dfm</code> object as input</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-9_27ca7a81eb9f6e4f5fc317684925a456">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">summary</span>(topic_model)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt; A topic model with 4 topics, 102 documents and a 18370 word dictionary.</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; Topic 1 Top Words:</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt;       Highest Prob: mr, emma, harriet, good, miss, thing, man </span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt;       FREX: charade, taylor, papa, isabella, martin, children, marry </span></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt;       Lift: charade, monarch, hannah, hating, humours, militia, widower </span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt;       Score: emma, harriet, knightley, elton, weston, hartfield, martin </span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; Topic 2 Top Words:</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt;       Highest Prob: captain, _nautilus_, sea, nemo, ned, conseil, land </span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt;       FREX: _nautilus_, nemo, ned, conseil, ocean, canadian, submarine </span></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt;       Lift: natives, astrolabe, canoes, galleons, gallons, morses, dillon </span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt;       Score: _nautilus_, nemo, ned, conseil, captain, canadian, ocean </span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt; Topic 3 Top Words:</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt;       Highest Prob: mr, mrs, emma, miss, weston, thing, jane </span></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt;       FREX: campbell, dixon, grove, maple, fairfax’s, engagement, jane </span></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt;       Lift: ford, larkins, patty, ford’s, sucklings, coxes, hodges </span></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co">#&gt;       Score: emma, weston, jane, knightley, harriet, elton, mrs </span></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; Topic 4 Top Words:</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt;       Highest Prob: time, night, man, back, van, helsing, day </span></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt;       FREX: helsing, lucy, mina, jonathan, martians, harker, diary </span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt;       Lift: scullery, boxes, skinsky, wolves, ogilvy, renfield, galatz </span></span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt;       Score: helsing, martians, lucy, mina, van, jonathan, diary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explore-the-topic-model-output" class="slide level2" data-background-color="white">
+<h2>Explore the topic model output</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-10_ef80b63fb3cee2c75d833fa8e7250b61">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>chapter_topics <span class="ot">&lt;-</span> <span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"beta"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>chapter_topics</span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt; # A tibble: 73,480 × 3</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="co">#&gt;    topic term        beta</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt;  1     1 chapter 5.88e- 3</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt;  2     2 chapter 2.11e- 3</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt;  3     3 chapter 8.87e- 4</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt;  4     4 chapter 6.80e- 4</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt;  5     1 mr      2.82e- 2</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="co">#&gt;  6     2 mr      2.23e- 4</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="co">#&gt;  7     3 mr      1.96e- 2</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a><span class="co">#&gt;  8     4 mr      9.58e- 4</span></span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="co">#&gt;  9     1 mrs     5.17e- 3</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="co">#&gt; 10     2 mrs     3.90e-42</span></span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co">#&gt; # … with 73,470 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explore-the-topic-model-output-1" class="slide level2">
+<h2>Explore the topic model output</h2>
+<p><span class="lavender">U N S C R A M B L E</span></p>
+<p>top_terms &lt;- chapter_topics %&gt;%</p>
+<p>ungroup() %&gt;%</p>
+<p>group_by(topic) %&gt;%</p>
+<p>arrange(topic, -beta)</p>
+<p>slice_max(beta, n = 10) %&gt;%</p>
+</section>
+<section id="explore-the-topic-model-output-2" class="slide level2" data-background-color="white">
+<h2>Explore the topic model output</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-11_de153087912602862a5869305cc9b356">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>top_terms <span class="ot">&lt;-</span> chapter_topics <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>    <span class="fu">group_by</span>(topic) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>    <span class="fu">slice_max</span>(beta, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>    <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>    <span class="fu">arrange</span>(topic, <span class="sc">-</span>beta)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explore-the-topic-model-output-3" class="slide level2" data-background-color="white">
+<h2>Explore the topic model output</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-12_1d638584bcde425fc399a020c6f132f6">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>top_terms</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co">#&gt; # A tibble: 40 × 3</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="co">#&gt;    topic term         beta</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;       &lt;dbl&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="co">#&gt;  1     1 mr        0.0282 </span></span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="co">#&gt;  2     1 emma      0.0125 </span></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="co">#&gt;  3     1 harriet   0.0115 </span></span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="co">#&gt;  4     1 good      0.0105 </span></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="co">#&gt;  5     1 miss      0.00914</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a><span class="co">#&gt;  6     1 thing     0.00787</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="co">#&gt;  7     1 man       0.00764</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a><span class="co">#&gt;  8     1 knightley 0.00696</span></span>
+<span id="cb11-13"><a href="#cb11-13"></a><span class="co">#&gt;  9     1 elton     0.00680</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a><span class="co">#&gt; 10     1 dear      0.00633</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a><span class="co">#&gt; # … with 30 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explore-the-topic-model-output-4" class="slide level2" data-background-color="white">
+<h2>Explore the topic model output</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-13_815bd06654b5447cca0930246f7c7ae7">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>top_terms <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>    <span class="fu">mutate</span>(<span class="at">term =</span> <span class="fu">fct_reorder</span>(term, beta)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(beta, term, <span class="at">fill =</span> <span class="fu">factor</span>(topic))) <span class="sc">+</span> </span>
+<span id="cb12-4"><a href="#cb12-4"></a>    <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(topic), <span class="at">scales =</span> <span class="st">"free"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section-1" class="slide level2" data-background-color="white">
+<h2></h2>
+
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-14-1.svg" class="r-stretch quarto-figure-center"><div class="footer">
+
+</div>
+</section>
+<section id="how-are-documents-classified" class="slide level2" data-background-color="white">
+<h2>How are documents classified?</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-15_3ae12fa0505ed0674be56bb38464007f">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>chapters_gamma <span class="ot">&lt;-</span> <span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"gamma"</span>,</span>
+<span id="cb13-2"><a href="#cb13-2"></a>                       <span class="at">document_names =</span> <span class="fu">rownames</span>(words_sparse))</span>
+<span id="cb13-3"><a href="#cb13-3"></a>chapters_gamma</span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="co">#&gt; # A tibble: 408 × 3</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="co">#&gt;    document                                topic    gamma</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;    &lt;chr&gt;                                   &lt;int&gt;    &lt;dbl&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt;  1 Emma_0                                      1 0.999   </span></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co">#&gt;  2 Emma_7                                      1 0.239   </span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co">#&gt;  3 Emma_2                                      1 0.999   </span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;  4 Emma_8                                      1 0.233   </span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt;  5 Emma_11                                     1 0.00103 </span></span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="co">#&gt;  6 Emma_6                                      1 0.999   </span></span>
+<span id="cb13-13"><a href="#cb13-13"></a><span class="co">#&gt;  7 Emma_21                                     1 0.000715</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt;  8 Twenty Thousand Leagues under the Sea_0     1 0.000146</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt;  9 Emma_20                                     1 0.000937</span></span>
+<span id="cb13-16"><a href="#cb13-16"></a><span class="co">#&gt; 10 Emma_19                                     1 0.000977</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a><span class="co">#&gt; # … with 398 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="how-are-documents-classified-1" class="slide level2" data-background-color="white">
+<h2>How are documents classified?</h2>
+<p>What do you predict will happen if we run the following code? 🤔</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-16_4212772130aa26e6baa9d994227ee342">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
+<span id="cb14-3"><a href="#cb14-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-4"><a href="#cb14-4"></a></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="fu">glimpse</span>(chapters_parsed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="how-are-documents-classified-2" class="slide level2" data-background-color="white">
+<h2>How are documents classified?</h2>
+<p>What do you predict will happen if we run the following code? 🤔</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-17_90b2ecdecd27eb5c5b4838ba137a069d">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
+<span id="cb15-3"><a href="#cb15-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-4"><a href="#cb15-4"></a></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="fu">glimpse</span>(chapters_parsed)</span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt; Rows: 408</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt; Columns: 4</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt; $ title   &lt;chr&gt; "Emma", "Emma", "Emma", "Emma", "Emma", "Emma", "Emma", "Twent…</span></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt; $ chapter &lt;int&gt; 0, 7, 2, 8, 11, 6, 21, 0, 20, 19, 4, 9, 15, 21, 23, 27, 19, 14…</span></span>
+<span id="cb15-10"><a href="#cb15-10"></a><span class="co">#&gt; $ topic   &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a><span class="co">#&gt; $ gamma   &lt;dbl&gt; 9.986350e-01, 2.387502e-01, 9.988524e-01, 2.325374e-01, 1.0326…</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="how-are-documents-classified-3" class="slide level2">
+<h2>How are documents classified?</h2>
+<p><span class="lavender">U N S C R A M B L E</span></p>
+<p>chapters_parsed %&gt;%</p>
+<p>ggplot(aes(factor(topic), gamma)) +</p>
+<p>facet_wrap(vars(title))</p>
+<p>mutate(title = fct_reorder(title, gamma * topic)) %&gt;%</p>
+<p>geom_boxplot() +</p>
+</section>
+<section id="how-are-documents-classified-4" class="slide level2" data-background-color="white">
+<h2>How are documents classified?</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-18_660a1eb24d298f53a3550c96d00c95b1">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>chapters_parsed <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="fu">mutate</span>(<span class="at">title =</span> <span class="fu">fct_reorder</span>(title, gamma <span class="sc">*</span> topic)) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">factor</span>(topic), gamma)) <span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(title))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section-2" class="slide level2" data-background-color="white">
+<h2></h2>
+
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-19-1.svg" class="r-stretch quarto-figure-center"><div class="footer">
+
+</div>
+</section></section>
+<section>
+<section id="going-farther" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>GOING FARTHER 🚀</h1>
+
+</section>
+<section id="tidying-model-output" class="slide level2">
+<h2>Tidying model output</h2>
+<p>Which words in each document are assigned to which topics?</p>
+<ul>
+<li><code>augment()</code></li>
+<li>Add information to each observation in the original data</li>
+</ul>
+</section></section>
+<section id="section-3" class="title-slide slide level1 center">
+<h1></h1>
+<center>
+<iframe src="https://www.youtube.com/embed/2i0Cu8MMGRc" width="960" height="540" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</center>
+</section>
+
+<section>
+<section id="section-4" class="title-slide slide level1 center">
+<h1></h1>
+<center>
+<iframe src="https://www.youtube.com/embed/2wcDYVb-2AY" width="960" height="540" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</center>
+</section>
+<section id="using-stm" class="slide level2" data-background-color="white">
+<h2>Using stm</h2>
+<ul>
+<li>Document-level covariates</li>
+</ul>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-20_e1df0f4c8eb0e2191c76a09b745a3cfa">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(words_sparse, </span>
+<span id="cb17-2"><a href="#cb17-2"></a>                   <span class="at">K =</span> <span class="dv">0</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>,</span>
+<span id="cb17-3"><a href="#cb17-3"></a>                   <span class="at">prevalence =</span> <span class="sc">~</span><span class="fu">s</span>(Year),</span>
+<span id="cb17-4"><a href="#cb17-4"></a>                   <span class="at">data =</span> covariates,</span>
+<span id="cb17-5"><a href="#cb17-5"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><p>Use functions for <code>semanticCoherence()</code>, <code>checkResiduals()</code>, <code>exclusivity()</code>, and more!</p></li>
+<li><p>Check out <a href="http://www.structuraltopicmodel.com/" class="uri">http://www.structuraltopicmodel.com/</a></p></li>
+</ul>
+</section></section>
+<section id="stemming" class="title-slide slide level1 center">
+<h1>Stemming?</h1>
+<p>“Comparing Apples to Apple: The Effects of Stemmers on Topic Models”:</p>
+<blockquote>
+<p>Despite their frequent use in topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability.</p>
+</blockquote>
+<div class="footer">
+<p><a href="https://mimno.infosci.cornell.edu/papers/schofield_tacl_2016.pdf">Schofield &amp; Mimno (2016)</a></p>
+</div>
+</section>
+
+<section>
+<section id="how-do-we-choose-k" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>HOW DO WE CHOOSE <span class="math inline">\(K\)</span>? 😕</h1>
+
+</section>
+<section id="section-5" class="slide level2" data-background-image="figs/model_diagnostic-1.png" data-background-size="70%" data-background-color="white">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section>
+<section id="train-many-topic-models" class="slide level2" data-background-color="white">
+<h2>Train many topic models</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-21_92aea8b9d80d473d74b2ea20d6a79833">
+<div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">library</span>(furrr)</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="fu">plan</span>(multicore)</span>
+<span id="cb18-3"><a href="#cb18-3"></a></span>
+<span id="cb18-4"><a href="#cb18-4"></a>many_models <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">K =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="fu">mutate</span>(<span class="at">topic_model =</span> <span class="fu">future_map</span>(</span>
+<span id="cb18-6"><a href="#cb18-6"></a>        K, <span class="sc">~</span><span class="fu">stm</span>(words_sparse, <span class="at">K =</span> ., <span class="at">verbose =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb18-7"><a href="#cb18-7"></a>    )</span>
+<span id="cb18-8"><a href="#cb18-8"></a></span>
+<span id="cb18-9"><a href="#cb18-9"></a>many_models</span>
+<span id="cb18-10"><a href="#cb18-10"></a><span class="co">#&gt; # A tibble: 5 × 2</span></span>
+<span id="cb18-11"><a href="#cb18-11"></a><span class="co">#&gt;       K topic_model</span></span>
+<span id="cb18-12"><a href="#cb18-12"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;list&gt;     </span></span>
+<span id="cb18-13"><a href="#cb18-13"></a><span class="co">#&gt; 1     3 &lt;STM&gt;      </span></span>
+<span id="cb18-14"><a href="#cb18-14"></a><span class="co">#&gt; 2     4 &lt;STM&gt;      </span></span>
+<span id="cb18-15"><a href="#cb18-15"></a><span class="co">#&gt; 3     6 &lt;STM&gt;      </span></span>
+<span id="cb18-16"><a href="#cb18-16"></a><span class="co">#&gt; 4     8 &lt;STM&gt;      </span></span>
+<span id="cb18-17"><a href="#cb18-17"></a><span class="co">#&gt; 5    10 &lt;STM&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="train-many-topic-models-1" class="slide level2" data-background-color="white">
+<h2>Train many topic models</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-22_6ad0d3a428f9cdc62ae7b0c8eb85c08e">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>heldout <span class="ot">&lt;-</span> <span class="fu">make.heldout</span>(words_sparse)</span>
+<span id="cb19-2"><a href="#cb19-2"></a></span>
+<span id="cb19-3"><a href="#cb19-3"></a>k_result <span class="ot">&lt;-</span> many_models <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>    <span class="fu">mutate</span>(<span class="at">exclusivity        =</span> <span class="fu">map</span>(topic_model, exclusivity),</span>
+<span id="cb19-5"><a href="#cb19-5"></a>           <span class="at">semantic_coherence =</span> <span class="fu">map</span>(topic_model, semanticCoherence, words_sparse),</span>
+<span id="cb19-6"><a href="#cb19-6"></a>           <span class="at">eval_heldout       =</span> <span class="fu">map</span>(topic_model, eval.heldout, heldout<span class="sc">$</span>missing),</span>
+<span id="cb19-7"><a href="#cb19-7"></a>           <span class="at">residual           =</span> <span class="fu">map</span>(topic_model, checkResiduals, words_sparse),</span>
+<span id="cb19-8"><a href="#cb19-8"></a>           <span class="at">bound              =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">max</span>(x<span class="sc">$</span>convergence<span class="sc">$</span>bound)),</span>
+<span id="cb19-9"><a href="#cb19-9"></a>           <span class="at">lfact              =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">lfactorial</span>(x<span class="sc">$</span>settings<span class="sc">$</span>dim<span class="sc">$</span>K)),</span>
+<span id="cb19-10"><a href="#cb19-10"></a>           <span class="at">lbound             =</span> bound <span class="sc">+</span> lfact,</span>
+<span id="cb19-11"><a href="#cb19-11"></a>           <span class="at">iterations         =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">length</span>(x<span class="sc">$</span>convergence<span class="sc">$</span>bound)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="train-many-topic-models-2" class="slide level2" data-background-color="white">
+<h2>Train many topic models</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-23_b34f2136de3d4932ccd936bc75242164">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>k_result</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
+<span id="cb20-3"><a href="#cb20-3"></a><span class="co">#&gt;       K topic_…¹ exclu…² seman…³ eval_heldout residual       bound lfact  lbound</span></span>
+<span id="cb20-4"><a href="#cb20-4"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;list&gt;   &lt;list&gt;  &lt;list&gt;  &lt;list&gt;       &lt;list&gt;         &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5"></a><span class="co">#&gt; 1     3 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.40e6  1.79 -1.40e6</span></span>
+<span id="cb20-6"><a href="#cb20-6"></a><span class="co">#&gt; 2     4 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.39e6  3.18 -1.39e6</span></span>
+<span id="cb20-7"><a href="#cb20-7"></a><span class="co">#&gt; 3     6 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.37e6  6.58 -1.37e6</span></span>
+<span id="cb20-8"><a href="#cb20-8"></a><span class="co">#&gt; 4     8 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.35e6 10.6  -1.35e6</span></span>
+<span id="cb20-9"><a href="#cb20-9"></a><span class="co">#&gt; 5    10 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.34e6 15.1  -1.34e6</span></span>
+<span id="cb20-10"><a href="#cb20-10"></a><span class="co">#&gt; # … with 1 more variable: iterations &lt;dbl&gt;, and abbreviated variable names</span></span>
+<span id="cb20-11"><a href="#cb20-11"></a><span class="co">#&gt; #   ¹​topic_model, ²​exclusivity, ³​semantic_coherence</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="train-many-topic-models-3" class="slide level2" data-background-color="white">
+<h2>Train many topic models</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-24_d66ecbd3e3b52be910a3ee4a8fea0fe8">
+<div class="sourceCode cell-code" id="cb21" data-code-line-numbers="|4|5|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>k_result <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>    <span class="fu">transmute</span>(K,</span>
+<span id="cb21-3"><a href="#cb21-3"></a>              <span class="st">`</span><span class="at">Lower bound</span><span class="st">`</span>         <span class="ot">=</span> lbound,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>              <span class="at">Residuals             =</span> <span class="fu">map_dbl</span>(residual, <span class="st">"dispersion"</span>), </span>
+<span id="cb21-5"><a href="#cb21-5"></a>              <span class="st">`</span><span class="at">Semantic coherence</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">map_dbl</span>(semantic_coherence, mean), </span>
+<span id="cb21-6"><a href="#cb21-6"></a>              <span class="st">`</span><span class="at">Held-out likelihood</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">map_dbl</span>(eval_heldout, <span class="st">"expected.heldout"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-7"><a href="#cb21-7"></a>    <span class="fu">gather</span>(Metric, Value, <span class="sc">-</span>K) <span class="sc">%&gt;%</span></span>
+<span id="cb21-8"><a href="#cb21-8"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(K, Value, <span class="at">color =</span> Metric)) <span class="sc">+</span></span>
+<span id="cb21-9"><a href="#cb21-9"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb21-10"><a href="#cb21-10"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>Metric, <span class="at">scales =</span> <span class="st">"free_y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section-6" class="slide level2" data-background-color="white">
+<h2></h2>
+
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-25-1.svg" class="r-stretch quarto-figure-center"><div class="footer">
+
+</div>
+</section>
+<section id="what-is-semantic-coherence" class="slide level2">
+<h2>What is semantic coherence?</h2>
+<div>
+<ul>
+<li class="fragment"><p>Semantic coherence is maximized when the most probable words in a given topic frequently co-occur together</p></li>
+<li class="fragment"><p>Correlates well with human judgment of topic quality 😃</p></li>
+<li class="fragment"><p>Having high semantic coherence is relatively easy, though, if you only have a few topics dominated by very common words 😩</p></li>
+<li class="fragment"><p>Measure semantic coherence <strong>and</strong> exclusivity</p></li>
+</ul>
+</div>
+</section>
+<section id="train-many-topic-models-4" class="slide level2" data-background-color="white">
+<h2>Train many topic models</h2>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-26_27049b98b429812350b999456ac8ed10">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>k_result <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>    <span class="fu">select</span>(K, exclusivity, semantic_coherence) <span class="sc">%&gt;%</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a>    <span class="fu">filter</span>(K <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a>    <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(exclusivity, semantic_coherence)) <span class="sc">%&gt;%</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(semantic_coherence, exclusivity, </span>
+<span id="cb22-6"><a href="#cb22-6"></a>               <span class="at">color =</span> <span class="fu">factor</span>(K))) <span class="sc">+</span></span>
+<span id="cb22-7"><a href="#cb22-7"></a>    <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section-7" class="slide level2" data-background-color="white">
+<h2></h2>
+
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-27-1.svg" class="r-stretch quarto-figure-center"></section>
+<section id="jane-wants-to-know-2" class="slide level2" data-transition="slide-in">
+<h2>Jane wants to know…</h2>
+<p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p>Topic modeling is an example of…</p>
+<ul>
+<li><span class="lavender">supervised machine learning</span></li>
+<li><span class="lavender">unsupervised machine learning</span></li>
+</ul>
+<div class="footer">
+<p><a href="https://juliasilge.com/blog/evaluating-stm/" class="uri">https://juliasilge.com/blog/evaluating-stm/</a></p>
+</div>
+</section>
+<section id="workflow-for-text-miningmodeling-1" class="slide level2" data-background-image="figs/tmwr_0601.png" data-background-size="60%" data-background-color="white">
+<h2>Workflow for text mining/modeling</h2>
+<div class="footer">
+
+</div>
+</section>
+<section id="go-explore-real-world-text" class="slide level2" data-background-image="figs/lizzieskipping.gif" data-background-size="70%">
+<h2>Go explore real-world text!</h2>
+</section></section>
+<section id="thanks" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>Thanks!</h1>
+<center>
+<p><img src="figs/blue_jane.png" width="150px"></p>
+<p><a href="https://fosstodon.org/@juliasilge"><i class="fa-brands fa-mastodon" aria-label="mastodon"></i> @juliasilge</a></p>
+<p><a href="https://github.com/juliasilge"><i class="fa-brands fa-github" aria-label="github"></i> @juliasilge</a></p>
+<p><a href="https://www.youtube.com/juliasilge"><i class="fa-brands fa-youtube" aria-label="youtube"></i> youtube.com/juliasilge</a></p>
+<p><a href="https://juliasilge.com/"><i class="fa-solid fa-link" aria-label="link"></i> juliasilge.com</a></p>
+<p><a href="https://tidytextmining.com"><i class="fa-solid fa-book" aria-label="book"></i> tidytextmining.com</a></p>
+</center>
+<div class="footer">
+<p>Slides created with <a href="https://quarto.org/">Quarto</a></p>
+</div>
+
+<div class="footer footer-default">
+<p><a href="https://bit.ly/tidytext-tutorial" class="uri">https://bit.ly/tidytext-tutorial</a></p>
+</div>
+</section>
+    </div>
+  </div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'smaller': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 720,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const clipboard = new window.ClipboardJS('.code-copy-button', {
+        target: function(trigger) {
+          return trigger.previousElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      });
+      function tippyHover(el, contentFn) {
+        const config = {
+          allowHTML: true,
+          content: contentFn,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'quarto-reveal',
+          placement: 'bottom-start'
+        };
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          return note.innerHTML;
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>
