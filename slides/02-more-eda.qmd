@@ -27,7 +27,7 @@ editor:
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
 library(tidyverse)
 library(silgelib)
-theme_set(theme_roboto())
+theme_set(theme_plex())
 my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 
@@ -154,17 +154,17 @@ book_tf_idf %>%
 
 [U N S C R A M B L E]{.lavender}
 
-    group_by(title) %>%
+group_by(title) %>%
 
-    book_tf_idf %>%
+book_tf_idf %>%
 
-    slice_max(tf_idf, n = 10) %>%
+slice_max(tf_idf, n = 10) %>%
 
-    ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
+ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
 
-    facet_wrap(~title, scales = "free")
+facet_wrap(~title, scales = "free")
 
-    geom_col(show.legend = FALSE) +
+geom_col(show.legend = FALSE) +
 
 ## Calculating tf-idf {background-color="white"}
 

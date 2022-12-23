@@ -23,7 +23,7 @@ knitr:
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
 library(tidyverse)
 library(silgelib)
-theme_set(theme_roboto())
+theme_set(theme_plex())
 ```
 
 # Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.7"}

@@ -24,7 +24,7 @@ knitr:
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
 library(tidyverse)
 library(silgelib)
-theme_set(theme_roboto())
+theme_set(theme_plex())
 my_mirror <- "http://mirrors.xmission.com/gutenberg/"
 ```
 
@@ -94,7 +94,7 @@ text_df
 library(tidytext)
 
 text_df %>%
-  unnest_tokens(word, text)
+    unnest_tokens(word, text)
 ```
 
 ## Jane wants to know... {transition="slide-in"}
@@ -129,8 +129,8 @@ What book do *you* want to analyze today? 📖🥳📖
 ```{r}
 #| code-line-numbers: "|3"
 tidy_book <- full_text %>%
-  mutate(line = row_number()) %>%
-  unnest_tokens(word, text)         
+    mutate(line = row_number()) %>%
+    unnest_tokens(word, text)         
 
 glimpse(tidy_book)
 ```
@@ -142,7 +142,7 @@ What do you predict will happen if we run the following code? 🤔
 ```{r}
 #| eval: false
 tidy_book %>%
-  count(word, sort = TRUE)
+    count(word, sort = TRUE)
 ```
 
 ## What are the most common words? {background-color="white"}
@@ -151,7 +151,7 @@ What do you predict will happen if we run the following code? 🤔
 
 ```{r}
 tidy_book %>%
-  count(word, sort = TRUE)
+    count(word, sort = TRUE)
 ```
 
 ## Stop words {background-image="figs/stop.gif" background-size="50%"}
@@ -184,17 +184,17 @@ get_stopwords(source = "smart")
 
 [U N S C R A M B L E]{.lavender}
 
-    anti_join(get_stopwords(source = "smart")) %>%
+anti_join(get_stopwords(source = "smart")) %>%
 
-    tidy_book %>%
+tidy_book %>%
 
-    count(word, sort = TRUE) %>%
+count(word, sort = TRUE) %>%
 
-    geom_col() +
+geom_col() +
 
-    slice_max(n, n = 20) %>%
+slice_max(n, n = 20) %>%
 
-    ggplot(aes(n, fct_reorder(word, n))) + 
+ggplot(aes(n, fct_reorder(word, n))) + 
 
 ## What are the most common words? {background-color="white"}
 
@@ -202,11 +202,11 @@ get_stopwords(source = "smart")
 #| eval: false
 #| code-line-numbers: "|5"
 tidy_book %>%
-  anti_join(get_stopwords(source = "smart")) %>%
-  count(word, sort = TRUE) %>%
-  slice_max(n, n = 20) %>%
-  ggplot(aes(n, fct_reorder(word, n))) +  
-  geom_col()
+    anti_join(get_stopwords(source = "smart")) %>%
+    count(word, sort = TRUE) %>%
+    slice_max(n, n = 20) %>%
+    ggplot(aes(n, fct_reorder(word, n))) +  
+    geom_col()
 ```
 
 ## {background-color="white"}
@@ -216,13 +216,13 @@ tidy_book %>%
 #| fig-width: 7
 #| fig-align: center
 tidy_book %>%
-  anti_join(get_stopwords(source = "smart")) %>%
-  count(word, sort = TRUE) %>%
-  slice_max(n, n = 20) %>%
-  ggplot(aes(n, fct_reorder(word, n))) +
-  geom_col(fill = "midnightblue", alpha = 0.9) +
-  scale_x_continuous(expand = c(0,0)) +
-  labs(y = NULL, x = "Number of occurrences")
+    anti_join(get_stopwords(source = "smart")) %>%
+    count(word, sort = TRUE) %>%
+    slice_max(n, n = 20) %>%
+    ggplot(aes(n, fct_reorder(word, n))) +
+    geom_col(fill = "midnightblue", alpha = 0.9) +
+    scale_x_continuous(expand = c(0,0)) +
+    labs(y = NULL, x = "Number of occurrences")
 ```
 
 ##  {background-image="figs/tilecounts-1.png" background-size="60%" background-color="white"}
@@ -266,8 +266,8 @@ get_sentiments("loughran")
 ```{r}
 #| code-line-numbers: "|2"
 tidy_book %>%
-  inner_join(get_sentiments("bing")) %>% 
-  count(sentiment, sort = TRUE)
+    inner_join(get_sentiments("bing")) %>% 
+    count(sentiment, sort = TRUE)
 ```
 
 ## Jane wants to know... {transition="slide-in"}
@@ -289,8 +289,8 @@ What do you predict will happen if we run the following code? 🤔
 #| eval: false
 #| code-line-numbers: "|3"
 tidy_book %>%
-  inner_join(get_sentiments("bing")) %>%            
-  count(sentiment, word, sort = TRUE) 
+    inner_join(get_sentiments("bing")) %>%            
+    count(sentiment, word, sort = TRUE) 
 ```
 
 ## Implementing sentiment analysis {background-color="white"}
@@ -300,8 +300,8 @@ What do you predict will happen if we run the following code? 🤔
 ```{r}
 #| code-line-numbers: "3"
 tidy_book %>%
-  inner_join(get_sentiments("bing")) %>%            
-  count(sentiment, word, sort = TRUE)   
+    inner_join(get_sentiments("bing")) %>%            
+    count(sentiment, word, sort = TRUE)   
 ```
 
 ## Implementing sentiment analysis {background-color="white"}
@@ -310,14 +310,14 @@ tidy_book %>%
 #| eval: false
 #| code-line-numbers: "|7"
 tidy_book %>%
-  inner_join(get_sentiments("bing")) %>%
-  count(sentiment, word, sort = TRUE) %>%
-  group_by(sentiment) %>%
-  slice_max(n, n = 10) %>%
-  ungroup() %>%
-  ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
-  geom_col() +
-  facet_wrap(vars(sentiment), scales = "free") 
+    inner_join(get_sentiments("bing")) %>%
+    count(sentiment, word, sort = TRUE) %>%
+    group_by(sentiment) %>%
+    slice_max(n, n = 10) %>%
+    ungroup() %>%
+    ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
+    geom_col() +
+    facet_wrap(vars(sentiment), scales = "free") 
 ```
 
 ## {background-color="white"}
@@ -326,16 +326,16 @@ tidy_book %>%
 #| echo: false
 #| fig-align: center
 tidy_book %>%
-  inner_join(get_sentiments("bing")) %>%
-  count(sentiment, word, sort = TRUE) %>%
-  group_by(sentiment) %>%
-  slice_max(n, n = 10) %>%
-  ungroup %>%
-  ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
-  geom_col(alpha = 0.9, show.legend = FALSE) +
-  facet_wrap(vars(sentiment), scales = "free") +
-  scale_x_continuous(expand = c(0,0)) +
-  labs(y = NULL, x = "Number of occurrences")
+    inner_join(get_sentiments("bing")) %>%
+    count(sentiment, word, sort = TRUE) %>%
+    group_by(sentiment) %>%
+    slice_max(n, n = 10) %>%
+    ungroup %>%
+    ggplot(aes(n, fct_reorder(word, n), fill = sentiment)) +
+    geom_col(alpha = 0.9, show.legend = FALSE) +
+    facet_wrap(vars(sentiment), scales = "free") +
+    scale_x_continuous(expand = c(0,0)) +
+    labs(y = NULL, x = "Number of occurrences")
 ```
 
 # Thanks! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
