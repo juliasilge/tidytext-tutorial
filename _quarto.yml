@@ -12,7 +12,7 @@ website:
   description: "An introduction to analyzing text data"
   open-graph: true
   twitter-card: true
-  site-url: https://bit.ly/tidytext-tutorial
+  site-url: https://juliasilge.github.io/tidytext-tutorial/
   repo-url: https://github.com/juliasilge/tidytext-tutorial
   repo-actions: [edit, issue]
   favicon: "favicon.ico"

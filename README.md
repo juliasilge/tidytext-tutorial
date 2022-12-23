@@ -16,7 +16,7 @@ When have I given tutorials on tidytext?
 
 ## Materials
 
-Access all the slides and workshop materials at <https://bit.ly/tidytext-tutorial/>.
+Access all the slides and workshop materials at <https://juliasilge.github.io/tidytext-tutorial/>.
 
 ## License
 

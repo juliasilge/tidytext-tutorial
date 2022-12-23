@@ -4,7 +4,7 @@ subtitle: "USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 format:
   revealjs: 
-    footer: <https://bit.ly/tidytext-tutorial>
+    footer: <https://juliasilge.github.io/tidytext-tutorial/>
     theme: [dark, custom.scss]
     width: 1280
     height: 720
@@ -152,7 +152,7 @@ nrow(book_test)
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Is the `book_split` object a tidy dataset?
+Is the [book_split]{.codedarkbg} object a tidy dataset?
 
 -   Yes ✅
 -   No 🚫
@@ -252,7 +252,7 @@ lasso_spec
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Have we fit the `lasso_spec` model to our data yet?
+Have we fit the [lasso_spec]{.codedarkbg} model to our data yet?
 
 -   Yep 💃
 -   Not yet 🙅‍♀️
@@ -270,7 +270,7 @@ Have we fit the `lasso_spec` model to our data yet?
 
 ::: incremental
 
--   Start the `recipe()`
+-   Start the [recipe()]{.codedarkbg}
 
 -   Define the **variables**
 

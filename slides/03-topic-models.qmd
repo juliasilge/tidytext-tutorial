@@ -4,7 +4,7 @@ subtitle: "USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 format:
   revealjs: 
-    footer: <https://bit.ly/tidytext-tutorial>
+    footer: <https://juliasilge.github.io/tidytext-tutorial/>
     theme: [dark, custom.scss]
     width: 1280
     height: 720
@@ -144,7 +144,7 @@ glimpse(word_counts)
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-The dataset `word_counts` contains
+The dataset [word_counts]{.codedarkbg} contains
 
 -   the counts of words per book
 -   the counts of words per "chunk" (500 lines)
@@ -166,7 +166,7 @@ dim(words_sparse)
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Is `words_sparse` a tidy dataset?
+Is [words_sparse]{.codedarkbg} a tidy dataset?
 
 -   Yes ✔️
 -   No 🚫

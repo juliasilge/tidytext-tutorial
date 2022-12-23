@@ -4,7 +4,7 @@ subtitle: "USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 format:
   revealjs: 
-    footer: <https://bit.ly/tidytext-tutorial>
+    footer: <https://juliasilge.github.io/tidytext-tutorial/>
     theme: [dark, custom.scss]
     width: 1280
     height: 720
@@ -261,7 +261,7 @@ tidy_ngram %>%
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Can we use an `anti_join()` right away to remove stop words?
+Can we use an [anti_join()]{.codedarkbg} right away to remove stop words?
 
 -   Yes! ✅
 -   No ☹️
@@ -337,7 +337,7 @@ bigram_graph
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Is `bigram_graph` a tidy dataset?
+Is [bigram_graph]{.codedarkbg} a tidy dataset?
 
 -   Yes ☑️
 -   No 🚫

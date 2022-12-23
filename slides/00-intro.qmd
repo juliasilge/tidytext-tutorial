@@ -4,7 +4,7 @@ subtitle: "USING TIDY DATA PRINCIPLES"
 author: "Julia Silge"
 format:
   revealjs: 
-    footer: <https://bit.ly/tidytext-tutorial>
+    footer: <https://juliasilge.github.io/tidytext-tutorial/>
     theme: [dark, custom.scss]
     width: 1280
     height: 720
