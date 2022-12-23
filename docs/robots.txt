@@ -1,1 +1,1 @@
-Sitemap: https://bit.ly/tidytext-tutorial/sitemap.xml
+Sitemap: https://juliasilge.github.io/tidytext-tutorial/sitemap.xml
