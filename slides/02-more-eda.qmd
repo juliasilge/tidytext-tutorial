@@ -162,7 +162,7 @@ slice_max(tf_idf, n = 10) %>%
 
 ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
 
-facet_wrap(~title, scales = "free")
+facet_wrap(vars(title), scales = "free")
 
 geom_col(show.legend = FALSE) +
 
@@ -176,7 +176,7 @@ book_tf_idf %>%
     slice_max(tf_idf, n = 10) %>%
     ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
     geom_col(show.legend = FALSE) +
-    facet_wrap(~title, scales = "free")
+    facet_wrap(vars(title), scales = "free")
 ```
 
 ##  {background-color="white"}
@@ -303,6 +303,10 @@ bigram_counts
 [https://pudding.cool/2017/08/screen-direction/]{.blue}
 :::
 
+##  {background-image="https://juliasilge.github.io/tidylo/articles/tidylo_files/figure-html/bigram_plot-1.png" background-size="60%" background-color="white"}
+
+::: footer
+:::
 
 ## {background-image="figs/change_overall-1.svg" background-size="70%" background-color="white"}
 

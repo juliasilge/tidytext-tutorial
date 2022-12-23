@@ -67,7 +67,7 @@ install.packages(c("tidyverse",
 ::: footer
 :::
 
-## Topic modeling {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+# Topic modeling {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
 
 . . .
 
@@ -347,6 +347,12 @@ Which words in each document are assigned to which topics?
 
 <center>
 {{< video https://www.youtube.com/embed/2i0Cu8MMGRc width="960" height="540" >}}
+</center>
+
+# 
+
+<center>
+{{< video https://www.youtube.com/embed/2wcDYVb-2AY width="960" height="540" >}}
 </center>
 
 ## Using stm {background-color="white"}

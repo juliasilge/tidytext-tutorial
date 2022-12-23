@@ -540,6 +540,12 @@ Text classification is an example of...
 -   [supervised machine learning]{.lavender}
 -   [unsupervised machine learning]{.lavender}
 
+# 
+
+<center>
+{{< video https://www.youtube.com/embed/XYj8vyK864Y width="960" height="540" >}}
+</center>
+
 ## Go explore real-world text! {background-image="figs/lizzieskipping.gif" background-size="70%"}
 
 # Thanks! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
