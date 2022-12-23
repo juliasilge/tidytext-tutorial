@@ -261,7 +261,7 @@ tidy_ngram %>%
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Can we use an anti join right away to remove stop words?
+Can we use an `anti_join()` right away to remove stop words?
 
 -   Yes! ✅
 -   No ☹️

@@ -1,0 +1,565 @@
+---
+title: "Text Mining"
+subtitle: "USING TIDY DATA PRINCIPLES"
+author: "Julia Silge"
+format:
+  revealjs: 
+    footer: <https://bit.ly/tidytext-tutorial>
+    theme: [dark, custom.scss]
+    width: 1280
+    height: 720
+    title-slide-attributes: 
+      data-background-image: figs/p_and_p_cover.png
+      data-background-opacity: "0.7"
+highlight-style: "arrow-light"      
+knitr:
+  opts_chunk: 
+    echo: true
+    collapse: true
+    comment: "#>"    
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
+library(tidyverse)
+library(silgelib)
+theme_set(theme_plex())
+doParallel::registerDoParallel()
+my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+```
+
+# Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.7"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}}
+\@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}}
+youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+## Let's install some packages {background-color="white"}
+
+```{r}
+#| eval: false
+install.packages(c("glmnet", 
+                   "tidyverse", 
+                   "tidymodels",
+                   "textrecipes",
+                   "stopwords",
+                   "vip"))
+```
+
+# TEXT CLASSIFICATION {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+##  {background-image="figs/tm-org.png" background-size="70%" background-color="white"}
+
+::: footer
+:::
+
+##  {background-color="white"}
+
+```{r}
+#| message: true
+library(tidymodels)
+```
+
+## Learn more
+
+::: incremental
+-   <https://www.tidymodels.org/>
+
+-   [Tidy Modeling with R](https://www.tmwr.org/)
+
+-   [Supervised Machine Learning for Text Analysis in
+R](https://smltar.com/)
+:::
+
+## Download your text data {background-color="white"}
+
+```{r}
+library(tidyverse)
+library(gutenbergr)
+
+titles <- c("The War of the Worlds",
+            "Pride and Prejudice")
+
+books <- gutenberg_works(title %in% titles) %>%
+    gutenberg_download(meta_fields = "title", mirror = my_mirror) %>%
+    mutate(title = str_replace_all(title, " ", "_")) %>%
+    filter(nchar(text) > 3) %>%
+    mutate(document = row_number())
+```
+
+## Download your text data {background-color="white"}
+
+```{r}
+books
+```
+
+# SPEND YOUR DATA BUDGET 💰 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+## Spend your data budget {background-color="white"}
+
+```{r}
+set.seed(123)
+book_split <- initial_split(books, strata = title)
+book_split
+```
+
+## Spend your data budget {background-color="white"}
+
+```{r}
+book_train <- training(book_split)
+book_train
+```
+
+## Spend your data budget {background-color="white"}
+
+```{r}
+book_test <- testing(book_split)
+book_test
+```
+
+## Spend your data budget {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|3,6"
+set.seed(123)
+book_split <- initial_split(books, strata = title)
+book_train <- training(book_split) 
+nrow(book_train)
+book_test <- testing(book_split)
+nrow(book_test)
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
+height="150"}
+
+Is the `book_split` object a tidy dataset?
+
+-   Yes ✅
+-   No 🚫
+
+# The test set is precious! 💎 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+##  {background-image="https://www.tidymodels.org/start/resampling/img/resampling.svg" background-size="70%" background-color="white"}
+
+::: footer
+:::
+
+## Spend your data budget {background-color="white"}
+
+```{r}
+set.seed(234)
+book_folds <- vfold_cv(book_train, strata = title)
+book_folds
+```
+
+# CREATE YOUR MODEL ✨ {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+## Specify a model
+
+::: incremental
+-   Pick a [model]{.lavender}
+
+-   Set the [mode]{.lavender} (if needed)
+
+-   Set the [engine]{.lavender}
+:::
+
+. . .
+
+All available models are listed at <https://tidymodels.org/find/parsnip>
+
+##  {background-iframe="https://tidymodels.org/find/parsnip"}
+
+::: footer
+:::
+
+## Specify a model {background-color="white"}
+
+```{r}
+logistic_reg()
+```
+
+## Specify a model {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+logistic_reg() %>%
+    set_engine("glmnet")
+```
+
+## Specify a model {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+logistic_reg() %>%
+    set_engine("glmnet")
+```
+
+## Specify a model {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+logistic_reg(penalty = tune(), mixture = 1) %>%
+    set_engine("glmnet")
+```
+
+## Specify a model {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+logistic_reg(penalty = tune(), mixture = 1) %>%
+    set_engine("glmnet")
+```
+
+## Specify a model {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|2"
+lasso_spec <- logistic_reg(penalty = tune(), mixture = 1) %>% 
+    set_engine("glmnet")
+
+lasso_spec
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
+height="150"}
+
+Have we fit the `lasso_spec` model to our data yet?
+
+-   Yep 💃
+-   Not yet 🙅‍♀️
+
+# FEATURE ENGINEERING 🛠️ {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+
+##  {background-image="https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/recipes.png" background-size="70%" background-color="white"}
+
+::: footer
+[Illustration by Allison Horst]{.blue}
+:::
+
+## Specify a recipe
+
+::: incremental
+
+-   Start the `recipe()`
+
+-   Define the **variables**
+
+-   Describe preprocessing **step-by-step**
+
+:::
+
+. . .
+
+All available recipe steps are listed at <https://www.tidymodels.org/find/recipes/>
+
+##  {background-iframe="https://tidymodels.org/find/recipes"}
+
+::: footer
+:::
+
+# Preprocessing options️ {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+. . .
+
+- Encode categorical predictors
+
+- Center and scale variables
+
+- Handle class imbalance
+
+- Impute missing data
+
+- Perform dimensionality reduction
+
+- *A lot more!*
+
+## Estimate using training data {background-color="white"}
+
+```{r}
+library(textrecipes)
+recipe(title ~ text, data = book_train)
+```
+
+## Estimate using training data {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)
+```
+
+## Estimate using training data {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+#| eval: false
+recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)  %>%
+    step_stopwords(text)
+```
+
+## Estimate using training data {background-color="white"}
+
+What do you predict will happen if we run the following code? 🤔
+
+```{r}
+recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)  %>%
+    step_stopwords(text)
+```
+
+## Estimate using training data {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|2-3"
+book_rec <- recipe(title ~ text, data = book_train) %>%
+    step_tokenize(text)  %>% 
+    step_stopwords(text) %>%  
+    step_tokenfilter(text, max_tokens = 500) %>%
+    step_tfidf(text)
+```
+
+## Estimate using training data {background-color="white"}
+
+```{r}
+book_rec
+```
+
+## Combine recipe and model {background-color="white"}
+
+```{r}
+book_wf <- workflow(book_rec, lasso_spec) 
+book_wf
+```
+
+## Tune model with resampled data {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|5"
+narrower_penalty <- penalty(range = c(-5, 0))
+
+set.seed(2021)
+lasso_grid <- tune_grid(
+    book_wf, 
+    resamples = book_folds,
+    param_info = parameters(narrower_penalty),
+    grid = 20
+)
+```
+
+## Tune model with resampled data {background-color="white"}
+
+```{r}
+lasso_grid
+```
+
+## Evaluate models {background-color="white"}
+
+```{r}
+show_best(lasso_grid)
+```
+
+## Evaluate models {background-color="white"}
+
+```{r}
+#| eval: false
+autoplot(lasso_grid)
+```
+
+```{r}
+#| echo: false
+#| fig-align: center
+#| fig-width: 7
+autoplot(lasso_grid) + silgelib::theme_light_plex()
+```
+
+
+## Finalize and fit workflow {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|3"
+simple_lasso <- select_by_one_std_err(
+    lasso_grid, 
+    -penalty, 
+    metric = "roc_auc"
+)
+
+simple_lasso
+```
+
+## Finalize and fit workflow {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|3"
+book_final <- book_wf %>%
+    finalize_workflow(simple_lasso) %>% 
+    last_fit(book_split) 
+
+collect_metrics(book_final)
+```
+
+## Evaluate final model {background-color="white"}
+
+```{r}
+collect_predictions(book_final)
+```
+
+## Evaluate final model {background-color="white"}
+
+```{r}
+#| code-line-numbers: "|2"
+collect_predictions(book_final) %>%
+    conf_mat(title, .pred_class)
+```
+
+## Evaluate final model {background-color="white"}
+
+```{r}
+#| eval: false
+#| code-line-numbers: "|2"
+collect_predictions(book_final) %>%
+    roc_curve(title, .pred_Pride_and_Prejudice) %>% 
+    autoplot()
+```
+
+## {background-color="white"}
+
+```{r}
+#| echo: false
+#| fig-align: center
+collect_predictions(book_final) %>%
+    roc_curve(title, .pred_Pride_and_Prejudice) %>%
+    ggplot(aes(1 - specificity, sensitivity)) +
+    geom_abline(lty = 2, color = "gray80", size = 1.5) +
+    geom_path(show.legend = FALSE, alpha = 0.8, size = 1.2, color = "midnightblue") +
+    coord_equal()
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
+height="150"}
+
+Is this the ROC curve for the training or testing data?
+
+-   [Training]{.lavender}
+-   [Testing]{.lavender}
+
+
+## Variable importance {background-color="white"}
+
+```{r}
+library(vip)
+book_vip <- 
+    extract_fit_engine(book_final) %>%
+    vi()
+
+book_vip
+```
+
+## Variable importance {background-color="white"}
+
+```{r eval=FALSE}
+#| eval: false
+#| code-line-numbers: "|3|9"
+book_vip %>%
+    group_by(Sign) %>%
+    slice_max(abs(Importance), n = 15) %>%
+    ungroup() %>%
+    mutate(
+        Importance = abs(Importance),
+        Variable = fct_reorder(Variable, Importance)
+    ) %>%
+    ggplot(aes(Importance, Variable, fill = Sign)) + 
+    geom_col() +
+    facet_wrap(vars(Sign))
+```
+
+## {background-color="white"}
+
+```{r}
+#| echo: false
+#| fig-align: center
+book_vip %>%
+    group_by(Sign) %>%
+    slice_max(abs(Importance), n = 15) %>%
+    ungroup() %>%
+    mutate(
+        Variable = str_remove(Variable, "tfidf_text_"),
+        Importance = abs(Importance),
+        Variable = fct_reorder(Variable, Importance),
+        Sign = if_else(Sign == "POS", "H.G. Wells", "Jane Austen")
+    ) %>%
+    ggplot(aes(Importance, Variable, fill = Sign)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(vars(Sign), scales = "free") +
+    scale_x_continuous(expand = c(0,0)) +
+    labs(y = NULL)
+```
+
+## Jane wants to know... {transition="slide-in"}
+
+![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
+height="150"}
+
+Text classification is an example of...
+
+-   [supervised machine learning]{.lavender}
+-   [unsupervised machine learning]{.lavender}
+
+## Go explore real-world text! {background-image="figs/lizzieskipping.gif" background-size="70%"}
+
+# Thanks! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+<center>
+
+<img src="figs/blue_jane.png" width="150px"/>
+
+[{{< fa brands mastodon >}} \@juliasilge](https://fosstodon.org/@juliasilge)
+
+[{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
+
+[{{< fa brands youtube >}} youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+
+[{{< fa link >}} juliasilge.com](https://juliasilge.com/)
+
+[{{< fa book >}} tidytextmining.com](https://tidytextmining.com)
+
+</center>
+
+::: footer
+Slides created with [Quarto](https://quarto.org/)
+:::

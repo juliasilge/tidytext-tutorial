@@ -276,10 +276,10 @@ tidy_book %>%
 
 What kind of join is appropriate for sentiment analysis?
 
--   [anti join]{.lavender}
--   [full join]{.lavender}
--   [outer join]{.lavender}
--   [inner join]{.lavender}
+-   [`anti_join()`]{.lavender}
+-   [`full_join()`]{.lavender}
+-   [`outer_join()`]{.lavender}
+-   [`inner_join()`]{.lavender}
 
 ## Implementing sentiment analysis {background-color="white"}
 
