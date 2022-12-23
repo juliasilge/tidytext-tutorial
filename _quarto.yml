@@ -1,5 +1,10 @@
 project:
   type: website
+  render:
+    - "index.qmd"
+    - "slides/*qmd"
+    - "!code/"
+    - "!CODE_OF_CONDUCT.md"
   output-dir: docs
 
 website:
