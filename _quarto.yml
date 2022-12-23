@@ -45,7 +45,7 @@ format:
   html:
     theme:
       - cosmo
-      - tidytext.css
+      - footer.css
     toc: false
 
 fig-format: svg    
