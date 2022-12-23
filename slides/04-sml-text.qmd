@@ -24,12 +24,7 @@ editor:
 
 ```{r}
 #| include: false
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 300)
-library(tidyverse)
-library(silgelib)
-theme_set(theme_plex())
-doParallel::registerDoParallel()
-my_mirror <- "http://mirrors.xmission.com/gutenberg/"
+#| file: setup.R
 ```
 
 # Hello! {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.7"}
