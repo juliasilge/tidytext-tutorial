@@ -423,7 +423,7 @@ Julia Silge
 </section>
 <section id="lets-install-some-packages" class="slide level2" data-background-color="white">
 <h2>Let’s install some packages</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-2_bf6a3c180421e3deb3e03e8b49979350">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-2_757e6e93c1b91c0a348c564b65c1f7cf">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"glmnet"</span>, </span>
 <span id="cb1-2"><a href="#cb1-2"></a>                   <span class="st">"tidyverse"</span>, </span>
 <span id="cb1-3"><a href="#cb1-3"></a>                   <span class="st">"tidymodels"</span>,</span>
@@ -445,23 +445,8 @@ Julia Silge
 </section>
 <section id="section-1" class="slide level2" data-background-color="white">
 <h2></h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-3_b9f39299d09488c940a0cb8dc826b608">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt; ── Attaching packages ────────────────────────────────────── tidymodels 1.0.0 ──</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt; ✔ broom        1.0.2     ✔ rsample      1.1.1</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; ✔ dials        1.1.0     ✔ tune         1.0.1</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt; ✔ infer        1.0.4     ✔ workflows    1.1.2</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; ✔ modeldata    1.0.1     ✔ workflowsets 1.0.0</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; ✔ parsnip      1.0.3     ✔ yardstick    1.1.0</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; ✔ recipes      1.0.3</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt; ✖ scales::discard() masks purrr::discard()</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt; ✖ dplyr::filter()   masks stats::filter()</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt; ✖ recipes::fixed()  masks stringr::fixed()</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt; ✖ dplyr::lag()      masks stats::lag()</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt; ✖ yardstick::spec() masks readr::spec()</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt; ✖ recipes::step()   masks stats::step()</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#&gt; • Use suppressPackageStartupMessages() to eliminate package startup messages</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-3_b023f6770cde2b28e6fadda0d7da9b4d">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="learn-more" class="slide level2">
@@ -476,7 +461,7 @@ Julia Silge
 </section>
 <section id="download-your-text-data" class="slide level2" data-background-color="white">
 <h2>Download your text data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-4_5a11f77d19b145e85ba9d32d2e5314cb">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-4_af62706db01fbb6ac792ad7505c76091">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">library</span>(gutenbergr)</span>
 <span id="cb3-3"><a href="#cb3-3"></a></span>
@@ -492,7 +477,7 @@ Julia Silge
 </section>
 <section id="download-your-text-data-1" class="slide level2" data-background-color="white">
 <h2>Download your text data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-5_ccf57d219a956249a39603fd76daa0ed">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-5_351139b43af185dc925ccad3e1fd7def">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>books</span>
 <span id="cb4-2"><a href="#cb4-2"></a><span class="co">#&gt; # A tibble: 16,846 × 4</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="co">#&gt;    gutenberg_id text                                               title docum…¹</span></span>
@@ -517,7 +502,7 @@ Julia Silge
 </section>
 <section id="spend-your-data-budget-1" class="slide level2" data-background-color="white">
 <h2>Spend your data budget</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-6_4fa8ac3bc2c31832a6651d0757a72787">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-6_7bf77087e90ef9e0fd308cb2b3eaebeb">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb5-2"><a href="#cb5-2"></a>book_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(books, <span class="at">strata =</span> title)</span>
 <span id="cb5-3"><a href="#cb5-3"></a>book_split</span>
@@ -527,7 +512,7 @@ Julia Silge
 </section>
 <section id="spend-your-data-budget-2" class="slide level2" data-background-color="white">
 <h2>Spend your data budget</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-7_4dfbbcf611841cd8a911b14787010082">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-7_15117ed2e8455fcbcd5faf749e46004a">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>book_train <span class="ot">&lt;-</span> <span class="fu">training</span>(book_split)</span>
 <span id="cb6-2"><a href="#cb6-2"></a>book_train</span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt; # A tibble: 12,633 × 4</span></span>
@@ -548,7 +533,7 @@ Julia Silge
 </section>
 <section id="spend-your-data-budget-3" class="slide level2" data-background-color="white">
 <h2>Spend your data budget</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-8_38e40dd664521557dbaab1ee22b5a275">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-8_afbccf4bf406651e7e96e86c499d7ef3">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>book_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(book_split)</span>
 <span id="cb7-2"><a href="#cb7-2"></a>book_test</span>
 <span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt; # A tibble: 4,213 × 4</span></span>
@@ -569,7 +554,7 @@ Julia Silge
 </section>
 <section id="spend-your-data-budget-4" class="slide level2" data-background-color="white">
 <h2>Spend your data budget</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-9_d8b182bab58eb7513add6db3939823a2">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-9_d9b9b7cd8b21855ecb8c0f146eb9f7bc">
 <div class="sourceCode cell-code" id="cb8" data-code-line-numbers="|3,6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb8-2"><a href="#cb8-2"></a>book_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(books, <span class="at">strata =</span> title)</span>
 <span id="cb8-3"><a href="#cb8-3"></a>book_train <span class="ot">&lt;-</span> <span class="fu">training</span>(book_split) </span>
@@ -602,7 +587,7 @@ Julia Silge
 </section>
 <section id="spend-your-data-budget-5" class="slide level2" data-background-color="white">
 <h2>Spend your data budget</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-10_81c4610bd7b9eed4e14ade3d1afb806c">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-10_ba965f25271ecd681da84c1b4f6f3117">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">set.seed</span>(<span class="dv">234</span>)</span>
 <span id="cb9-2"><a href="#cb9-2"></a>book_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(book_train, <span class="at">strata =</span> title)</span>
 <span id="cb9-3"><a href="#cb9-3"></a>book_folds</span>
@@ -648,7 +633,7 @@ Julia Silge
 </section>
 <section id="specify-a-model-1" class="slide level2" data-background-color="white">
 <h2>Specify a model</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-11_e8853f72f597b31fb14e271011f71ba2">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-11_3a022ac0dad80866e9f9c9244693c821">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">logistic_reg</span>()</span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt; Logistic Regression Model Specification (classification)</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt; </span></span>
@@ -658,7 +643,7 @@ Julia Silge
 <section id="specify-a-model-2" class="slide level2" data-background-color="white">
 <h2>Specify a model</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-12_47dff02c22aca5b9a37792a92e61bcf3">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-12_1ab60150b54cd6d5497fd11c19e21f3e">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a>    <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -666,7 +651,7 @@ Julia Silge
 <section id="specify-a-model-3" class="slide level2" data-background-color="white">
 <h2>Specify a model</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-13_89a5e7f85fcdb3e125222ffdb48df477">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-13_297aa78f772184bab4dbc94b50836cd0">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb12-2"><a href="#cb12-2"></a>    <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span>
 <span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt; Logistic Regression Model Specification (classification)</span></span>
@@ -677,7 +662,7 @@ Julia Silge
 <section id="specify-a-model-4" class="slide level2" data-background-color="white">
 <h2>Specify a model</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-14_dcca07e3852017dfc1feaaa71910fe62">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-14_4eb5437d6f63186272912045262f97cf">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">logistic_reg</span>(<span class="at">penalty =</span> <span class="fu">tune</span>(), <span class="at">mixture =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb13-2"><a href="#cb13-2"></a>    <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -685,7 +670,7 @@ Julia Silge
 <section id="specify-a-model-5" class="slide level2" data-background-color="white">
 <h2>Specify a model</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-15_76121cf4b59848f6792832ecf5d46743">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-15_bde2e07f91c42d49e17de7f01cabb8bb">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">logistic_reg</span>(<span class="at">penalty =</span> <span class="fu">tune</span>(), <span class="at">mixture =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>    <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span>
 <span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt; Logistic Regression Model Specification (classification)</span></span>
@@ -699,7 +684,7 @@ Julia Silge
 </section>
 <section id="specify-a-model-6" class="slide level2" data-background-color="white">
 <h2>Specify a model</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-16_3a3a49cbda9028824055e2ea3d7cb479">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-16_9c6c98deb4a82b7b680be042c9cf76e1">
 <div class="sourceCode cell-code" id="cb15" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>lasso_spec <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>(<span class="at">penalty =</span> <span class="fu">tune</span>(), <span class="at">mixture =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-2"><a href="#cb15-2"></a>    <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span>
 <span id="cb15-3"><a href="#cb15-3"></a></span>
@@ -768,7 +753,7 @@ Julia Silge
 </section>
 <section id="estimate-using-training-data" class="slide level2" data-background-color="white">
 <h2>Estimate using training data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-17_910d4e6208347f61b3e53e686981a39f">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-17_9417a8c0f906ab7677e7a81adffc37da">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">library</span>(textrecipes)</span>
 <span id="cb16-2"><a href="#cb16-2"></a><span class="fu">recipe</span>(title <span class="sc">~</span> text, <span class="at">data =</span> book_train)</span>
 <span id="cb16-3"><a href="#cb16-3"></a><span class="co">#&gt; Recipe</span></span>
@@ -783,7 +768,7 @@ Julia Silge
 <section id="estimate-using-training-data-1" class="slide level2" data-background-color="white">
 <h2>Estimate using training data</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-18_7b5b18343af867efea31bd485ac2ad17">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-18_2caa6ade144d85ff79aaf42fe5aa847e">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">recipe</span>(title <span class="sc">~</span> text, <span class="at">data =</span> book_train) <span class="sc">%&gt;%</span></span>
 <span id="cb17-2"><a href="#cb17-2"></a>    <span class="fu">step_tokenize</span>(text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -791,7 +776,7 @@ Julia Silge
 <section id="estimate-using-training-data-2" class="slide level2" data-background-color="white">
 <h2>Estimate using training data</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-19_3930186f271d097f9e94da95e1899278">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-19_111caf9c6d4115947a98c46135ba0181">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">recipe</span>(title <span class="sc">~</span> text, <span class="at">data =</span> book_train) <span class="sc">%&gt;%</span></span>
 <span id="cb18-2"><a href="#cb18-2"></a>    <span class="fu">step_tokenize</span>(text)  <span class="sc">%&gt;%</span></span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">step_stopwords</span>(text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -800,7 +785,7 @@ Julia Silge
 <section id="estimate-using-training-data-3" class="slide level2" data-background-color="white">
 <h2>Estimate using training data</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-20_0ab18b20844d5413c57d8737bbc321e0">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-20_f8f8d54f0f6fdd2c94222133287f7762">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">recipe</span>(title <span class="sc">~</span> text, <span class="at">data =</span> book_train) <span class="sc">%&gt;%</span></span>
 <span id="cb19-2"><a href="#cb19-2"></a>    <span class="fu">step_tokenize</span>(text)  <span class="sc">%&gt;%</span></span>
 <span id="cb19-3"><a href="#cb19-3"></a>    <span class="fu">step_stopwords</span>(text)</span>
@@ -820,7 +805,7 @@ Julia Silge
 </section>
 <section id="estimate-using-training-data-4" class="slide level2" data-background-color="white">
 <h2>Estimate using training data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-21_08dd891f35b797676b0737c31f84ccda">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-21_1273bed2786f2e297abb266263f947f1">
 <div class="sourceCode cell-code" id="cb20" data-code-line-numbers="|2-3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>book_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(title <span class="sc">~</span> text, <span class="at">data =</span> book_train) <span class="sc">%&gt;%</span></span>
 <span id="cb20-2"><a href="#cb20-2"></a>    <span class="fu">step_tokenize</span>(text)  <span class="sc">%&gt;%</span> </span>
 <span id="cb20-3"><a href="#cb20-3"></a>    <span class="fu">step_stopwords</span>(text) <span class="sc">%&gt;%</span>  </span>
@@ -830,7 +815,7 @@ Julia Silge
 </section>
 <section id="estimate-using-training-data-5" class="slide level2" data-background-color="white">
 <h2>Estimate using training data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-22_ad617007a9258cf88f81f870d718f6ca">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-22_6f12eadd79374a47b7a62a9560269ff7">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>book_rec</span>
 <span id="cb21-2"><a href="#cb21-2"></a><span class="co">#&gt; Recipe</span></span>
 <span id="cb21-3"><a href="#cb21-3"></a><span class="co">#&gt; </span></span>
@@ -850,7 +835,7 @@ Julia Silge
 </section>
 <section id="combine-recipe-and-model" class="slide level2" data-background-color="white">
 <h2>Combine recipe and model</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-23_fddb75bfe344424e6dfd7c23b4bcd7d1">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-23_0d81a338b84ec63cc004a3cf1b5b8d81">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>book_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>(book_rec, lasso_spec) </span>
 <span id="cb22-2"><a href="#cb22-2"></a>book_wf</span>
 <span id="cb22-3"><a href="#cb22-3"></a><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
@@ -877,7 +862,7 @@ Julia Silge
 </section>
 <section id="tune-model-with-resampled-data" class="slide level2" data-background-color="white">
 <h2>Tune model with resampled data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-24_3101afbe3645b7835de3e272b94ffcc5">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-24_3e787433c83e1144f7832a5188803e30">
 <div class="sourceCode cell-code" id="cb23" data-code-line-numbers="|5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>narrower_penalty <span class="ot">&lt;-</span> <span class="fu">penalty</span>(<span class="at">range =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">0</span>))</span>
 <span id="cb23-2"><a href="#cb23-2"></a></span>
 <span id="cb23-3"><a href="#cb23-3"></a><span class="fu">set.seed</span>(<span class="dv">2021</span>)</span>
@@ -891,7 +876,7 @@ Julia Silge
 </section>
 <section id="tune-model-with-resampled-data-1" class="slide level2" data-background-color="white">
 <h2>Tune model with resampled data</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-25_0e9a3d062aa99a9a88375a0a25831b80">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-25_81a59e949c4b9cc7a03954fbe9a2a118">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>lasso_grid</span>
 <span id="cb24-2"><a href="#cb24-2"></a><span class="co">#&gt; # Tuning results</span></span>
 <span id="cb24-3"><a href="#cb24-3"></a><span class="co">#&gt; # 10-fold cross-validation using stratification </span></span>
@@ -912,7 +897,7 @@ Julia Silge
 </section>
 <section id="evaluate-models" class="slide level2" data-background-color="white">
 <h2>Evaluate models</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-26_8efe137d927666f8f3fee77667f7e4a4">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-26_60f1d0f04067ed979afb3b144e753467">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">show_best</span>(lasso_grid)</span>
 <span id="cb25-2"><a href="#cb25-2"></a><span class="co">#&gt; # A tibble: 5 × 7</span></span>
 <span id="cb25-3"><a href="#cb25-3"></a><span class="co">#&gt;     penalty .metric .estimator  mean     n std_err .config              </span></span>
@@ -926,14 +911,14 @@ Julia Silge
 </section>
 <section id="evaluate-models-1" class="slide level2" data-background-color="white">
 <h2>Evaluate models</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-27_d28a34a753d0132a242b230c8d54464d">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-27_ea9fae131ac3b2ffe9cf9044f4aec49b">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">autoplot</span>(lasso_grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
-<img data-src="04-sml-text_files/figure-revealjs/unnamed-chunk-28-1.svg" class="r-stretch quarto-figure-center"></section>
+<img data-src="04-sml-text_files/figure-revealjs/unnamed-chunk-28-1.png" width="672" class="r-stretch quarto-figure-center"></section>
 <section id="finalize-and-fit-workflow" class="slide level2" data-background-color="white">
 <h2>Finalize and fit workflow</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-29_048c11a94257d064b8d3ba4b9eb5d581">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-29_15eb12bfefd46a9ade0a683f86ab381b">
 <div class="sourceCode cell-code" id="cb27" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>simple_lasso <span class="ot">&lt;-</span> <span class="fu">select_by_one_std_err</span>(</span>
 <span id="cb27-2"><a href="#cb27-2"></a>    lasso_grid, </span>
 <span id="cb27-3"><a href="#cb27-3"></a>    <span class="sc">-</span>penalty, </span>
@@ -949,7 +934,7 @@ Julia Silge
 </section>
 <section id="finalize-and-fit-workflow-1" class="slide level2" data-background-color="white">
 <h2>Finalize and fit workflow</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-30_6d04127480354b11b0bae34abf1d1129">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-30_b1591195206e12eb9895f7d4f8da90f7">
 <div class="sourceCode cell-code" id="cb28" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>book_final <span class="ot">&lt;-</span> book_wf <span class="sc">%&gt;%</span></span>
 <span id="cb28-2"><a href="#cb28-2"></a>    <span class="fu">finalize_workflow</span>(simple_lasso) <span class="sc">%&gt;%</span> </span>
 <span id="cb28-3"><a href="#cb28-3"></a>    <span class="fu">last_fit</span>(book_split) </span>
@@ -964,7 +949,7 @@ Julia Silge
 </section>
 <section id="evaluate-final-model" class="slide level2" data-background-color="white">
 <h2>Evaluate final model</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-31_cb4ab89cdd68b5a66bd335b68535c1d4">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-31_09b7afb8a73d3c42e1519277c31a033b">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="fu">collect_predictions</span>(book_final)</span>
 <span id="cb29-2"><a href="#cb29-2"></a><span class="co">#&gt; # A tibble: 4,213 × 7</span></span>
 <span id="cb29-3"><a href="#cb29-3"></a><span class="co">#&gt;    id               .pred_Pride_and_Prejud…¹ .pred…²  .row .pred…³ title .config</span></span>
@@ -985,7 +970,7 @@ Julia Silge
 </section>
 <section id="evaluate-final-model-1" class="slide level2" data-background-color="white">
 <h2>Evaluate final model</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-32_8d654f203d450b0e7964bb2bd643a392">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-32_9b67dda88bf618ab7a953d95e9e4142a">
 <div class="sourceCode cell-code" id="cb30" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="fu">collect_predictions</span>(book_final) <span class="sc">%&gt;%</span></span>
 <span id="cb30-2"><a href="#cb30-2"></a>    <span class="fu">conf_mat</span>(title, .pred_class)</span>
 <span id="cb30-3"><a href="#cb30-3"></a><span class="co">#&gt;                        Truth</span></span>
@@ -996,7 +981,7 @@ Julia Silge
 </section>
 <section id="evaluate-final-model-2" class="slide level2" data-background-color="white">
 <h2>Evaluate final model</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-33_ff829b2e1cda2703e13b86c44df34281">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-33_a16eeaf60bf73a44cc2eb24da4158aa1">
 <div class="sourceCode cell-code" id="cb31" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="fu">collect_predictions</span>(book_final) <span class="sc">%&gt;%</span></span>
 <span id="cb31-2"><a href="#cb31-2"></a>    <span class="fu">roc_curve</span>(title, .pred_Pride_and_Prejudice) <span class="sc">%&gt;%</span> </span>
 <span id="cb31-3"><a href="#cb31-3"></a>    <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1005,7 +990,7 @@ Julia Silge
 <section id="section-6" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="04-sml-text_files/figure-revealjs/unnamed-chunk-34-1.svg" class="r-stretch quarto-figure-center"></section>
+<img data-src="04-sml-text_files/figure-revealjs/unnamed-chunk-34-1.png" width="960" class="r-stretch quarto-figure-center"></section>
 <section id="jane-wants-to-know-2" class="slide level2" data-transition="slide-in">
 <h2>Jane wants to know…</h2>
 <p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
@@ -1017,7 +1002,7 @@ Julia Silge
 </section>
 <section id="variable-importance" class="slide level2" data-background-color="white">
 <h2>Variable importance</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-35_06675d9ab12c1be35ede3df0f12cf931">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-35_5a2683e3a43aab3daa5af7152d6b7450">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a><span class="fu">library</span>(vip)</span>
 <span id="cb32-2"><a href="#cb32-2"></a>book_vip <span class="ot">&lt;-</span> </span>
 <span id="cb32-3"><a href="#cb32-3"></a>    <span class="fu">extract_fit_engine</span>(book_final) <span class="sc">%&gt;%</span></span>
@@ -1042,7 +1027,7 @@ Julia Silge
 </section>
 <section id="variable-importance-1" class="slide level2" data-background-color="white">
 <h2>Variable importance</h2>
-<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-36_d440984318985a30822dee240f123c10">
+<div class="cell" data-hash="04-sml-text_cache/revealjs/unnamed-chunk-36_118979be082c520d87617081542ae47c">
 <div class="sourceCode cell-code" id="cb33" data-code-line-numbers="|3|9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>book_vip <span class="sc">%&gt;%</span></span>
 <span id="cb33-2"><a href="#cb33-2"></a>    <span class="fu">group_by</span>(Sign) <span class="sc">%&gt;%</span></span>
 <span id="cb33-3"><a href="#cb33-3"></a>    <span class="fu">slice_max</span>(<span class="fu">abs</span>(Importance), <span class="at">n =</span> <span class="dv">15</span>) <span class="sc">%&gt;%</span></span>
@@ -1059,7 +1044,7 @@ Julia Silge
 <section id="section-7" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="04-sml-text_files/figure-revealjs/unnamed-chunk-37-1.svg" class="r-stretch quarto-figure-center"></section>
+<img data-src="04-sml-text_files/figure-revealjs/unnamed-chunk-37-1.png" width="960" class="r-stretch quarto-figure-center"></section>
 <section id="jane-wants-to-know-3" class="slide level2" data-transition="slide-in">
 <h2>Jane wants to know…</h2>
 <p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>

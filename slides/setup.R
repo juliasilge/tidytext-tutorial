@@ -1,4 +1,4 @@
-knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dev = "svglite")
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(silgelib)
 theme_set(theme_plex())

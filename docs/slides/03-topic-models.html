@@ -423,7 +423,7 @@ Julia Silge
 </section>
 <section id="lets-install-some-packages" class="slide level2" data-background-color="white">
 <h2>Let’s install some packages</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-2_509ed348adae4e003b37228fd95d437f">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-2_f9a0765b08bf46cbfec3970c81638e22">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, </span>
 <span id="cb1-2"><a href="#cb1-2"></a>                   <span class="st">"tidytext"</span>,</span>
 <span id="cb1-3"><a href="#cb1-3"></a>                   <span class="st">"stopwords"</span>,</span>
@@ -460,7 +460,7 @@ Julia Silge
 </section>
 <section id="download-your-text-data" class="slide level2" data-background-color="white">
 <h2>Download your text data</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-3_de1a329d5af43e1feee451f99b40dc3a">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-3_f9e0bba6be0dfb68c9246980f40ead53">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="fu">library</span>(gutenbergr)</span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
@@ -481,7 +481,7 @@ Julia Silge
 <section id="someone-has-torn-up-your-books" class="slide level2" data-background-color="white">
 <h2>Someone has torn up your books! 😭</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-4_0e9ba0a09ea4e1e1fb02b3111ded0077">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-4_641b0e860010c081c233471276a02af3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>books_by_document <span class="ot">&lt;-</span> books <span class="sc">%&gt;%</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>    <span class="fu">group_by</span>(title) <span class="sc">%&gt;%</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">mutate</span>(<span class="at">document =</span> <span class="fu">row_number</span>() <span class="sc">%/%</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
@@ -494,7 +494,7 @@ Julia Silge
 <section id="someone-has-torn-up-your-books-1" class="slide level2" data-background-color="white">
 <h2>Someone has torn up your books! 😭</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-5_56282cfe5afa7b8de74fccb66c82843a">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-5_fc868d8a2bd3c13dfe0e20aaf554b0fb">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>books_by_document <span class="ot">&lt;-</span> books <span class="sc">%&gt;%</span></span>
 <span id="cb4-2"><a href="#cb4-2"></a>    <span class="fu">group_by</span>(title) <span class="sc">%&gt;%</span></span>
 <span id="cb4-3"><a href="#cb4-3"></a>    <span class="fu">mutate</span>(<span class="at">document =</span> <span class="fu">row_number</span>() <span class="sc">%/%</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
@@ -511,7 +511,7 @@ Julia Silge
 </section>
 <section id="can-we-put-them-back-together" class="slide level2" data-background-color="white">
 <h2>Can we put them back together?</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-6_ed4a6d09b5f69a56e56893acf4299e1a">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-6_6ffbd1902a2431c6aa89137e2d17e2b0">
 <div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(tidytext)</span>
 <span id="cb5-2"><a href="#cb5-2"></a>word_counts <span class="ot">&lt;-</span> books_by_document <span class="sc">%&gt;%</span></span>
 <span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">unnest_tokens</span>(word, text) <span class="sc">%&gt;%</span> </span>
@@ -538,7 +538,7 @@ Julia Silge
 </section>
 <section id="can-we-put-them-back-together-1" class="slide level2" data-background-color="white">
 <h2>Can we put them back together?</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-7_f745848c2784afd7a9d1996d6bbaa530">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-7_7d05ba9ffe74159ac503d79aa5dc6bd4">
 <div class="sourceCode cell-code" id="cb6" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>words_sparse <span class="ot">&lt;-</span> word_counts <span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>    <span class="fu">cast_sparse</span>(document, word, n)</span>
 <span id="cb6-3"><a href="#cb6-3"></a></span>
@@ -562,7 +562,7 @@ Julia Silge
 <section id="train-a-topic-model" class="slide level2" data-background-color="white">
 <h2>Train a topic model</h2>
 <p>Use a sparse matrix or a <code>quanteda::dfm</code> object as input</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-8_e0026d69624fadd328a1cb60d51f0025">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-8_0226a96fc99305d40755f46d37be31ef">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="fu">library</span>(stm)</span>
 <span id="cb7-2"><a href="#cb7-2"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(words_sparse, <span class="at">K =</span> <span class="dv">4</span>, </span>
 <span id="cb7-3"><a href="#cb7-3"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>, </span>
@@ -572,7 +572,7 @@ Julia Silge
 <section id="train-a-topic-model-1" class="slide level2" data-background-color="white">
 <h2>Train a topic model</h2>
 <p>Use a sparse matrix or a <code>quanteda::dfm</code> object as input</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-9_9ef16c7a7924c250714039b6f1f48cf9">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-9_ffa05546a05c1ffeca978b3e0ded0132">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">summary</span>(topic_model)</span>
 <span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt; A topic model with 4 topics, 102 documents and a 18370 word dictionary.</span></span>
 <span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; Topic 1 Top Words:</span></span>
@@ -599,7 +599,7 @@ Julia Silge
 </section>
 <section id="explore-the-topic-model-output" class="slide level2" data-background-color="white">
 <h2>Explore the topic model output</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-10_7d0a4d98e3a607ed9d00cba97441f652">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-10_50541df055fafa2d97c912efbaa645b9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>chapter_topics <span class="ot">&lt;-</span> <span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"beta"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2"></a>chapter_topics</span>
 <span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt; # A tibble: 73,480 × 3</span></span>
@@ -629,7 +629,7 @@ Julia Silge
 </section>
 <section id="explore-the-topic-model-output-2" class="slide level2" data-background-color="white">
 <h2>Explore the topic model output</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-11_576efc2ba8e181badc0ed154b384edce">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-11_581c1d695a2afd41aaae89826aa80659">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>top_terms <span class="ot">&lt;-</span> chapter_topics <span class="sc">%&gt;%</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a>    <span class="fu">group_by</span>(topic) <span class="sc">%&gt;%</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="fu">slice_max</span>(beta, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
@@ -639,7 +639,7 @@ Julia Silge
 </section>
 <section id="explore-the-topic-model-output-3" class="slide level2" data-background-color="white">
 <h2>Explore the topic model output</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-12_03499aa57a79c0ec54ed89601dccac54">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-12_a9b1459b90555c63c002be6cb44f7146">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>top_terms</span>
 <span id="cb11-2"><a href="#cb11-2"></a><span class="co">#&gt; # A tibble: 40 × 3</span></span>
 <span id="cb11-3"><a href="#cb11-3"></a><span class="co">#&gt;    topic term         beta</span></span>
@@ -659,7 +659,7 @@ Julia Silge
 </section>
 <section id="explore-the-topic-model-output-4" class="slide level2" data-background-color="white">
 <h2>Explore the topic model output</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-13_be98f5c5d9bdb5cfd9f73bd8f863cc5c">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-13_cbbc271b92ca5ac3beed5bd0aed103df">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>top_terms <span class="sc">%&gt;%</span></span>
 <span id="cb12-2"><a href="#cb12-2"></a>    <span class="fu">mutate</span>(<span class="at">term =</span> <span class="fu">fct_reorder</span>(term, beta)) <span class="sc">%&gt;%</span></span>
 <span id="cb12-3"><a href="#cb12-3"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(beta, term, <span class="at">fill =</span> <span class="fu">factor</span>(topic))) <span class="sc">+</span> </span>
@@ -670,13 +670,13 @@ Julia Silge
 <section id="section-1" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-14-1.svg" class="r-stretch quarto-figure-center"><div class="footer">
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-14-1.png" width="672" class="r-stretch quarto-figure-center"><div class="footer">
 
 </div>
 </section>
 <section id="how-are-documents-classified" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-15_2ef68aa7324c4d14d99a130009f7a6f7">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-15_eb1cc5588e29aee7a5b408400c9b1349">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>chapters_gamma <span class="ot">&lt;-</span> <span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb13-2"><a href="#cb13-2"></a>                       <span class="at">document_names =</span> <span class="fu">rownames</span>(words_sparse))</span>
 <span id="cb13-3"><a href="#cb13-3"></a>chapters_gamma</span>
@@ -699,7 +699,7 @@ Julia Silge
 <section id="how-are-documents-classified-1" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-16_d4fcfede1a34b21091a16fe563acf8e6">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-16_f2a3ef2c198ec4a2de3659a22f04a2fd">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
 <span id="cb14-3"><a href="#cb14-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
@@ -710,7 +710,7 @@ Julia Silge
 <section id="how-are-documents-classified-2" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-17_656d5e686a9010acf5c76f849953fdf3">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-17_6e99971eaf7d39fbae237bbcad24019d">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
 <span id="cb15-2"><a href="#cb15-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
 <span id="cb15-3"><a href="#cb15-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
@@ -735,7 +735,7 @@ Julia Silge
 </section>
 <section id="how-are-documents-classified-4" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-18_40e32d9006554dd61cc45359c64a021b">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-18_401aa9c02c4ed5f814a25af308a71d4c">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>chapters_parsed <span class="sc">%&gt;%</span></span>
 <span id="cb16-2"><a href="#cb16-2"></a>    <span class="fu">mutate</span>(<span class="at">title =</span> <span class="fu">fct_reorder</span>(title, gamma <span class="sc">*</span> topic)) <span class="sc">%&gt;%</span></span>
 <span id="cb16-3"><a href="#cb16-3"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">factor</span>(topic), gamma)) <span class="sc">+</span></span>
@@ -746,7 +746,7 @@ Julia Silge
 <section id="section-2" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-19-1.svg" class="r-stretch quarto-figure-center"><div class="footer">
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-19-1.png" width="768" class="r-stretch quarto-figure-center"><div class="footer">
 
 </div>
 </section></section>
@@ -782,7 +782,7 @@ Julia Silge
 <ul>
 <li>Document-level covariates</li>
 </ul>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-20_9ce4bef064e19352f79c2a7d2c59e0ab">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-20_95ad1ddce9ba5e0b4c1d2051dbf56bd4">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(words_sparse, </span>
 <span id="cb17-2"><a href="#cb17-2"></a>                   <span class="at">K =</span> <span class="dv">0</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>,</span>
 <span id="cb17-3"><a href="#cb17-3"></a>                   <span class="at">prevalence =</span> <span class="sc">~</span><span class="fu">s</span>(Year),</span>
@@ -818,7 +818,7 @@ Julia Silge
 </section>
 <section id="train-many-topic-models" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-21_1a363b3877c9da8106fb2966a967bcac">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-21_ad3f0ef94cf5cb429a3ba32aaba5e725">
 <div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">library</span>(furrr)</span>
 <span id="cb18-2"><a href="#cb18-2"></a><span class="fu">plan</span>(multicore)</span>
 <span id="cb18-3"><a href="#cb18-3"></a></span>
@@ -840,7 +840,7 @@ Julia Silge
 </section>
 <section id="train-many-topic-models-1" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-22_aa194190d52c4b8858a5f1800557dea8">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-22_578bd76edee0007ab5b61c53bf74e07b">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>heldout <span class="ot">&lt;-</span> <span class="fu">make.heldout</span>(words_sparse)</span>
 <span id="cb19-2"><a href="#cb19-2"></a></span>
 <span id="cb19-3"><a href="#cb19-3"></a>k_result <span class="ot">&lt;-</span> many_models <span class="sc">%&gt;%</span></span>
@@ -856,7 +856,7 @@ Julia Silge
 </section>
 <section id="train-many-topic-models-2" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-23_597cf21ee1360b914577e60adb1feb34">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-23_5e2cdd801f037bf3f0346fb9eeb0fe84">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>k_result</span>
 <span id="cb20-2"><a href="#cb20-2"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
 <span id="cb20-3"><a href="#cb20-3"></a><span class="co">#&gt;       K topic_…¹ exclu…² seman…³ eval_heldout residual       bound lfact  lbound</span></span>
@@ -872,7 +872,7 @@ Julia Silge
 </section>
 <section id="train-many-topic-models-3" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-24_bbc8624fdd0cf20499bec59f625b2a23">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-24_3ad1230e518610b3e94cd50902feb740">
 <div class="sourceCode cell-code" id="cb21" data-code-line-numbers="|4|5|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>k_result <span class="sc">%&gt;%</span></span>
 <span id="cb21-2"><a href="#cb21-2"></a>    <span class="fu">transmute</span>(K,</span>
 <span id="cb21-3"><a href="#cb21-3"></a>              <span class="st">`</span><span class="at">Lower bound</span><span class="st">`</span>         <span class="ot">=</span> lbound,</span>
@@ -888,7 +888,7 @@ Julia Silge
 <section id="section-6" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-25-1.svg" class="r-stretch quarto-figure-center"><div class="footer">
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-25-1.png" width="960" class="r-stretch quarto-figure-center"><div class="footer">
 
 </div>
 </section>
@@ -905,7 +905,7 @@ Julia Silge
 </section>
 <section id="train-many-topic-models-4" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-26_8a262c4cc410b715bcc4699cc0fc2b76">
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-26_1a4da2165ba34c3a1f66e7cdcbed2ca8">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>k_result <span class="sc">%&gt;%</span></span>
 <span id="cb22-2"><a href="#cb22-2"></a>    <span class="fu">select</span>(K, exclusivity, semantic_coherence) <span class="sc">%&gt;%</span></span>
 <span id="cb22-3"><a href="#cb22-3"></a>    <span class="fu">filter</span>(K <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span></span>
@@ -918,7 +918,7 @@ Julia Silge
 <section id="section-7" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-27-1.svg" class="r-stretch quarto-figure-center"></section>
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-27-1.png" width="672" class="r-stretch quarto-figure-center"></section>
 <section id="jane-wants-to-know-2" class="slide level2" data-transition="slide-in">
 <h2>Jane wants to know…</h2>
 <p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>

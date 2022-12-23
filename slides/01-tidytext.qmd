@@ -54,7 +54,7 @@ install.packages(c("tidyverse",
 
 ## What do we mean by tidy text? {background-color="white"}
 
-![](figs/purple_emily.png){.absolute top="-50" right="0" width="100"}
+![](figs/purple_emily.png){.absolute top="-30" right="0" width="100"}
 
 ```{r}
 text <- c("Tell all the truth but tell it slant —",
@@ -71,7 +71,7 @@ text
 
 ## What do we mean by tidy text? {background-color="white"}
 
-![](figs/purple_emily.png){.absolute top="-50" right="0" width="100"}
+![](figs/purple_emily.png){.absolute top="-30" right="0" width="100"}
 
 ```{r}
 library(tidyverse)
@@ -83,7 +83,7 @@ text_df
 
 ## What do we mean by tidy text? {background-color="white"}
 
-![](figs/purple_emily.png){.absolute top="-50" right="0" width="100"}
+![](figs/purple_emily.png){.absolute top="-30" right="0" width="100"}
 
 ```{r}
 #| code-line-numbers: "|4"

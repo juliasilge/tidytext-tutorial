@@ -47,5 +47,3 @@ format:
       - cosmo
       - footer.css
     toc: false
-
-fig-format: svg    

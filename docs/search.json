@@ -676,7 +676,7 @@
     "href": "slides/04-sml-text.html#section-1",
     "title": "Text Mining",
     "section": "",
-    "text": "library(tidymodels)\n#> ── Attaching packages ────────────────────────────────────── tidymodels 1.0.0 ──\n#> ✔ broom        1.0.2     ✔ rsample      1.1.1\n#> ✔ dials        1.1.0     ✔ tune         1.0.1\n#> ✔ infer        1.0.4     ✔ workflows    1.1.2\n#> ✔ modeldata    1.0.1     ✔ workflowsets 1.0.0\n#> ✔ parsnip      1.0.3     ✔ yardstick    1.1.0\n#> ✔ recipes      1.0.3\n#> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──\n#> ✖ scales::discard() masks purrr::discard()\n#> ✖ dplyr::filter()   masks stats::filter()\n#> ✖ recipes::fixed()  masks stringr::fixed()\n#> ✖ dplyr::lag()      masks stats::lag()\n#> ✖ yardstick::spec() masks readr::spec()\n#> ✖ recipes::step()   masks stats::step()\n#> • Dig deeper into tidy modeling with R at https://www.tmwr.org"
+    "text": "library(tidymodels)"
   },
   {
     "objectID": "slides/04-sml-text.html#learn-more",
