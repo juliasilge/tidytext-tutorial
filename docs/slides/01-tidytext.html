@@ -423,7 +423,7 @@ Julia Silge
 </section>
 <section id="lets-install-some-packages" class="slide level2" data-background-color="white">
 <h2>Let’s install some packages</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-2_e955cbc57a41f26c58c7eb40d43d5630">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-2_0b340d888fc824e9b80d38c8554003d8">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, </span>
 <span id="cb1-2"><a href="#cb1-2"></a>                   <span class="st">"tidytext"</span>,</span>
 <span id="cb1-3"><a href="#cb1-3"></a>                   <span class="st">"stopwords"</span>,</span>
@@ -433,7 +433,7 @@ Julia Silge
 <section id="what-do-we-mean-by-tidy-text" class="slide level2" data-background-color="white">
 <h2>What do we mean by tidy text?</h2>
 <p><img data-src="figs/purple_emily.png" class="absolute" style="top: -50px; right: 0px; width: 100px; "></p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-3_22282083259e68aaef984ca8454416d1">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-3_e5ad0fd8be71e0fe459b2763fe5ceb12">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>text <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Tell all the truth but tell it slant —"</span>,</span>
 <span id="cb2-2"><a href="#cb2-2"></a>          <span class="st">"Success in Circuit lies"</span>,</span>
 <span id="cb2-3"><a href="#cb2-3"></a>          <span class="st">"Too bright for our infirm Delight"</span>,</span>
@@ -457,7 +457,7 @@ Julia Silge
 <section id="what-do-we-mean-by-tidy-text-1" class="slide level2" data-background-color="white">
 <h2>What do we mean by tidy text?</h2>
 <p><img data-src="figs/purple_emily.png" class="absolute" style="top: -50px; right: 0px; width: 100px; "></p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-4_ba51e6c40fd16d4482e736e009c06342">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-4_a9f20db63cc5ee38565942c932feceaf">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-2"><a href="#cb3-2"></a></span>
 <span id="cb3-3"><a href="#cb3-3"></a>text_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">line =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>, <span class="at">text =</span> text)</span>
@@ -479,7 +479,7 @@ Julia Silge
 <section id="what-do-we-mean-by-tidy-text-2" class="slide level2" data-background-color="white">
 <h2>What do we mean by tidy text?</h2>
 <p><img data-src="figs/purple_emily.png" class="absolute" style="top: -50px; right: 0px; width: 100px; "></p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-5_e909b5500f6b5f2f61c8a94bb7a045b3">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-5_92c0d2718eaa22666422f2095069357c">
 <div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">library</span>(tidytext)</span>
 <span id="cb4-2"><a href="#cb4-2"></a></span>
 <span id="cb4-3"><a href="#cb4-3"></a>text_df <span class="sc">%&gt;%</span></span>
@@ -513,7 +513,7 @@ Julia Silge
 <section id="gathering-more-data" class="slide level2" data-background-color="white">
 <h2>Gathering more data</h2>
 <p>You can access the full text of many public domain works from Project Gutenberg using the gutenbergr package.</p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-6_8dd86ee24401132cf72d906b22881dbf">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-6_d3624dc4b8046a641d72315065e25f71">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(gutenbergr)</span>
 <span id="cb5-2"><a href="#cb5-2"></a></span>
 <span id="cb5-3"><a href="#cb5-3"></a>full_text <span class="ot">&lt;-</span> <span class="fu">gutenberg_download</span>(<span class="dv">1342</span>, <span class="at">mirror =</span> my_mirror)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -525,7 +525,7 @@ Julia Silge
 </div></aside></section>
 <section id="time-to-tidy-your-text" class="slide level2" data-background-color="white">
 <h2>Time to tidy your text!</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-7_6703f7e76c233e3de2f93728d59ba6c0">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-7_a2830ac837519ea295cb2687df420dd0">
 <div class="sourceCode cell-code" id="cb6" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>tidy_book <span class="ot">&lt;-</span> full_text <span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>    <span class="fu">mutate</span>(<span class="at">line =</span> <span class="fu">row_number</span>()) <span class="sc">%&gt;%</span></span>
 <span id="cb6-3"><a href="#cb6-3"></a>    <span class="fu">unnest_tokens</span>(word, text)         </span>
@@ -541,7 +541,7 @@ Julia Silge
 <section id="what-are-the-most-common-words" class="slide level2" data-background-color="white">
 <h2>What are the most common words?</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-8_bcc85a0474a2f9ac06d0ab66afecc219">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-8_7ec80147f188baa38e630e456e443f20">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a>    <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -549,7 +549,7 @@ Julia Silge
 <section id="what-are-the-most-common-words-1" class="slide level2" data-background-color="white">
 <h2>What are the most common words?</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-9_28b9068f98d8df2124672e94e6ac46ff">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-9_5dc9acb49ecace260a67651c85ed6e63">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>    <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; # A tibble: 7,118 × 2</span></span>
@@ -573,7 +573,7 @@ Julia Silge
 </section>
 <section id="stop-words-1" class="slide level2" data-background-color="white">
 <h2>Stop words</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-10_ab7bd6dd083bd02243d9f3a43d0547c0">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-10_01db13dd0404c9add620c724987031c6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="fu">get_stopwords</span>()</span>
 <span id="cb9-2"><a href="#cb9-2"></a><span class="co">#&gt; # A tibble: 175 × 2</span></span>
 <span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt;    word      lexicon </span></span>
@@ -593,7 +593,7 @@ Julia Silge
 </section>
 <section id="stop-words-2" class="slide level2" data-background-color="white">
 <h2>Stop words</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-11_e40af5ab5c1ea1c98cc6da8e2b1e0640">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-11_57acce8cac7519cd810242015495f362">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">get_stopwords</span>(<span class="at">language =</span> <span class="st">"es"</span>)</span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt; # A tibble: 308 × 2</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt;    word  lexicon </span></span>
@@ -613,7 +613,7 @@ Julia Silge
 </section>
 <section id="stop-words-3" class="slide level2" data-background-color="white">
 <h2>Stop words</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-12_4de4a4e6647053c58ed17fe3463cd658">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-12_c4135727b2c654e27840d82718acec5c">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">get_stopwords</span>(<span class="at">language =</span> <span class="st">"fr"</span>)</span>
 <span id="cb11-2"><a href="#cb11-2"></a><span class="co">#&gt; # A tibble: 164 × 2</span></span>
 <span id="cb11-3"><a href="#cb11-3"></a><span class="co">#&gt;    word  lexicon </span></span>
@@ -633,7 +633,7 @@ Julia Silge
 </section>
 <section id="stop-words-4" class="slide level2" data-background-color="white">
 <h2>Stop words</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-13_ec26d54801b3435f786833544c5f5f06">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-13_6dff5b6dee3abe6e21e4da9123f41a2a">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="fu">get_stopwords</span>(<span class="at">source =</span> <span class="st">"smart"</span>)</span>
 <span id="cb12-2"><a href="#cb12-2"></a><span class="co">#&gt; # A tibble: 571 × 2</span></span>
 <span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt;    word        lexicon</span></span>
@@ -663,7 +663,7 @@ Julia Silge
 </section>
 <section id="what-are-the-most-common-words-3" class="slide level2" data-background-color="white">
 <h2>What are the most common words?</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-14_8ec9691ede75eaaa00b271e93efe6bc9">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-14_cdf56dd41997d403115c27484715f947">
 <div class="sourceCode cell-code" id="cb13" data-code-line-numbers="|5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb13-2"><a href="#cb13-2"></a>    <span class="fu">anti_join</span>(<span class="fu">get_stopwords</span>(<span class="at">source =</span> <span class="st">"smart"</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb13-3"><a href="#cb13-3"></a>    <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
@@ -695,7 +695,7 @@ Julia Silge
 </section>
 <section id="sentiment-lexicons" class="slide level2" data-background-color="white">
 <h2>Sentiment lexicons</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-16_215acec23b158242bf75682f9bc5f14c">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-16_a9641b3e65281283769af765b052933f">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">get_sentiments</span>(<span class="st">"afinn"</span>)</span>
 <span id="cb14-2"><a href="#cb14-2"></a><span class="co">#&gt; # A tibble: 2,477 × 2</span></span>
 <span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt;    word       value</span></span>
@@ -715,7 +715,7 @@ Julia Silge
 </section>
 <section id="sentiment-lexicons-1" class="slide level2" data-background-color="white">
 <h2>Sentiment lexicons</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-17_cb0f89d3362ee5dadc988bda9f3bb18b">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-17_964dcf2287fd743e44600205af771652">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">get_sentiments</span>(<span class="st">"bing"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2"></a><span class="co">#&gt; # A tibble: 6,786 × 2</span></span>
 <span id="cb15-3"><a href="#cb15-3"></a><span class="co">#&gt;    word        sentiment</span></span>
@@ -735,7 +735,7 @@ Julia Silge
 </section>
 <section id="sentiment-lexicons-2" class="slide level2" data-background-color="white">
 <h2>Sentiment lexicons</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-18_4b68ba9ef997acc68f407e03d29fb115">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-18_ff4946520342db4dbc663f46635d17b6">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">get_sentiments</span>(<span class="st">"nrc"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2"></a><span class="co">#&gt; # A tibble: 13,872 × 2</span></span>
 <span id="cb16-3"><a href="#cb16-3"></a><span class="co">#&gt;    word        sentiment</span></span>
@@ -755,7 +755,7 @@ Julia Silge
 </section>
 <section id="sentiment-lexicons-3" class="slide level2" data-background-color="white">
 <h2>Sentiment lexicons</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-19_eda481c63d0367111c1c95726fd5800d">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-19_0cfd60fd8bf391e9c7ca9ebc32ee9de8">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">get_sentiments</span>(<span class="st">"loughran"</span>)</span>
 <span id="cb17-2"><a href="#cb17-2"></a><span class="co">#&gt; # A tibble: 4,150 × 2</span></span>
 <span id="cb17-3"><a href="#cb17-3"></a><span class="co">#&gt;    word         sentiment</span></span>
@@ -775,7 +775,7 @@ Julia Silge
 </section>
 <section id="implementing-sentiment-analysis" class="slide level2" data-background-color="white">
 <h2>Implementing sentiment analysis</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-20_7b9651d5bb9152f0cacef59b56e267bd">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-20_008e93ad9e2b230b28464417d1d147aa">
 <div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb18-2"><a href="#cb18-2"></a>    <span class="fu">inner_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"bing"</span>)) <span class="sc">%&gt;%</span> </span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">count</span>(sentiment, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
@@ -800,7 +800,7 @@ Julia Silge
 <section id="implementing-sentiment-analysis-1" class="slide level2" data-background-color="white">
 <h2>Implementing sentiment analysis</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-21_254a37b6cc6924a4dae18eae8c36f82e">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-21_ad71b1418616e7def9eda43d5813f952">
 <div class="sourceCode cell-code" id="cb19" data-code-line-numbers="|3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb19-2"><a href="#cb19-2"></a>    <span class="fu">inner_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"bing"</span>)) <span class="sc">%&gt;%</span>            </span>
 <span id="cb19-3"><a href="#cb19-3"></a>    <span class="fu">count</span>(sentiment, word, <span class="at">sort =</span> <span class="cn">TRUE</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -809,7 +809,7 @@ Julia Silge
 <section id="implementing-sentiment-analysis-2" class="slide level2" data-background-color="white">
 <h2>Implementing sentiment analysis</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-22_094c84a8f49873ae26ee26148ca14b5c">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-22_fc62bdee24ec863198ad5775a7bc16d8">
 <div class="sourceCode cell-code" id="cb20" data-code-line-numbers="3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb20-2"><a href="#cb20-2"></a>    <span class="fu">inner_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"bing"</span>)) <span class="sc">%&gt;%</span>            </span>
 <span id="cb20-3"><a href="#cb20-3"></a>    <span class="fu">count</span>(sentiment, word, <span class="at">sort =</span> <span class="cn">TRUE</span>)   </span>
@@ -831,7 +831,7 @@ Julia Silge
 </section>
 <section id="implementing-sentiment-analysis-3" class="slide level2" data-background-color="white">
 <h2>Implementing sentiment analysis</h2>
-<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-23_036523c43a623b5e4bf251267a06f06f">
+<div class="cell" data-hash="01-tidytext_cache/revealjs/unnamed-chunk-23_9d3dc795be000036bc75a67c8495d268">
 <div class="sourceCode cell-code" id="cb21" data-code-line-numbers="|7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>tidy_book <span class="sc">%&gt;%</span></span>
 <span id="cb21-2"><a href="#cb21-2"></a>    <span class="fu">inner_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"bing"</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb21-3"><a href="#cb21-3"></a>    <span class="fu">count</span>(sentiment, word, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>

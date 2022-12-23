@@ -423,7 +423,7 @@ Julia Silge
 </section>
 <section id="lets-install-some-packages" class="slide level2" data-background-color="white">
 <h2>Let’s install some packages</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-2_8692eb2621310f62a8d9afc1f6013fea">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-2_34cdaf1cd74c6ff038a361b4ab6bba2f">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"tidyverse"</span>, </span>
 <span id="cb1-2"><a href="#cb1-2"></a>                   <span class="st">"tidytext"</span>,</span>
 <span id="cb1-3"><a href="#cb1-3"></a>                   <span class="st">"stopwords"</span>,</span>
@@ -455,7 +455,7 @@ Julia Silge
 <section id="understanding-tf-idf" class="slide level2" data-background-color="white">
 <h2>Understanding tf-idf</h2>
 <p>Make a collection (<em>corpus</em>) for yourself! 💅</p>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-3_4ce4cb60c6c5147efed0f82eeab1a0dc">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-3_c4eaad5169f3e818a25409f50675e8bb">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="fu">library</span>(gutenbergr)</span>
 <span id="cb2-2"><a href="#cb2-2"></a>full_collection <span class="ot">&lt;-</span> <span class="fu">gutenberg_download</span>(<span class="fu">c</span>(<span class="dv">141</span>, <span class="dv">158</span>, <span class="dv">161</span>, <span class="dv">1342</span>),</span>
 <span id="cb2-3"><a href="#cb2-3"></a>                                      <span class="at">meta_fields =</span> <span class="st">"title"</span>,</span>
@@ -465,7 +465,7 @@ Julia Silge
 <section id="understanding-tf-idf-1" class="slide level2" data-background-color="white">
 <h2>Understanding tf-idf</h2>
 <p>Make a collection (<em>corpus</em>) for yourself! 💅</p>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-4_858729a032821a6e8aeadb4da858b1d8">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-4_ebae1d3b26841ede9b0f739fac697fae">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>full_collection</span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt; # A tibble: 59,360 × 3</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt;    gutenberg_id text             title         </span></span>
@@ -485,7 +485,7 @@ Julia Silge
 </section>
 <section id="counting-word-frequencies" class="slide level2" data-background-color="white">
 <h2>Counting word frequencies</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-5_a9eb11b2563e1cb8fc39b8d88885d60c">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-5_2a629d007cfc7dc748e8c1397b03e343">
 <div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb4-2"><a href="#cb4-2"></a><span class="fu">library</span>(tidytext)</span>
 <span id="cb4-3"><a href="#cb4-3"></a></span>
@@ -497,14 +497,14 @@ Julia Silge
 </section>
 <section id="calculating-tf-idf" class="slide level2" data-background-color="white">
 <h2>Calculating tf-idf</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-6_f16085c4bec6a0a9368ee4e926b89222">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-6_2a2fa4baf5d686abedc3cb72ce0ee892">
 <div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>book_tf_idf <span class="ot">&lt;-</span> book_words <span class="sc">%&gt;%</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a>    <span class="fu">bind_tf_idf</span>(word, title, n)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="calculating-tf-idf-1" class="slide level2" data-background-color="white">
 <h2>Calculating tf-idf</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-7_257b98bfa965fc577b950b929ea1d5f4">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-7_887599fa9145640ad84a2e6a13c9db3f">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>book_tf_idf</span>
 <span id="cb6-2"><a href="#cb6-2"></a><span class="co">#&gt; # A tibble: 29,055 × 6</span></span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt;    title               word      n     tf   idf tf_idf</span></span>
@@ -528,7 +528,7 @@ Julia Silge
 <section id="calculating-tf-idf-2" class="slide level2" data-background-color="white">
 <h2>Calculating tf-idf</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-8_3f5c9b6b5decc96968de94b773bbb8cd">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-8_0745c1679395705e2079393bfc277366">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>book_tf_idf <span class="sc">%&gt;%</span></span>
 <span id="cb7-2"><a href="#cb7-2"></a>    <span class="fu">arrange</span>(<span class="sc">-</span>tf_idf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -536,7 +536,7 @@ Julia Silge
 <section id="calculating-tf-idf-3" class="slide level2" data-background-color="white">
 <h2>Calculating tf-idf</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-9_0303db28780ed0d79ae5d73cff3dc709">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-9_f1bfb8c5aba33f50d90905ec5d877390">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>book_tf_idf <span class="sc">%&gt;%</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>    <span class="fu">arrange</span>(<span class="sc">-</span>tf_idf)</span>
 <span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; # A tibble: 29,055 × 6</span></span>
@@ -567,7 +567,7 @@ Julia Silge
 </section>
 <section id="calculating-tf-idf-5" class="slide level2" data-background-color="white">
 <h2>Calculating tf-idf</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-10_38dfbd73391ff081a7ba405cdd4032f5">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-10_9c263a7a561e616968ff02be12612617">
 <div class="sourceCode cell-code" id="cb9" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>book_tf_idf <span class="sc">%&gt;%</span></span>
 <span id="cb9-2"><a href="#cb9-2"></a>    <span class="fu">group_by</span>(title) <span class="sc">%&gt;%</span></span>
 <span id="cb9-3"><a href="#cb9-3"></a>    <span class="fu">slice_max</span>(tf_idf, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
@@ -607,7 +607,7 @@ Julia Silge
 </section>
 <section id="weighted-log-odds-1" class="slide level2" data-background-color="white">
 <h2>Weighted log odds ⚖️</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-12_6685319515997a068f1379b99c4cda0f">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-12_53cf3b7f84190d20d886704fd4e4d43e">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">library</span>(tidylo)</span>
 <span id="cb10-2"><a href="#cb10-2"></a>book_words <span class="sc">%&gt;%</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a>    <span class="fu">bind_log_odds</span>(title, word, n) <span class="sc">%&gt;%</span></span>
@@ -638,7 +638,7 @@ Julia Silge
 </section>
 <section id="n-grams-and-beyond-1" class="slide level2" data-background-color="white">
 <h2>N-grams… and beyond! 🚀</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-13_c1b9f41609a1bad9d98e87559ca91d72">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-13_00b8abe819eb534705ad46041d773bf3">
 <div class="sourceCode cell-code" id="cb11" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>full_text <span class="ot">&lt;-</span> <span class="fu">gutenberg_download</span>(<span class="dv">158</span>, <span class="at">mirror =</span> my_mirror)</span>
 <span id="cb11-2"><a href="#cb11-2"></a></span>
 <span id="cb11-3"><a href="#cb11-3"></a>tidy_ngram <span class="ot">&lt;-</span> full_text <span class="sc">%&gt;%</span></span>
@@ -648,7 +648,7 @@ Julia Silge
 </section>
 <section id="n-grams-and-beyond-2" class="slide level2" data-background-color="white">
 <h2>N-grams… and beyond! 🚀</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-14_3ed0b1ebcd37959b51420a431e629e75">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-14_0eee1b68c3d0afae265918f04fc28693">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>tidy_ngram</span>
 <span id="cb12-2"><a href="#cb12-2"></a><span class="co">#&gt; # A tibble: 147,256 × 2</span></span>
 <span id="cb12-3"><a href="#cb12-3"></a><span class="co">#&gt;    gutenberg_id bigram     </span></span>
@@ -668,7 +668,7 @@ Julia Silge
 </section>
 <section id="n-grams-and-beyond-3" class="slide level2" data-background-color="white">
 <h2>N-grams… and beyond! 🚀</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-15_d9044fbad2abbd6717f672406ff4bef0">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-15_d62342f76dd154e088a78d7da2118a48">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>tidy_ngram <span class="sc">%&gt;%</span></span>
 <span id="cb13-2"><a href="#cb13-2"></a>    <span class="fu">count</span>(bigram, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt; # A tibble: 61,242 × 2</span></span>
@@ -698,7 +698,7 @@ Julia Silge
 </section>
 <section id="n-grams-and-beyond-4" class="slide level2" data-background-color="white">
 <h2>N-grams… and beyond! 🚀</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-16_5a46ac510466895470b9945ff5b1a27a">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-16_91f3133187c9823d6735d69508953499">
 <div class="sourceCode cell-code" id="cb14" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>bigram_counts <span class="ot">&lt;-</span> tidy_ngram <span class="sc">%&gt;%</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>    <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">"word1"</span>, <span class="st">"word2"</span>), <span class="at">sep =</span> <span class="st">" "</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb14-3"><a href="#cb14-3"></a>    <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words<span class="sc">$</span>word,</span>
@@ -708,7 +708,7 @@ Julia Silge
 </section>
 <section id="n-grams-and-beyond-5" class="slide level2" data-background-color="white">
 <h2>N-grams… and beyond! 🚀</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-17_f304aa0c35f063ff49ea4e391b468262">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-17_cce9c48d9fdc3edd99a5d0389f49adb8">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>bigram_counts</span>
 <span id="cb15-2"><a href="#cb15-2"></a><span class="co">#&gt; # A tibble: 6,526 × 3</span></span>
 <span id="cb15-3"><a href="#cb15-3"></a><span class="co">#&gt;    word1 word2         n</span></span>
@@ -763,7 +763,7 @@ Julia Silge
 </section>
 <section id="network-analysis" class="slide level2" data-background-color="white">
 <h2>Network analysis</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-18_0e6880e59a92ea04d1bba1e65a2257a5">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-18_19868fcdd3a7309c173d39ad5abd8cd5">
 <div class="sourceCode cell-code" id="cb16" data-code-line-numbers="|7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">library</span>(widyr)</span>
 <span id="cb16-2"><a href="#cb16-2"></a><span class="fu">library</span>(ggraph)</span>
 <span id="cb16-3"><a href="#cb16-3"></a><span class="fu">library</span>(tidygraph)</span>
@@ -775,7 +775,7 @@ Julia Silge
 </section>
 <section id="network-analysis-1" class="slide level2" data-background-color="white">
 <h2>Network analysis</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-19_88da1588b7bf9a036588632f102cdd84">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-19_b13335e462193c203e8c26cde2b8eae7">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>bigram_graph</span>
 <span id="cb17-2"><a href="#cb17-2"></a><span class="co">#&gt; # A tbl_graph: 81 nodes and 68 edges</span></span>
 <span id="cb17-3"><a href="#cb17-3"></a><span class="co">#&gt; #</span></span>
@@ -812,7 +812,7 @@ Julia Silge
 </section>
 <section id="network-analysis-2" class="slide level2" data-background-color="white">
 <h2>Network analysis</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-20_5c7fa11717262d5b20cda2a2c72416d7">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-20_330a5f55acc05bb155b699bcb7462604">
 <div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|3,4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>bigram_graph <span class="sc">%&gt;%</span></span>
 <span id="cb18-2"><a href="#cb18-2"></a>    <span class="fu">ggraph</span>(<span class="at">layout =</span> <span class="st">"kk"</span>) <span class="sc">+</span></span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">geom_edge_link</span>(<span class="fu">aes</span>(<span class="at">edge_alpha =</span> n)) <span class="sc">+</span> </span>
@@ -822,7 +822,7 @@ Julia Silge
 </section>
 <section id="network-analysis-3" class="slide level2" data-background-color="white">
 <h2>Network analysis</h2>
-<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-21_c8139398c48f4a879922bf825c515b25">
+<div class="cell" data-hash="02-more-eda_cache/revealjs/unnamed-chunk-21_56dd00732f58c1f27428fb0a134a72fc">
 <div class="sourceCode cell-code" id="cb19" data-code-line-numbers="|3,8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>bigram_graph <span class="sc">%&gt;%</span></span>
 <span id="cb19-2"><a href="#cb19-2"></a>    <span class="fu">ggraph</span>(<span class="at">layout =</span> <span class="st">"kk"</span>) <span class="sc">+</span></span>
 <span id="cb19-3"><a href="#cb19-3"></a>    <span class="fu">geom_edge_link</span>(<span class="fu">aes</span>(<span class="at">edge_alpha =</span> n), </span>
