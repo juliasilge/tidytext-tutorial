@@ -197,15 +197,15 @@ chapter_topics
 
 [U N S C R A M B L E]{.lavender}
 
-top_terms <- chapter_topics %>%
+top_terms \<- chapter_topics %\>%
 
-ungroup() %>%
+ungroup() %\>%
 
-group_by(topic) %>%
+group_by(topic) %\>%
 
 arrange(topic, -beta)
 
-slice_max(beta, n = 10) %>%
+slice_max(beta, n = 10) %\>%
 
 ## Explore the topic model output {background-color="white"}
 
@@ -253,6 +253,38 @@ top_terms %>%
 ::: footer
 :::
 
+# Identify important words {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+
+. . .
+
+⭐ FREX
+
+⬆️ LIFT
+
+## High FREX words {background-color="white"}
+
+High frequency *and* high exclusivity
+
+```{r}
+tidy(topic_model, matrix = "frex")
+```
+
+## High lift words {background-color="white"}
+
+Topic-word distribution **divided** by word count distribution
+
+```{r}
+tidy(topic_model, matrix = "lift")
+```
+
+#
+
+<center>
+
+{{< video https://www.youtube.com/embed/2wcDYVb-2AY width="960" height="540" >}}
+
+</center>
+
 ## How are documents classified? {background-color="white"}
 
 ```{r}
@@ -290,13 +322,13 @@ glimpse(chapters_parsed)
 
 [U N S C R A M B L E]{.lavender}
 
-chapters_parsed %>%
+chapters_parsed %\>%
 
 ggplot(aes(factor(topic), gamma)) +
 
 facet_wrap(vars(title))
 
-mutate(title = fct_reorder(title, gamma * topic)) %>%
+mutate(title = fct_reorder(title, gamma \* topic)) %\>%
 
 geom_boxplot() +
 
@@ -342,13 +374,9 @@ Which words in each document are assigned to which topics?
 # 
 
 <center>
+
 {{< video https://www.youtube.com/embed/2i0Cu8MMGRc width="960" height="540" >}}
-</center>
 
-# 
-
-<center>
-{{< video https://www.youtube.com/embed/2wcDYVb-2AY width="960" height="540" >}}
 </center>
 
 ## Using stm {background-color="white"}
@@ -364,7 +392,7 @@ topic_model <- stm(words_sparse,
 ```
 
 -   Use functions for `semanticCoherence()`, `checkResiduals()`,
-`exclusivity()`, and more!
+    `exclusivity()`, and more!
 
 -   Check out <http://www.structuraltopicmodel.com/>
 
@@ -372,7 +400,9 @@ topic_model <- stm(words_sparse,
 
 "Comparing Apples to Apple: The Effects of Stemmers on Topic Models":
 
-> Despite their frequent use in topic modeling, we find that stemmers produce no meaningful improvement in likelihood and coherence and in fact can degrade topic stability.
+> Despite their frequent use in topic modeling, we find that stemmers
+> produce no meaningful improvement in likelihood and coherence and in
+> fact can degrade topic stability.
 
 ::: footer
 [Schofield & Mimno
@@ -466,12 +496,12 @@ k_result %>%
 
 ::: incremental
 -   Semantic coherence is maximized when the most probable words in a
-given topic frequently co-occur together
+    given topic frequently co-occur together
 
 -   Correlates well with human judgment of topic quality 😃
 
 -   Having high semantic coherence is relatively easy, though, if you
-only have a few topics dominated by very common words 😩
+    only have a few topics dominated by very common words 😩
 
 -   Measure semantic coherence **and** exclusivity
 :::
@@ -489,7 +519,7 @@ k_result %>%
     geom_point()
 ```
 
-## {background-color="white"}
+##  {background-color="white"}
 
 ```{r}
 #| echo: false
@@ -523,7 +553,6 @@ Topic modeling is an example of...
 <https://juliasilge.com/blog/evaluating-stm/>
 :::
 
-
 ## Workflow for text mining/modeling {background-image="figs/tmwr_0601.png" background-size="60%" background-color="white"}
 
 ::: footer
@@ -537,11 +566,13 @@ Topic modeling is an example of...
 
 <img src="figs/blue_jane.png" width="150px"/>
 
-[{{< fa brands mastodon >}} \@juliasilge](https://fosstodon.org/@juliasilge)
+[{{< fa brands mastodon >}}
+\@juliasilge](https://fosstodon.org/@juliasilge)
 
 [{{< fa brands github >}} \@juliasilge](https://github.com/juliasilge)
 
-[{{< fa brands youtube >}} youtube.com/juliasilge](https://www.youtube.com/juliasilge)
+[{{< fa brands youtube >}}
+youtube.com/juliasilge](https://www.youtube.com/juliasilge)
 
 [{{< fa link >}} juliasilge.com](https://juliasilge.com/)
 
