@@ -231,7 +231,7 @@ tidy_book %>%
 ::: footer
 :::
 
-# SENTIMENT ANALYSIS 😄😢😠 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
+# SENTIMENT ANALYSIS </br>😄😢😠 {background-image="figs/p_and_p_cover.png" background-size="cover" background-opacity="0.5"}
 
 ## Sentiment lexicons {background-color="white"}
 
