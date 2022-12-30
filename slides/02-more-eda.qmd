@@ -257,7 +257,7 @@ tidy_ngram %>%
 ![](figs/blue_jane.png){.absolute top="0" right="0" width="150"
 height="150"}
 
-Can we use an [anti_join()]{.codedarkbg} right away to remove stop words?
+Can we use an [anti_join()]{.codedarkbg} now to remove stop words?
 
 -   Yes! ✅
 -   No ☹️
@@ -383,7 +383,7 @@ bigram_graph %>%
                    end_cap = circle(3.3, 'mm')) +
     geom_node_text(aes(label = name),
                    size = 4,
-                   family = "RobotoCondensed-Regular") +
+                   family = "IBMPlexSans") +
     theme_graph()
 ```
 

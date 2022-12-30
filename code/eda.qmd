@@ -143,10 +143,10 @@ book_words
 Calculate tf-idf.
 
 ```{r}
-book_tfidf <- book_words %>%
+book_tf_idf <- book_words %>%
   ___
 
-book_tfidf
+book_tf_idf
 ```
 
 What do you predict will happen if we run the following code?
@@ -155,7 +155,7 @@ What do you predict will happen if we run the following code?
 
 
 ```{r}
-book_tfidf %>%
+book_tf_idf %>%
   ___
 ```
 
@@ -164,7 +164,7 @@ book_tfidf %>%
 ```{r}
 group_by(title) %>%
 
-book_tfidf %>%
+book_tf_idf %>%
 
 slice_max(tf_idf, n = 10) %>%
 
@@ -173,6 +173,16 @@ ggplot(aes(tf_idf, fct_reorder(word, tf_idf), fill = title)) +
 facet_wrap(~title, scales = "free")
 
 geom_col(show.legend = FALSE) +
+```
+
+Weighted log odds is another approach for measuring what a document is about.
+
+```{r}
+library(tidylo)
+
+book_words %>%
+    ___(title, word, n) %>%
+    arrange(-log_odds_weighted)
 ```
 
 ## N-grams... and BEYOND
