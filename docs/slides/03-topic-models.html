@@ -673,55 +673,112 @@ Julia Silge
 <img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-14-1.png" width="2100" class="r-stretch quarto-figure-center"><div class="footer">
 
 </div>
+</section></section>
+<section>
+<section id="identify-important-words" class="title-slide slide level1 center" data-background-image="figs/p_and_p_cover.png" data-background-size="cover" data-background-opacity="0.5">
+<h1>Identify important words</h1>
+<div class="fragment">
+<p>⭐ FREX</p>
+<p>⬆️ LIFT</p>
+</div>
+</section>
+<section id="high-frex-words" class="slide level2" data-background-color="white">
+<h2>High FREX words</h2>
+<p>High frequency <em>and</em> high exclusivity</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-15_6b7eb9767632754adfaa41f93aaf80e5">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"frex"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="co">#&gt; # A tibble: 73,480 × 2</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="co">#&gt;    topic term    </span></span>
+<span id="cb13-4"><a href="#cb13-4"></a><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;   </span></span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="co">#&gt;  1     1 charade </span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;  2     1 taylor  </span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt;  3     1 papa    </span></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co">#&gt;  4     1 isabella</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co">#&gt;  5     1 martin  </span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;  6     1 children</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt;  7     1 marry   </span></span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="co">#&gt;  8     1 pretty  </span></span>
+<span id="cb13-13"><a href="#cb13-13"></a><span class="co">#&gt;  9     1 likeness</span></span>
+<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt; 10     1 marriage</span></span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt; # … with 73,470 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="high-lift-words" class="slide level2" data-background-color="white">
+<h2>High lift words</h2>
+<p>Topic-word distribution <strong>divided</strong> by word count distribution</p>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-16_f64af36ce8ede67e1b4de2d6552e2b49">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"lift"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co">#&gt; # A tibble: 73,480 × 2</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt;    topic term       </span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">#&gt;    &lt;int&gt; &lt;chr&gt;      </span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="co">#&gt;  1     1 charade    </span></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="co">#&gt;  2     1 monarch    </span></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="co">#&gt;  3     1 hannah     </span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co">#&gt;  4     1 hating     </span></span>
+<span id="cb14-9"><a href="#cb14-9"></a><span class="co">#&gt;  5     1 humours    </span></span>
+<span id="cb14-10"><a href="#cb14-10"></a><span class="co">#&gt;  6     1 militia    </span></span>
+<span id="cb14-11"><a href="#cb14-11"></a><span class="co">#&gt;  7     1 widower    </span></span>
+<span id="cb14-12"><a href="#cb14-12"></a><span class="co">#&gt;  8     1 likenesses </span></span>
+<span id="cb14-13"><a href="#cb14-13"></a><span class="co">#&gt;  9     1 subjection </span></span>
+<span id="cb14-14"><a href="#cb14-14"></a><span class="co">#&gt; 10     1 _courtship_</span></span>
+<span id="cb14-15"><a href="#cb14-15"></a><span class="co">#&gt; # … with 73,470 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section>
+<section>
+<section id="section-2" class="title-slide slide level1 center">
+<h1></h1>
+<center>
+<iframe src="https://www.youtube.com/embed/2wcDYVb-2AY" width="960" height="540" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</center>
 </section>
 <section id="how-are-documents-classified" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-15_ab2aef35e73ee7d6357cd0210185cdd1">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>chapters_gamma <span class="ot">&lt;-</span> <span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"gamma"</span>,</span>
-<span id="cb13-2"><a href="#cb13-2"></a>                       <span class="at">document_names =</span> <span class="fu">rownames</span>(words_sparse))</span>
-<span id="cb13-3"><a href="#cb13-3"></a>chapters_gamma</span>
-<span id="cb13-4"><a href="#cb13-4"></a><span class="co">#&gt; # A tibble: 408 × 3</span></span>
-<span id="cb13-5"><a href="#cb13-5"></a><span class="co">#&gt;    document                                topic    gamma</span></span>
-<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt;    &lt;chr&gt;                                   &lt;int&gt;    &lt;dbl&gt;</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt;  1 Emma_0                                      1 0.999   </span></span>
-<span id="cb13-8"><a href="#cb13-8"></a><span class="co">#&gt;  2 Emma_7                                      1 0.239   </span></span>
-<span id="cb13-9"><a href="#cb13-9"></a><span class="co">#&gt;  3 Emma_2                                      1 0.999   </span></span>
-<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt;  4 Emma_8                                      1 0.233   </span></span>
-<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt;  5 Emma_11                                     1 0.00103 </span></span>
-<span id="cb13-12"><a href="#cb13-12"></a><span class="co">#&gt;  6 Emma_6                                      1 0.999   </span></span>
-<span id="cb13-13"><a href="#cb13-13"></a><span class="co">#&gt;  7 Emma_21                                     1 0.000715</span></span>
-<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt;  8 Twenty Thousand Leagues under the Sea_0     1 0.000146</span></span>
-<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt;  9 Emma_20                                     1 0.000937</span></span>
-<span id="cb13-16"><a href="#cb13-16"></a><span class="co">#&gt; 10 Emma_19                                     1 0.000977</span></span>
-<span id="cb13-17"><a href="#cb13-17"></a><span class="co">#&gt; # … with 398 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-17_1bf5716e7434cec0438601f877a069e6">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>chapters_gamma <span class="ot">&lt;-</span> <span class="fu">tidy</span>(topic_model, <span class="at">matrix =</span> <span class="st">"gamma"</span>,</span>
+<span id="cb15-2"><a href="#cb15-2"></a>                       <span class="at">document_names =</span> <span class="fu">rownames</span>(words_sparse))</span>
+<span id="cb15-3"><a href="#cb15-3"></a>chapters_gamma</span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="co">#&gt; # A tibble: 408 × 3</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="co">#&gt;    document                                topic    gamma</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt;    &lt;chr&gt;                                   &lt;int&gt;    &lt;dbl&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt;  1 Emma_0                                      1 0.999   </span></span>
+<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt;  2 Emma_7                                      1 0.239   </span></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt;  3 Emma_2                                      1 0.999   </span></span>
+<span id="cb15-10"><a href="#cb15-10"></a><span class="co">#&gt;  4 Emma_8                                      1 0.233   </span></span>
+<span id="cb15-11"><a href="#cb15-11"></a><span class="co">#&gt;  5 Emma_11                                     1 0.00103 </span></span>
+<span id="cb15-12"><a href="#cb15-12"></a><span class="co">#&gt;  6 Emma_6                                      1 0.999   </span></span>
+<span id="cb15-13"><a href="#cb15-13"></a><span class="co">#&gt;  7 Emma_21                                     1 0.000715</span></span>
+<span id="cb15-14"><a href="#cb15-14"></a><span class="co">#&gt;  8 Twenty Thousand Leagues under the Sea_0     1 0.000146</span></span>
+<span id="cb15-15"><a href="#cb15-15"></a><span class="co">#&gt;  9 Emma_20                                     1 0.000937</span></span>
+<span id="cb15-16"><a href="#cb15-16"></a><span class="co">#&gt; 10 Emma_19                                     1 0.000977</span></span>
+<span id="cb15-17"><a href="#cb15-17"></a><span class="co">#&gt; # … with 398 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="how-are-documents-classified-1" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-16_928e16e4b26db1a4b9afe841b24300e1">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
-<span id="cb14-3"><a href="#cb14-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb14-4"><a href="#cb14-4"></a></span>
-<span id="cb14-5"><a href="#cb14-5"></a><span class="fu">glimpse</span>(chapters_parsed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-18_de013064a2682021b22fe103d9e875e1">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
+<span id="cb16-3"><a href="#cb16-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-4"><a href="#cb16-4"></a></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="fu">glimpse</span>(chapters_parsed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="how-are-documents-classified-2" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
 <p>What do you predict will happen if we run the following code? 🤔</p>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-17_362e63fced846911f3ecdc0c9c618b86">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
-<span id="cb15-3"><a href="#cb15-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb15-4"><a href="#cb15-4"></a></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="fu">glimpse</span>(chapters_parsed)</span>
-<span id="cb15-6"><a href="#cb15-6"></a><span class="co">#&gt; Rows: 408</span></span>
-<span id="cb15-7"><a href="#cb15-7"></a><span class="co">#&gt; Columns: 4</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a><span class="co">#&gt; $ title   &lt;chr&gt; "Emma", "Emma", "Emma", "Emma", "Emma", "Emma", "Emma", "Twent…</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a><span class="co">#&gt; $ chapter &lt;int&gt; 0, 7, 2, 8, 11, 6, 21, 0, 20, 19, 4, 9, 15, 21, 23, 27, 19, 14…</span></span>
-<span id="cb15-10"><a href="#cb15-10"></a><span class="co">#&gt; $ topic   &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…</span></span>
-<span id="cb15-11"><a href="#cb15-11"></a><span class="co">#&gt; $ gamma   &lt;dbl&gt; 9.986350e-01, 2.387502e-01, 9.988524e-01, 2.325374e-01, 1.0326…</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-19_1809daee6d1f84b0f440bb2789eb95fb">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>chapters_parsed <span class="ot">&lt;-</span> chapters_gamma <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>    <span class="fu">separate</span>(document, <span class="fu">c</span>(<span class="st">"title"</span>, <span class="st">"chapter"</span>), </span>
+<span id="cb17-3"><a href="#cb17-3"></a>             <span class="at">sep =</span> <span class="st">"_"</span>, <span class="at">convert =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-4"><a href="#cb17-4"></a></span>
+<span id="cb17-5"><a href="#cb17-5"></a><span class="fu">glimpse</span>(chapters_parsed)</span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="co">#&gt; Rows: 408</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a><span class="co">#&gt; Columns: 4</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a><span class="co">#&gt; $ title   &lt;chr&gt; "Emma", "Emma", "Emma", "Emma", "Emma", "Emma", "Emma", "Twent…</span></span>
+<span id="cb17-9"><a href="#cb17-9"></a><span class="co">#&gt; $ chapter &lt;int&gt; 0, 7, 2, 8, 11, 6, 21, 0, 20, 19, 4, 9, 15, 21, 23, 27, 19, 14…</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a><span class="co">#&gt; $ topic   &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…</span></span>
+<span id="cb17-11"><a href="#cb17-11"></a><span class="co">#&gt; $ gamma   &lt;dbl&gt; 9.986350e-01, 2.387502e-01, 9.988524e-01, 2.325374e-01, 1.0326…</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="how-are-documents-classified-3" class="slide level2">
@@ -735,18 +792,18 @@ Julia Silge
 </section>
 <section id="how-are-documents-classified-4" class="slide level2" data-background-color="white">
 <h2>How are documents classified?</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-18_d1db69000bbe2d0d99a3f64977ebf2ae">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>chapters_parsed <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>    <span class="fu">mutate</span>(<span class="at">title =</span> <span class="fu">fct_reorder</span>(title, gamma <span class="sc">*</span> topic)) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">factor</span>(topic), gamma)) <span class="sc">+</span></span>
-<span id="cb16-4"><a href="#cb16-4"></a>    <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
-<span id="cb16-5"><a href="#cb16-5"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(title))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-20_d950b10e3015585a4c2b7b9c57b52ad4">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>chapters_parsed <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>    <span class="fu">mutate</span>(<span class="at">title =</span> <span class="fu">fct_reorder</span>(title, gamma <span class="sc">*</span> topic)) <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">factor</span>(topic), gamma)) <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(title))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="section-2" class="slide level2" data-background-color="white">
+<section id="section-3" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-19-1.png" width="2400" class="r-stretch quarto-figure-center"><div class="footer">
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-21-1.png" width="2400" class="r-stretch quarto-figure-center"><div class="footer">
 
 </div>
 </section></section>
@@ -763,18 +820,11 @@ Julia Silge
 <li>Add information to each observation in the original data</li>
 </ul>
 </section></section>
-<section id="section-3" class="title-slide slide level1 center">
-<h1></h1>
-<center>
-<iframe src="https://www.youtube.com/embed/2i0Cu8MMGRc" width="960" height="540" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-</center>
-</section>
-
 <section>
 <section id="section-4" class="title-slide slide level1 center">
 <h1></h1>
 <center>
-<iframe src="https://www.youtube.com/embed/2wcDYVb-2AY" width="960" height="540" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe src="https://www.youtube.com/embed/2i0Cu8MMGRc" width="960" height="540" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 </center>
 </section>
 <section id="using-stm" class="slide level2" data-background-color="white">
@@ -782,12 +832,12 @@ Julia Silge
 <ul>
 <li>Document-level covariates</li>
 </ul>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-20_8dd7bc52ba187f5b1bb030642ef76e04">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(words_sparse, </span>
-<span id="cb17-2"><a href="#cb17-2"></a>                   <span class="at">K =</span> <span class="dv">0</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>,</span>
-<span id="cb17-3"><a href="#cb17-3"></a>                   <span class="at">prevalence =</span> <span class="sc">~</span><span class="fu">s</span>(Year),</span>
-<span id="cb17-4"><a href="#cb17-4"></a>                   <span class="at">data =</span> covariates,</span>
-<span id="cb17-5"><a href="#cb17-5"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-22_08473de368fc7d3f5e10f07e11c59aab">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>topic_model <span class="ot">&lt;-</span> <span class="fu">stm</span>(words_sparse, </span>
+<span id="cb19-2"><a href="#cb19-2"></a>                   <span class="at">K =</span> <span class="dv">0</span>, <span class="at">init.type =</span> <span class="st">"Spectral"</span>,</span>
+<span id="cb19-3"><a href="#cb19-3"></a>                   <span class="at">prevalence =</span> <span class="sc">~</span><span class="fu">s</span>(Year),</span>
+<span id="cb19-4"><a href="#cb19-4"></a>                   <span class="at">data =</span> covariates,</span>
+<span id="cb19-5"><a href="#cb19-5"></a>                   <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li><p>Use functions for <code>semanticCoherence()</code>, <code>checkResiduals()</code>, <code>exclusivity()</code>, and more!</p></li>
@@ -818,77 +868,77 @@ Julia Silge
 </section>
 <section id="train-many-topic-models" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-21_de87b9c8dbc4ca7d594a45ce8fedbd2b">
-<div class="sourceCode cell-code" id="cb18" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="fu">library</span>(furrr)</span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="fu">plan</span>(multicore)</span>
-<span id="cb18-3"><a href="#cb18-3"></a></span>
-<span id="cb18-4"><a href="#cb18-4"></a>many_models <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">K =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb18-5"><a href="#cb18-5"></a>    <span class="fu">mutate</span>(<span class="at">topic_model =</span> <span class="fu">future_map</span>(</span>
-<span id="cb18-6"><a href="#cb18-6"></a>        K, <span class="sc">~</span><span class="fu">stm</span>(words_sparse, <span class="at">K =</span> ., <span class="at">verbose =</span> <span class="cn">FALSE</span>))</span>
-<span id="cb18-7"><a href="#cb18-7"></a>    )</span>
-<span id="cb18-8"><a href="#cb18-8"></a></span>
-<span id="cb18-9"><a href="#cb18-9"></a>many_models</span>
-<span id="cb18-10"><a href="#cb18-10"></a><span class="co">#&gt; # A tibble: 5 × 2</span></span>
-<span id="cb18-11"><a href="#cb18-11"></a><span class="co">#&gt;       K topic_model</span></span>
-<span id="cb18-12"><a href="#cb18-12"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;list&gt;     </span></span>
-<span id="cb18-13"><a href="#cb18-13"></a><span class="co">#&gt; 1     3 &lt;STM&gt;      </span></span>
-<span id="cb18-14"><a href="#cb18-14"></a><span class="co">#&gt; 2     4 &lt;STM&gt;      </span></span>
-<span id="cb18-15"><a href="#cb18-15"></a><span class="co">#&gt; 3     6 &lt;STM&gt;      </span></span>
-<span id="cb18-16"><a href="#cb18-16"></a><span class="co">#&gt; 4     8 &lt;STM&gt;      </span></span>
-<span id="cb18-17"><a href="#cb18-17"></a><span class="co">#&gt; 5    10 &lt;STM&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-23_9e41bf10becd60ea9cae6bc2bfaf8cb0">
+<div class="sourceCode cell-code" id="cb20" data-code-line-numbers="|4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">library</span>(furrr)</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="fu">plan</span>(multicore)</span>
+<span id="cb20-3"><a href="#cb20-3"></a></span>
+<span id="cb20-4"><a href="#cb20-4"></a>many_models <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">K =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-5"><a href="#cb20-5"></a>    <span class="fu">mutate</span>(<span class="at">topic_model =</span> <span class="fu">future_map</span>(</span>
+<span id="cb20-6"><a href="#cb20-6"></a>        K, <span class="sc">~</span><span class="fu">stm</span>(words_sparse, <span class="at">K =</span> ., <span class="at">verbose =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb20-7"><a href="#cb20-7"></a>    )</span>
+<span id="cb20-8"><a href="#cb20-8"></a></span>
+<span id="cb20-9"><a href="#cb20-9"></a>many_models</span>
+<span id="cb20-10"><a href="#cb20-10"></a><span class="co">#&gt; # A tibble: 5 × 2</span></span>
+<span id="cb20-11"><a href="#cb20-11"></a><span class="co">#&gt;       K topic_model</span></span>
+<span id="cb20-12"><a href="#cb20-12"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;list&gt;     </span></span>
+<span id="cb20-13"><a href="#cb20-13"></a><span class="co">#&gt; 1     3 &lt;STM&gt;      </span></span>
+<span id="cb20-14"><a href="#cb20-14"></a><span class="co">#&gt; 2     4 &lt;STM&gt;      </span></span>
+<span id="cb20-15"><a href="#cb20-15"></a><span class="co">#&gt; 3     6 &lt;STM&gt;      </span></span>
+<span id="cb20-16"><a href="#cb20-16"></a><span class="co">#&gt; 4     8 &lt;STM&gt;      </span></span>
+<span id="cb20-17"><a href="#cb20-17"></a><span class="co">#&gt; 5    10 &lt;STM&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="train-many-topic-models-1" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-22_8f9e4731c526ded4d38b233494506337">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>heldout <span class="ot">&lt;-</span> <span class="fu">make.heldout</span>(words_sparse)</span>
-<span id="cb19-2"><a href="#cb19-2"></a></span>
-<span id="cb19-3"><a href="#cb19-3"></a>k_result <span class="ot">&lt;-</span> many_models <span class="sc">%&gt;%</span></span>
-<span id="cb19-4"><a href="#cb19-4"></a>    <span class="fu">mutate</span>(<span class="at">exclusivity        =</span> <span class="fu">map</span>(topic_model, exclusivity),</span>
-<span id="cb19-5"><a href="#cb19-5"></a>           <span class="at">semantic_coherence =</span> <span class="fu">map</span>(topic_model, semanticCoherence, words_sparse),</span>
-<span id="cb19-6"><a href="#cb19-6"></a>           <span class="at">eval_heldout       =</span> <span class="fu">map</span>(topic_model, eval.heldout, heldout<span class="sc">$</span>missing),</span>
-<span id="cb19-7"><a href="#cb19-7"></a>           <span class="at">residual           =</span> <span class="fu">map</span>(topic_model, checkResiduals, words_sparse),</span>
-<span id="cb19-8"><a href="#cb19-8"></a>           <span class="at">bound              =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">max</span>(x<span class="sc">$</span>convergence<span class="sc">$</span>bound)),</span>
-<span id="cb19-9"><a href="#cb19-9"></a>           <span class="at">lfact              =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">lfactorial</span>(x<span class="sc">$</span>settings<span class="sc">$</span>dim<span class="sc">$</span>K)),</span>
-<span id="cb19-10"><a href="#cb19-10"></a>           <span class="at">lbound             =</span> bound <span class="sc">+</span> lfact,</span>
-<span id="cb19-11"><a href="#cb19-11"></a>           <span class="at">iterations         =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">length</span>(x<span class="sc">$</span>convergence<span class="sc">$</span>bound)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-24_e4d18f1d6c7cf58c8417a2f7942f0bb2">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>heldout <span class="ot">&lt;-</span> <span class="fu">make.heldout</span>(words_sparse)</span>
+<span id="cb21-2"><a href="#cb21-2"></a></span>
+<span id="cb21-3"><a href="#cb21-3"></a>k_result <span class="ot">&lt;-</span> many_models <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a>    <span class="fu">mutate</span>(<span class="at">exclusivity        =</span> <span class="fu">map</span>(topic_model, exclusivity),</span>
+<span id="cb21-5"><a href="#cb21-5"></a>           <span class="at">semantic_coherence =</span> <span class="fu">map</span>(topic_model, semanticCoherence, words_sparse),</span>
+<span id="cb21-6"><a href="#cb21-6"></a>           <span class="at">eval_heldout       =</span> <span class="fu">map</span>(topic_model, eval.heldout, heldout<span class="sc">$</span>missing),</span>
+<span id="cb21-7"><a href="#cb21-7"></a>           <span class="at">residual           =</span> <span class="fu">map</span>(topic_model, checkResiduals, words_sparse),</span>
+<span id="cb21-8"><a href="#cb21-8"></a>           <span class="at">bound              =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">max</span>(x<span class="sc">$</span>convergence<span class="sc">$</span>bound)),</span>
+<span id="cb21-9"><a href="#cb21-9"></a>           <span class="at">lfact              =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">lfactorial</span>(x<span class="sc">$</span>settings<span class="sc">$</span>dim<span class="sc">$</span>K)),</span>
+<span id="cb21-10"><a href="#cb21-10"></a>           <span class="at">lbound             =</span> bound <span class="sc">+</span> lfact,</span>
+<span id="cb21-11"><a href="#cb21-11"></a>           <span class="at">iterations         =</span> <span class="fu">map_dbl</span>(topic_model, <span class="cf">function</span>(x) <span class="fu">length</span>(x<span class="sc">$</span>convergence<span class="sc">$</span>bound)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="train-many-topic-models-2" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-23_a7781f339cead807f1967812731b0fa8">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>k_result</span>
-<span id="cb20-2"><a href="#cb20-2"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
-<span id="cb20-3"><a href="#cb20-3"></a><span class="co">#&gt;       K topic_…¹ exclu…² seman…³ eval_heldout residual       bound lfact  lbound</span></span>
-<span id="cb20-4"><a href="#cb20-4"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;list&gt;   &lt;list&gt;  &lt;list&gt;  &lt;list&gt;       &lt;list&gt;         &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
-<span id="cb20-5"><a href="#cb20-5"></a><span class="co">#&gt; 1     3 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.40e6  1.79 -1.40e6</span></span>
-<span id="cb20-6"><a href="#cb20-6"></a><span class="co">#&gt; 2     4 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.39e6  3.18 -1.39e6</span></span>
-<span id="cb20-7"><a href="#cb20-7"></a><span class="co">#&gt; 3     6 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.37e6  6.58 -1.37e6</span></span>
-<span id="cb20-8"><a href="#cb20-8"></a><span class="co">#&gt; 4     8 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.35e6 10.6  -1.35e6</span></span>
-<span id="cb20-9"><a href="#cb20-9"></a><span class="co">#&gt; 5    10 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.34e6 15.1  -1.34e6</span></span>
-<span id="cb20-10"><a href="#cb20-10"></a><span class="co">#&gt; # … with 1 more variable: iterations &lt;dbl&gt;, and abbreviated variable names</span></span>
-<span id="cb20-11"><a href="#cb20-11"></a><span class="co">#&gt; #   ¹​topic_model, ²​exclusivity, ³​semantic_coherence</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-25_535b9758c2288ae6cea82524f001e099">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>k_result</span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="co">#&gt; # A tibble: 5 × 10</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="co">#&gt;       K topic_…¹ exclu…² seman…³ eval_heldout residual       bound lfact  lbound</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;list&gt;   &lt;list&gt;  &lt;list&gt;  &lt;list&gt;       &lt;list&gt;         &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a><span class="co">#&gt; 1     3 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.40e6  1.79 -1.40e6</span></span>
+<span id="cb22-6"><a href="#cb22-6"></a><span class="co">#&gt; 2     4 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.39e6  3.18 -1.39e6</span></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="co">#&gt; 3     6 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.37e6  6.58 -1.37e6</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a><span class="co">#&gt; 4     8 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.35e6 10.6  -1.35e6</span></span>
+<span id="cb22-9"><a href="#cb22-9"></a><span class="co">#&gt; 5    10 &lt;STM&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;named list&gt; &lt;named list&gt; -1.34e6 15.1  -1.34e6</span></span>
+<span id="cb22-10"><a href="#cb22-10"></a><span class="co">#&gt; # … with 1 more variable: iterations &lt;dbl&gt;, and abbreviated variable names</span></span>
+<span id="cb22-11"><a href="#cb22-11"></a><span class="co">#&gt; #   ¹​topic_model, ²​exclusivity, ³​semantic_coherence</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="train-many-topic-models-3" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-24_f9bc702f73bdc9fea0964e9d93e9a880">
-<div class="sourceCode cell-code" id="cb21" data-code-line-numbers="|4|5|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>k_result <span class="sc">%&gt;%</span></span>
-<span id="cb21-2"><a href="#cb21-2"></a>    <span class="fu">transmute</span>(K,</span>
-<span id="cb21-3"><a href="#cb21-3"></a>              <span class="st">`</span><span class="at">Lower bound</span><span class="st">`</span>         <span class="ot">=</span> lbound,</span>
-<span id="cb21-4"><a href="#cb21-4"></a>              <span class="at">Residuals             =</span> <span class="fu">map_dbl</span>(residual, <span class="st">"dispersion"</span>), </span>
-<span id="cb21-5"><a href="#cb21-5"></a>              <span class="st">`</span><span class="at">Semantic coherence</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">map_dbl</span>(semantic_coherence, mean), </span>
-<span id="cb21-6"><a href="#cb21-6"></a>              <span class="st">`</span><span class="at">Held-out likelihood</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">map_dbl</span>(eval_heldout, <span class="st">"expected.heldout"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb21-7"><a href="#cb21-7"></a>    <span class="fu">gather</span>(Metric, Value, <span class="sc">-</span>K) <span class="sc">%&gt;%</span></span>
-<span id="cb21-8"><a href="#cb21-8"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(K, Value, <span class="at">color =</span> Metric)) <span class="sc">+</span></span>
-<span id="cb21-9"><a href="#cb21-9"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
-<span id="cb21-10"><a href="#cb21-10"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>Metric, <span class="at">scales =</span> <span class="st">"free_y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-26_6879777830be0f9a9018ca4df9aecc3e">
+<div class="sourceCode cell-code" id="cb23" data-code-line-numbers="|4|5|6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>k_result <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>    <span class="fu">transmute</span>(K,</span>
+<span id="cb23-3"><a href="#cb23-3"></a>              <span class="st">`</span><span class="at">Lower bound</span><span class="st">`</span>         <span class="ot">=</span> lbound,</span>
+<span id="cb23-4"><a href="#cb23-4"></a>              <span class="at">Residuals             =</span> <span class="fu">map_dbl</span>(residual, <span class="st">"dispersion"</span>), </span>
+<span id="cb23-5"><a href="#cb23-5"></a>              <span class="st">`</span><span class="at">Semantic coherence</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">map_dbl</span>(semantic_coherence, mean), </span>
+<span id="cb23-6"><a href="#cb23-6"></a>              <span class="st">`</span><span class="at">Held-out likelihood</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">map_dbl</span>(eval_heldout, <span class="st">"expected.heldout"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-7"><a href="#cb23-7"></a>    <span class="fu">gather</span>(Metric, Value, <span class="sc">-</span>K) <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(K, Value, <span class="at">color =</span> Metric)) <span class="sc">+</span></span>
+<span id="cb23-9"><a href="#cb23-9"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb23-10"><a href="#cb23-10"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>Metric, <span class="at">scales =</span> <span class="st">"free_y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="section-6" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-25-1.png" width="3000" class="r-stretch quarto-figure-center"><div class="footer">
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-27-1.png" width="3000" class="r-stretch quarto-figure-center"><div class="footer">
 
 </div>
 </section>
@@ -905,20 +955,20 @@ Julia Silge
 </section>
 <section id="train-many-topic-models-4" class="slide level2" data-background-color="white">
 <h2>Train many topic models</h2>
-<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-26_8a5556c9861e65b2a4db7beae2e418ac">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>k_result <span class="sc">%&gt;%</span></span>
-<span id="cb22-2"><a href="#cb22-2"></a>    <span class="fu">select</span>(K, exclusivity, semantic_coherence) <span class="sc">%&gt;%</span></span>
-<span id="cb22-3"><a href="#cb22-3"></a>    <span class="fu">filter</span>(K <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb22-4"><a href="#cb22-4"></a>    <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(exclusivity, semantic_coherence)) <span class="sc">%&gt;%</span></span>
-<span id="cb22-5"><a href="#cb22-5"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(semantic_coherence, exclusivity, </span>
-<span id="cb22-6"><a href="#cb22-6"></a>               <span class="at">color =</span> <span class="fu">factor</span>(K))) <span class="sc">+</span></span>
-<span id="cb22-7"><a href="#cb22-7"></a>    <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="03-topic-models_cache/revealjs/unnamed-chunk-28_bbb3c9f95969c68bd243b142de876ad7">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>k_result <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a>    <span class="fu">select</span>(K, exclusivity, semantic_coherence) <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3"></a>    <span class="fu">filter</span>(K <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">10</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>    <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(exclusivity, semantic_coherence)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(semantic_coherence, exclusivity, </span>
+<span id="cb24-6"><a href="#cb24-6"></a>               <span class="at">color =</span> <span class="fu">factor</span>(K))) <span class="sc">+</span></span>
+<span id="cb24-7"><a href="#cb24-7"></a>    <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="section-7" class="slide level2" data-background-color="white">
 <h2></h2>
 
-<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-27-1.png" width="2100" class="r-stretch quarto-figure-center"></section>
+<img data-src="03-topic-models_files/figure-revealjs/unnamed-chunk-29-1.png" width="2100" class="r-stretch quarto-figure-center"></section>
 <section id="jane-wants-to-know-2" class="slide level2" data-transition="slide-in">
 <h2>Jane wants to know…</h2>
 <p><img data-src="figs/blue_jane.png" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>

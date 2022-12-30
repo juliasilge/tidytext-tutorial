@@ -375,7 +375,7 @@
     "href": "slides/02-more-eda.html#jane-wants-to-know",
     "title": "Text Mining",
     "section": "Jane wants to know…",
-    "text": "Jane wants to know…\n\nCan we use an anti_join() right away to remove stop words?\n\nYes! ✅\nNo ☹️"
+    "text": "Jane wants to know…\n\nCan we use an anti_join() now to remove stop words?\n\nYes! ✅\nNo ☹️"
   },
   {
     "objectID": "slides/02-more-eda.html#n-grams-and-beyond-4",
@@ -676,7 +676,7 @@
     "href": "slides/04-sml-text.html#section-1",
     "title": "Text Mining",
     "section": "",
-    "text": "library(tidymodels)"
+    "text": "library(tidymodels)\n#> ── Attaching packages ────────────────────────────────────── tidymodels 1.0.0 ──\n#> ✔ broom        1.0.2     ✔ rsample      1.1.1\n#> ✔ dials        1.1.0     ✔ tune         1.0.1\n#> ✔ infer        1.0.4     ✔ workflows    1.1.2\n#> ✔ modeldata    1.0.1     ✔ workflowsets 1.0.0\n#> ✔ parsnip      1.0.3     ✔ yardstick    1.1.0\n#> ✔ recipes      1.0.3\n#> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──\n#> ✖ scales::discard() masks purrr::discard()\n#> ✖ dplyr::filter()   masks stats::filter()\n#> ✖ recipes::fixed()  masks stringr::fixed()\n#> ✖ dplyr::lag()      masks stats::lag()\n#> ✖ yardstick::spec() masks readr::spec()\n#> ✖ recipes::step()   masks stats::step()\n#> • Use tidymodels_prefer() to resolve common conflicts."
   },
   {
     "objectID": "slides/04-sml-text.html#learn-more",
@@ -957,5 +957,19 @@
     "title": "Text Mining",
     "section": "Go explore real-world text!",
     "text": "Go explore real-world text!"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#high-frex-words",
+    "href": "slides/03-topic-models.html#high-frex-words",
+    "title": "Text Mining",
+    "section": "High FREX words",
+    "text": "High FREX words\nHigh frequency and high exclusivity\n\ntidy(topic_model, matrix = \"frex\")\n#> # A tibble: 73,480 × 2\n#>    topic term    \n#>    <int> <chr>   \n#>  1     1 charade \n#>  2     1 taylor  \n#>  3     1 papa    \n#>  4     1 isabella\n#>  5     1 martin  \n#>  6     1 children\n#>  7     1 marry   \n#>  8     1 pretty  \n#>  9     1 likeness\n#> 10     1 marriage\n#> # … with 73,470 more rows"
+  },
+  {
+    "objectID": "slides/03-topic-models.html#high-lift-words",
+    "href": "slides/03-topic-models.html#high-lift-words",
+    "title": "Text Mining",
+    "section": "High lift words",
+    "text": "High lift words\nTopic-word distribution divided by word count distribution\n\ntidy(topic_model, matrix = \"lift\")\n#> # A tibble: 73,480 × 2\n#>    topic term       \n#>    <int> <chr>      \n#>  1     1 charade    \n#>  2     1 monarch    \n#>  3     1 hannah     \n#>  4     1 hating     \n#>  5     1 humours    \n#>  6     1 militia    \n#>  7     1 widower    \n#>  8     1 likenesses \n#>  9     1 subjection \n#> 10     1 _courtship_\n#> # … with 73,470 more rows"
   }
 ]
